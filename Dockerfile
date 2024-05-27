@@ -20,7 +20,7 @@ RUN cd ros2_ws && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build
 
-COPY ros_entrypoint.sh /
+ADD ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
