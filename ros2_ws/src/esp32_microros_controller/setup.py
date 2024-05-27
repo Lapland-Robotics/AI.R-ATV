@@ -20,7 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "esp32_node = esp32_microros_controller.esp32_microros_controller:main"
+            "esp32_controller_node = esp32_microros_controller.esp32_microros_controller:main"
         ],
     },
 )

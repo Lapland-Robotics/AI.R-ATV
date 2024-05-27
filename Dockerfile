@@ -24,7 +24,7 @@ COPY ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
-CMD ["ros2", "run", "esp32_microros_controller", "esp32_node"]
+CMD ["ros2", "run", "esp32_microros_controller", "esp32_controller_node"]
+
 # launch ros package
 # CMD ["sleep", "infinity"]
-
