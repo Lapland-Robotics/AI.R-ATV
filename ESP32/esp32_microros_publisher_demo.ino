@@ -41,7 +41,7 @@ void timer_callback(rcl_timer_t * timer, int64_t last_call_time)
 }
 
 void setup() {
-  set_microros_wifi_transports("Sohan_A54", "1234098765", "192.168.22.38", 8888);
+  set_microros_wifi_transports("<SSID>", "<password>", "<ros2machineip>", "<port>");
 
   pinMode(LED_PIN, OUTPUT);
   digitalWrite(LED_PIN, HIGH);
