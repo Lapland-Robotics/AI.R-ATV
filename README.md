@@ -1,8 +1,11 @@
 # AI.R-ATV
-This is ROS2-based software program designed to control ATVs.
+This is a ROS2-based software program designed to control ATVs.
 
-## Build the docker image
-docker build -t atv_docker .
+## Microcontroller Program - ESP32 directory
+Low-level function and MicroROS Agent
 
-## Run the docker image
-docker run -p 8888:8888/udp -it --rm atv_docker
+## Main Brain - Jetson directory
+High-level functions like decision making and pathfinding algorithms of the ATV.
+
+## Documentation
+All the Documents and diagrams are under the doc directory

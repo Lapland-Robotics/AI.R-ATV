@@ -1,4 +1,6 @@
 # Arduino sketch for ATV Interface (ESP32)
+
+
 ## Install Arduino IDE
 You can use _Ubuntu Sofware_ -application for installing Arduino IDE
 or follow:
@@ -9,7 +11,17 @@ or:
 
 [https://ubuntu.com/tutorials/install-the-arduino-ide#1-overview](https://ubuntu.com/tutorials/install-the-arduino-ide#1-overview)
 
-## Install ros_lib into the Arduino Environment
+
+## Arduino IDE configuration 
+You have to make following changes in Arduino IDE to make code work:
+1. Board: BoardManager: "esp32" version 1.0.6 then use Board "ESP32 Dev Module" Otherwise you get an error along the lines of "mismatched rosserial version error (e.g. having rosserial melodic and ros noetic")
+2. in library manager, use ESP32TimerInterrupt version 1.5.0
+3. in library manager, use ROSserial version 0.9.1
+4. Go here https://github.com/enwaytech/ros_lib_arduino/tree/master,download ZIP, and then move ackermann_msgs folder from src folder
+to "C:\ArduinoIDE\libraries\Rosserial_Arduino_Library\src" or wherever your Arduino IDE library folder is located
+
+
+## Make ros_lib into the Arduino Environment without download
 [http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup](http://wiki.ros.org/rosserial_arduino/Tutorials/Arduino%20IDE%20Setup)
 
 The preceding installation steps created the necessary libraries, now the following will create the ros_lib folder that the Arduino build environment needs to enable Arduino programs to interact with ROS.
@@ -23,14 +35,15 @@ $ rosrun rosserial_arduino make_libraries.py ros_lib
 ```
 *Note: Currently you can install the Arduino libaries directly in the Arduino IDE. Just open the Library Manager from the IDE menu in Sketch -> Include Library -> Manage Library. Then search for "rosserial". This is useful if you need to work on an Arduino sketch but don't want to setup a full ROS workstation.
 
-  
+
 ## General Notes when using ESP32 and rosserial in ESP32
-  
+
+
 ## ESP32 HW Timer
 ```
 #include "ESP32TimerInterrupt.h"
 ``` 
-  
+
 ## ESP32 rebooting when Arduino IDE ROS libraries used:
 Serial port monitor show:
   
@@ -79,8 +92,10 @@ with this:
 #endif
 ```
 
+
 ## CHANGE ROSSERIAL BAUD RATE
 You have to change parameters in ArduinoHardware.h in ros_lib.
+
 
 ## Jetson Nano UART: (THIS WONT WORK, DON'T WASTE YOUR TIME)
 Before You Start
