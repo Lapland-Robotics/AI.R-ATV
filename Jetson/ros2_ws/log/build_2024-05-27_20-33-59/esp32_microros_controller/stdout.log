@@ -1,0 +1,35 @@
+running egg_info
+creating ../../build/esp32_microros_controller/esp32_microros_controller.egg-info
+writing ../../build/esp32_microros_controller/esp32_microros_controller.egg-info/PKG-INFO
+writing dependency_links to ../../build/esp32_microros_controller/esp32_microros_controller.egg-info/dependency_links.txt
+writing entry points to ../../build/esp32_microros_controller/esp32_microros_controller.egg-info/entry_points.txt
+writing requirements to ../../build/esp32_microros_controller/esp32_microros_controller.egg-info/requires.txt
+writing top-level names to ../../build/esp32_microros_controller/esp32_microros_controller.egg-info/top_level.txt
+writing manifest file '../../build/esp32_microros_controller/esp32_microros_controller.egg-info/SOURCES.txt'
+reading manifest file '../../build/esp32_microros_controller/esp32_microros_controller.egg-info/SOURCES.txt'
+writing manifest file '../../build/esp32_microros_controller/esp32_microros_controller.egg-info/SOURCES.txt'
+running build
+running build_py
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib/esp32_microros_controller
+copying esp32_microros_controller/esp32_microros_controller.py -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib/esp32_microros_controller
+copying esp32_microros_controller/__init__.py -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib/esp32_microros_controller
+running install
+running install_lib
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller
+copying /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib/esp32_microros_controller/esp32_microros_controller.py -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller
+copying /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/build/lib/esp32_microros_controller/__init__.py -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller
+byte-compiling /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller/esp32_microros_controller.py to esp32_microros_controller.cpython-310.pyc
+byte-compiling /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller/__init__.py to __init__.cpython-310.pyc
+running install_data
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/share/ament_index
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/share/ament_index/resource_index
+creating /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/share/ament_index/resource_index/packages
+copying resource/esp32_microros_controller -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/share/ament_index/resource_index/packages
+copying package.xml -> /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/share/esp32_microros_controller
+running install_egg_info
+Copying ../../build/esp32_microros_controller/esp32_microros_controller.egg-info to /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/python3.10/site-packages/esp32_microros_controller-0.0.0-py3.10.egg-info
+running install_scripts
+Installing esp32_node script to /home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/install/esp32_microros_controller/lib/esp32_microros_controller
+writing list of installed files to '/home/sohan-lapinamk/repos/AI.R-ATV/ros2_ws/build/esp32_microros_controller/install.log'
