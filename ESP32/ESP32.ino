@@ -6,7 +6,7 @@
  *  THERE CAN BE POTENTIALLY
  *  HAZARDOUS RISK/UNDESIRED MOTOR OUTPUT!!!
  */
-
+#include <stdio.h>
 #include <ros.h>
 #include <std_msgs/String.h>
 #include <ackermann_msgs/AckermannDriveStamped.h>
@@ -33,7 +33,7 @@
 #define RC_Scaler 10     // Dummy engineer divider for scale RC signal to 0(neg max) - 50(middlepoint) - 100(pos max) => (RC_input - RC_min)/RC_Scaler => (1500-1000)/10 = 50
 
 /* Constants for Steering  */
-#define Steering_Deadband 2      // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Deadband 3      // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50  // Steering Command Middle point
 #define Steering_Left_Limit 2    // Left direction limit value for Steering Pot
 #define Steering_Right_Limit 98  // Right direction limit value for Steering Pot
@@ -76,54 +76,52 @@
 //#define ROS_Interval 1000  // FOR DEBUGING VIA SERIAL PORT
 #define ROS_Interval 200            // ROS Commands update interval in milli second [ms]
 #define ROS_Max_Missing_Packets 10  // How many (ROS_Interval) subsequent ROS command not receive and then reject ROS control, If ROS_Interval = 100 ms and ROS_Max_Missing_Packets = 10 than Max silent time is 100 ms * 10 = 1s
-#define DrivingPWMMaxDutyCycle 1023  // NOTE! The maximum value of duty is 2^resolution-1, 2^10-1 = 1023
 #define Driving_Speed_Duty_Coef 20   // Dummy engineer Coefficient for scale PWM duty cycle
 
 
-/*Objects related to ros topics*/
+/* ROS topics related variables*/
 std_msgs::String debug_string;                          // Debug String
 ackermann_msgs::AckermannDriveStamped ROS_ControlState; // ROS_ControlState (ackermann message) = Measures Steering Angle(float32, radians), Measured Speed (m/s)
 ros::NodeHandle nh;                                     // ROS Node Handle "nh"
 ros::Publisher State("atv_state", &ROS_ControlState);   // ATV State Publisher
 ros::Publisher Debug("debug", &debug_string);           // debug string Publisher
 
-// Init ESP32 timers
+/* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
 
-// Time variables
+/* Time variables */
 unsigned long Current_Time = 0;   // Time now in milli seconds [ms]
 unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
-// Variables for RC "pwm reading"
+/* Variables for RC "pwm reading" */
 unsigned long rc_time;    // store current time for RC measurement
 unsigned long rc_update;  // previous time of RC measurement
-int RC_in[RC_input_Count];  // an array to store the calibrated input from receiver
 boolean RC_Disable = 0;     // Disable RC control
+int RC_in[RC_input_Count];  // an array to store the calibrated input from receiver
 //const int channels = 2;             // specify the number of receiver channels
 
-// Variables for Driving
+/* Variables for Driving */
 volatile boolean Driving_Enable = 0;           // Enabling or disabling Driving (volatile because use in interrupt)
 volatile boolean Driving_Direction;            // Driving Direction 0 = Reverse and 1 = Forward (volatile because use in interrupt)
 long Driving_Speed_Request = 50;  // Requested Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
 long Driving_SpeedPWM_DutyCycle;  // PWM Duty Cycle for Driving motor controlle, 0 stop
 
-// Variables for Speed measurement and Odometry calculation
+/* Variables for Speed measurement and Odometry calculation */
 volatile long FR_Wheel_Pulses = 0;       // Front Right Wheel Pulse count (volatile because use in interrupt)
 volatile long FL_Wheel_Pulses = 0;       // Front Left Wheel Pulse count (volatile because use in interrupt)
 volatile float Odometry = 0.0;           // Odometry value, calculated from front wheels in millimeters [mm]. NOTE! REVERSE DECREASE ODOMETRY (volatile because use in interrupt)
 volatile float Previous_Odometry = 0.0;  // Previous Odometry value (volatile because use in interrupt)
 
-// Setting Driving PWM Properties
+/* Setting Driving PWM Properties */
 const int Driving_PWMFreq = 1000;      // 1000Hz
 const int Driving_PWMChannel = 0;      // Channel 0, 16 channels in total, 0-15
 const int Driving_PWMResolution = 10;  // Resolution, the value is 0-20
 
-// Variables for Steering
+/* Variables for Steering */
 long Steering_AD_Value = 2047;
 long Steering_Potentiometer = 50;  // store the value read (ADC)
 long Steering_Request = 50;        // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
-int Steering_Precision = 2;
 volatile long Steering_Difference = 0;  // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
@@ -189,6 +187,8 @@ void Driving() {
   }
   digitalWrite(DrivingDirPin, Driving_Direction);
 }
+
+
 // Safety Switch subroutine (interrupted)
 void Safety_Switch() {
   Safety_SW_State = digitalRead(SafetySWPin);
@@ -316,11 +316,29 @@ void setup() {
   nh.advertise(Debug);
 }
 
+/*Genarate debug String and push to the topic*/
+void generate_debug_data(){
 
-void loop() {
-  debug_string.data = "Arctic AI & Robotics";
+  char *variable_names[] = {"Steering_Potentiometer", "Steering_Request"}; // names of the variables
+  long *variable_reference[] = {&Steering_Potentiometer, &Steering_Request}; // reference of the variables
+
+  char final_string[256] = "";
+  char buffer[128];
+
+  for(int i = 0; i < 2; i++) {
+    snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
+    strcat(final_string, buffer);
+  }
+
+  debug_string.data = final_string;
   Debug.publish(&debug_string);
   nh.spinOnce();
+}
+
+
+void loop() {
+
+  generate_debug_data();
 
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
@@ -370,6 +388,7 @@ void loop() {
 #else                                                        // Simulation
 #define State1 Safety_SW_State == 0                          // Safety Switch OK
 #endif
+
   if (State1) {
     if (Steering_Difference > Steering_Deadband) {
       Steering();
