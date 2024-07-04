@@ -73,6 +73,8 @@
 #define RC_Minimum 1000  // RC minimum is 1000us
 #define RC_Scaler 10     // Dummy engineer divider for scale RC signal to 0(neg max) - 50(middlepoint) - 100(pos max) => (RC_input - RC_min)/RC_Scaler => (1500-1000)/10 = 50
 
+/* ROS SIMULATOR WITHOUT REAL INTERFACE TO ATV */
+//#define Simulation    // Compiler directives for simulation or not
 
 float ROS_Speed_Command = 0.0;             // AckermannDriveStamped.drive.speed is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse)
 volatile float ROS_Speed_Measured = 0.0;   // Measured drive speed (send via ROSserial)is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse) (volatile because use in interrupt)
