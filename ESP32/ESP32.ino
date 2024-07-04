@@ -16,24 +16,24 @@
 
 
 /* ESP32 pin definition */
-#define SteeringDirPin 12       // Steering Motor Direction
-#define SteeringPulsePin 13     // Steering Motor drive pulse
-#define SteeringEnablePin 9     // Steering Motor Enable, Outside leads to ground and +5V
-#define SteeringPotPin 36       // Potentiometer wiper (middle terminal) connected to analog pin 0
-#define SteeringLimitSWPin 33   // Hall-sensor input for Limit steering angle
-#define DrivingDirPin 25        // Direction output for Driver motor controlle
-#define DrivingSpeedPWMPin 26   // Speed output for Driver motor controller
-#define DrivingEnablePin 27     // Driving Motor Controller enable (NOT IN USE)
-#define FRWheelPulsePin 15      // Front Right Wheel rotation pulse, Use Hall Sensor with 8 magnets
-#define FLWheelPulsePin 4       // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
-#define HWIsolatorEnablePin 2   // Constant for Hardware control. Enable or disable Isolator IC's on PCB
-#define SafetySWPin 32          // Safety HW If '0' = safe
+#define SteeringDirPin 12      // Steering Motor Direction
+#define SteeringPulsePin 13    // Steering Motor drive pulse
+#define SteeringEnablePin 9    // Steering Motor Enable, Outside leads to ground and +5V
+#define SteeringPotPin 36      // Potentiometer wiper (middle terminal) connected to analog pin 0
+#define SteeringLimitSWPin 33  // Hall-sensor input for Limit steering angle
+#define DrivingDirPin 25       // Direction output for Driver motor controlle
+#define DrivingSpeedPWMPin 26  // Speed output for Driver motor controller
+#define DrivingEnablePin 27    // Driving Motor Controller enable (NOT IN USE)
+#define FRWheelPulsePin 15     // Front Right Wheel rotation pulse, Use Hall Sensor with 8 magnets
+#define FLWheelPulsePin 4      // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
+#define HWIsolatorEnablePin 2  // Constant for Hardware control. Enable or disable Isolator IC's on PCB
+#define SafetySWPin 32         // Safety HW If '0' = safe
 
 /* Constants for Steering  */
-#define Steering_Deadband 3      // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
-#define Steering_Middlepoint 50  // Steering Command Middle point
-#define Steering_Left_Limit 2    // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 98  // Right direction limit value for Steering Pot
+#define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Middlepoint 50   // Steering Command Middle point
+#define Steering_Left_Limit 2     // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 98   // Right direction limit value for Steering Pot
 #define Steering_Speed_Fast 900   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
 #define Steering_Speed_Slow 1200  // Change Steering Speed Slow (half pulse 3350 => 2*3350 = 6700)6700us ~ 150Hz
 #define Steering_Speed_Change 10  // Steering difference when change Steering Speed from Fast to Slow and vica verse
@@ -55,15 +55,15 @@
 #define ROS_Speed_Command_yIntercept 50.0
 
 /* Constants for Speed measurement and Odometry calculation  */
-#define Wheel_Circumference 900.0    // Wheels circumference in milli meters [mm]
-#define Wheel_Pulse_Magnet_Count 16  // Magnet count in one wheel for measuring wheel pulses
+#define Wheel_Circumference 900.0         // Wheels circumference in milli meters [mm]
+#define Wheel_Pulse_Magnet_Count 16       // Magnet count in one wheel for measuring wheel pulses
 #define Speed_Calculation_Interval 200.0  // Speed Calculation Interval in milli second [ms]
-//long Speed_Measured = 50;              // Measured Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
+//long Speed_Measured = 50;               // Measured Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
 
 //#define ROS_Interval 1000  // FOR DEBUGING VIA SERIAL PORT
 #define ROS_Interval 200            // ROS Commands update interval in milli second [ms]
 #define ROS_Max_Missing_Packets 10  // How many (ROS_Interval) subsequent ROS command not receive and then reject ROS control, If ROS_Interval = 100 ms and ROS_Max_Missing_Packets = 10 than Max silent time is 100 ms * 10 = 1s
-#define Driving_Speed_Duty_Coef 20   // Dummy engineer Coefficient for scale PWM duty cycle
+#define Driving_Speed_Duty_Coef 20  // Dummy engineer Coefficient for scale PWM duty cycle
 
 /* Dummy engineering constants for setting Slope and y-intercept for calculation: Real Speed(ROS_Speed_Measured) * Slope + y-intercept */
 #define Speed_Measurement_Slope 12.0  // Example 3m/s*12+50 = 86
@@ -74,42 +74,42 @@
 #define RC_Scaler 10     // Dummy engineer divider for scale RC signal to 0(neg max) - 50(middlepoint) - 100(pos max) => (RC_input - RC_min)/RC_Scaler => (1500-1000)/10 = 50
 
 
-float ROS_Speed_Command = 0.0;            // AckermannDriveStamped.drive.speed is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse)
-volatile float ROS_Speed_Measured = 0.0;  // Measured drive speed (send via ROSserial)is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse) (volatile because use in interrupt)
+float ROS_Speed_Command = 0.0;             // AckermannDriveStamped.drive.speed is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse)
+volatile float ROS_Speed_Measured = 0.0;   // Measured drive speed (send via ROSserial)is float32 and speed is in m/s, Positive = Forward and Negative Backward (Reverse) (volatile because use in interrupt)
 float ROS_Steering_Command = 0.0;          // AckermannDriveStamped.drive.steering_angle is float32 and steering angle in radians, Positive = Left and Negative = Right
 float ROS_Steering_Measured = 0.0;         // Measured steering angle (send via ROSserial) is float32 and steering angle in radians. Steering angle is real Wheel steering angle, not steppermotor angle! Positive = Left and Negative = Right.
 unsigned long ROS_Control_Command_ID = 0;  // Current ROS input ID (sequence ID: consecutively increasing ID)
 unsigned ROS_Missing_Packet_Count = 0;     // Counter to count Missing ROS subsequent packets
-volatile boolean Safety_SW_State = 1;          // State for Safety Switch (volatile because use in interrupt)
-const float Odometry_Coefficient = (Wheel_Circumference / Wheel_Pulse_Magnet_Count / 2);  // Odometry_Coefficient: Correlation between wheel pulse magnets and real tyre arc and divided by 2, because odometry is average from Left and Right wheels
+volatile boolean Safety_SW_State = 1;      // State for Safety Switch (volatile because use in interrupt)
 
 /* Variables for Steering */
 long Steering_AD_Value = 2047;
-long Steering_Potentiometer = 50;  // store the value read (ADC)
-long Steering_Request = 50;        // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
-volatile long Steering_Difference = 0;  // Difference between requested steering value and actual steering value (volatile because use in interrupt)
+long Steering_Potentiometer = 50;              // store the value read (ADC)
+long Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
+volatile long Steering_Difference = 0;         // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
 boolean Steering_Enable = 0;                   // Enabling or disabling steering
 boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
 
 /* Variables for Speed measurement and Odometry calculation */
-volatile long FR_Wheel_Pulses = 0;       // Front Right Wheel Pulse count (volatile because use in interrupt)
-volatile long FL_Wheel_Pulses = 0;       // Front Left Wheel Pulse count (volatile because use in interrupt)
-volatile float Odometry = 0.0;           // Odometry value, calculated from front wheels in millimeters [mm]. NOTE! REVERSE DECREASE ODOMETRY (volatile because use in interrupt)
-volatile float Previous_Odometry = 0.0;  // Previous Odometry value (volatile because use in interrupt)
+volatile long FR_Wheel_Pulses = 0;        // Front Right Wheel Pulse count (volatile because use in interrupt)
+volatile long FL_Wheel_Pulses = 0;        // Front Left Wheel Pulse count (volatile because use in interrupt)
+volatile float Odometry = 0.0;            // Odometry value, calculated from front wheels in millimeters [mm]. NOTE! REVERSE DECREASE ODOMETRY (volatile because use in interrupt)
+volatile float Previous_Odometry = 0.0;   // Previous Odometry value (volatile because use in interrupt)
+const float Odometry_Coefficient = (Wheel_Circumference / Wheel_Pulse_Magnet_Count / 2);  // Odometry_Coefficient: Correlation between wheel pulse magnets and real tyre arc and divided by 2, because odometry is average from Left and Right wheels
 
 /* Variables for Driving */
-volatile boolean Driving_Enable = 0;           // Enabling or disabling Driving (volatile because use in interrupt)
-volatile boolean Driving_Direction;            // Driving Direction 0 = Reverse and 1 = Forward (volatile because use in interrupt)
-long Driving_Speed_Request = 50;  // Requested Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
-long Driving_SpeedPWM_DutyCycle;  // PWM Duty Cycle for Driving motor controlle, 0 stop
+volatile boolean Driving_Enable = 0;  // Enabling or disabling Driving (volatile because use in interrupt)
+volatile boolean Driving_Direction;   // Driving Direction 0 = Reverse and 1 = Forward (volatile because use in interrupt)
+long Driving_Speed_Request = 50;      // Requested Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
+long Driving_SpeedPWM_DutyCycle;      // PWM Duty Cycle for Driving motor controlle, 0 stop
 
 /* Variables for RC "pwm reading" */
 int RC_in[RC_input_Count];  // an array to store the calibrated input from receiver
 boolean RC_Disable = 0;     // Disable RC control
-unsigned long rc_time;    // store current time for RC measurement
-unsigned long rc_update;  // previous time of RC measurement
+unsigned long rc_time;      // store current time for RC measurement
+unsigned long rc_update;    // previous time of RC measurement
 
 /* Setting Driving PWM Properties */
 const int Driving_PWMFreq = 1000;      // 1000Hz
@@ -121,11 +121,11 @@ unsigned long Current_Time = 0;   // Time now in milli seconds [ms]
 unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
 /* ROS topics related variables*/
-std_msgs::String debug_string;                          // Debug String
-ackermann_msgs::AckermannDriveStamped ROS_ControlState; // ROS_ControlState (ackermann message) = Measures Steering Angle(float32, radians), Measured Speed (m/s)
-ros::NodeHandle nh;                                     // ROS Node Handle "nh"
-ros::Publisher State("atv_state", &ROS_ControlState);   // ATV State Publisher
-ros::Publisher Debug("debug", &debug_string);           // debug string Publisher
+std_msgs::String debug_string;                           // Debug String
+ackermann_msgs::AckermannDriveStamped ROS_ControlState;  // ROS_ControlState (ackermann message) = Measures Steering Angle(float32, radians), Measured Speed (m/s)
+ros::NodeHandle nh;                                      // ROS Node Handle "nh"
+ros::Publisher State("atv_state", &ROS_ControlState);    // ATV State Publisher
+ros::Publisher Debug("debug", &debug_string);            // debug string Publisher
 
 /* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
@@ -252,13 +252,13 @@ void IRAM_ATTR Speed_Calculation_Interrupt(void) {
 
 
 // ROS Callbacks
-void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped& ackermann_input) {
+void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped &ackermann_input) {
   if (ackermann_input.header.seq != ROS_Control_Command_ID) {
     // Ackermann commands to variables
     ROS_Control_Command_ID = ackermann_input.header.seq;
     ROS_Steering_Command = ackermann_input.drive.steering_angle;  // Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
     ROS_Speed_Command = ackermann_input.drive.speed;
- 
+
     // ROS Calculations
     // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
     // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
@@ -275,15 +275,15 @@ ros::Subscriber<ackermann_msgs::AckermannDriveStamped> Control("/ackermann_cmd",
 
 
 /*Genarate debug String and push to the topic*/
-void generate_debug_data(){
+void generate_debug_data() {
 
-  char *variable_names[] = {"Steering_Potentiometer", "Steering_Request"}; // names of the variables
-  long *variable_reference[] = {&Steering_Potentiometer, &Steering_Request}; // reference of the variables
+  char *variable_names[] = { "Steering_Potentiometer", "Steering_Request" };    // names of the variables
+  long *variable_reference[] = { &Steering_Potentiometer, &Steering_Request };  // reference of the variables
 
   char final_string[256] = "";
   char buffer[128];
 
-  for(int i = 0; i < 2; i++) {
+  for (int i = 0; i < 2; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
