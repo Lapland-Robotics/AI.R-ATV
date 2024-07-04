@@ -6,6 +6,7 @@
  *  THERE CAN BE POTENTIALLY
  *  HAZARDOUS RISK/UNDESIRED MOTOR OUTPUT!!!
  */
+
 #include <stdio.h>
 #include <ros.h>
 #include <std_msgs/String.h>
@@ -56,20 +57,14 @@
 #define Wheel_Pulse_Magnet_Count 16  // Magnet count in one wheel for measuring wheel pulses
 #define Speed_Calculation_Interval 200.0  // Speed Calculation Interval in milli second [ms]
 //long Speed_Measured = 50;              // Measured Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
+
 /* Dummy engineering constants for setting Slope and y-intercept for calculation: Real Speed(ROS_Speed_Measured) * Slope + y-intercept */
 #define Speed_Measurement_Slope 12.0  // Example 3m/s*12+50 = 86
 #define Speed_Measurement_yIntercept 50.0
 
-/* 
- *  ROS Calculations
- *  Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
- *  Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
- *  => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
- */
+/* Constants for ROS Steering command calculation */
 #define ROS_Steering_Command_Slope -111.0
 #define ROS_Steering_Command_yIntercept 50.0
-/* Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
-   => ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100) */
 #define ROS_Speed_Command_Slope 64  //53.0 //3.3
 #define ROS_Speed_Command_yIntercept 50.0
 
@@ -90,16 +85,15 @@ ros::Publisher Debug("debug", &debug_string);           // debug string Publishe
 ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
 
+/* Variables for RC "pwm reading" */
+int RC_in[RC_input_Count];  // an array to store the calibrated input from receiver
+boolean RC_Disable = 0;     // Disable RC control
+unsigned long rc_time;    // store current time for RC measurement
+unsigned long rc_update;  // previous time of RC measurement
+
 /* Time variables */
 unsigned long Current_Time = 0;   // Time now in milli seconds [ms]
 unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
-
-/* Variables for RC "pwm reading" */
-unsigned long rc_time;    // store current time for RC measurement
-unsigned long rc_update;  // previous time of RC measurement
-boolean RC_Disable = 0;     // Disable RC control
-int RC_in[RC_input_Count];  // an array to store the calibrated input from receiver
-//const int channels = 2;             // specify the number of receiver channels
 
 /* Variables for Driving */
 volatile boolean Driving_Enable = 0;           // Enabling or disabling Driving (volatile because use in interrupt)
@@ -262,9 +256,16 @@ void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped& ackerman
   if (ackermann_input.header.seq != ROS_Control_Command_ID) {
     // Ackermann commands to variables
     ROS_Control_Command_ID = ackermann_input.header.seq;
-    ROS_Steering_Command = ackermann_input.drive.steering_angle;
+    ROS_Steering_Command = ackermann_input.drive.steering_angle;  // Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
     ROS_Speed_Command = ackermann_input.drive.speed;
+ 
+    // ROS Calculations
+    // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
+    // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
     Steering_Request = ROS_Steering_Command * ROS_Steering_Command_Slope + ROS_Steering_Command_yIntercept;
+
+    // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
+    // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
     Driving_Speed_Request = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
     ROS_Missing_Packet_Count = 0;
     RC_Disable = 1;
