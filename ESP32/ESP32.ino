@@ -341,9 +341,8 @@ void setup() {
 
 
 void loop() {
-
   generate_debug_data();
-
+  
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
     if (ROS_Missing_Packet_Count >= ROS_Max_Missing_Packets) {
