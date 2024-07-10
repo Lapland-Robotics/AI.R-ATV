@@ -10,7 +10,7 @@ class Esp32ControllerNode(Node):
 
     def __init__(self):
         super().__init__('esp32_controller_node')
-        topic = "/atv/speed_feedback"
+        topic = "/atv/debug"
         self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
         self.sub = self.create_subscription(Int32, topic, self.chatter_callback, 5)
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
