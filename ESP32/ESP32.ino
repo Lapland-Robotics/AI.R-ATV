@@ -35,7 +35,6 @@
 #define FLWheelPulsePin 4      // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
 #define HWIsolatorEnablePin 2  // Constant for Hardware control. Enable or disable Isolator IC's on PCB
 #define SafetySWPin 32         // Safety HW If '0' = safe
-#define ErrorPin 23            
 
 /* Constants for Steering  */
 #define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
@@ -98,8 +97,8 @@ volatile boolean Safety_SW_State = 1;      // State for Safety Switch (volatile 
 
 /* Variables for Steering */
 long Steering_AD_Value = 2047;
-int Steering_Potentiometer = 50;              // store the value read (ADC)
-int Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
+long Steering_Potentiometer = 50;              // store the value read (ADC)
+long Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
 volatile long Steering_Difference = 0;         // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
@@ -150,8 +149,7 @@ ESP32Timer Speed_Calculation_Timer(1);
 // error function
 void error_loop(){
   while(1){
-    digitalWrite(ErrorPin, !digitalRead(ErrorPin));
-    delay(100);
+    Serial.print("ROS2 error... \n");
   }
 }
 
@@ -300,13 +298,14 @@ void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped &steering
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Potentiometer", "Steering_Request" };    // names of the variables
-  int *variable_reference[] = { &Steering_Potentiometer, &Steering_Request };  // reference of the variables
+  char *variable_names[] = { "Steering_Potentiometer" };    // names of the variables
+  long *variable_reference[] = { &Steering_Potentiometer };  // reference of the variables
+  int variable_count = sizeof(variable_reference);
 
   char final_string[256] = "";
   char buffer[128];
 
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < variable_count; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
@@ -317,13 +316,14 @@ void generate_debug_data() {
 
 
 void setup() {
-  //Serial.begin(57600);
+  Serial.begin(115200);
+  Serial.print("Serial Setup");
 
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
   attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, CHANGE);
-  pinMode(SteeringEnablePin, OUTPUT);
-  digitalWrite(SteeringEnablePin, 0);
+  // pinMode(SteeringEnablePin, OUTPUT);
+  // digitalWrite(SteeringEnablePin, 0);
   pinMode(SteeringPulsePin, OUTPUT);
   pinMode(SteeringDirPin, OUTPUT);
   digitalWrite(SteeringDirPin, 1);
@@ -331,8 +331,6 @@ void setup() {
   digitalWrite(DrivingEnablePin, 0);
   pinMode(DrivingDirPin, OUTPUT);
   digitalWrite(DrivingDirPin, 1);
-  pinMode(ErrorPin, OUTPUT);
-  digitalWrite(ErrorPin, HIGH);
 
   pinMode(SteeringLimitSWPin, INPUT);
   Steering_Limit_SW_State = digitalRead(SteeringLimitSWPin);
@@ -349,25 +347,17 @@ void setup() {
 
   setup_pwmRead();  // call routine to setup RC input and interrupts
 
-  Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
-  Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
+  // Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
+  // Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
   /* ROS Initialize */
-  set_microros_wifi_transports("SSID", "password", "xxx.xxx.xxx.xxxx", 8888);
+  set_microros_wifi_transports("SSID", "password", "192.168.191.38", 8888);
   allocator = rcl_get_default_allocator();
-  //create init_options
-  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
-  // create node
-  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_wifi_node", "", &support));
-
-  // create debug publisher
-  RCCHECK(rclc_publisher_init_best_effort(
-    &debugPublisher,
-    &node,
-    ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),
-    "/atv/debug"));
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));//create init_options
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_wifi_node", "", &support));// create node
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/atv/debug")); // create debug publisher
 }
 
 
