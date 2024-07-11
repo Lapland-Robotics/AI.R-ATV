@@ -8,7 +8,7 @@
  */
 
 #include <stdio.h>
-#include <ESP32TimerInterrupt.h>
+#include <ESP32TimerInterrupt.h>    // 2.3.0 version
 
 #include <micro_ros_arduino.h>
 #include <rcl/rcl.h>
@@ -25,7 +25,7 @@
 /* ESP32 pin definition */
 #define SteeringDirPin 12      // Steering Motor Direction
 #define SteeringPulsePin 13    // Steering Motor drive pulse
-#define SteeringEnablePin 9    // Steering Motor Enable, Outside leads to ground and +5V
+#define SteeringEnablePin 19    // Steering Motor Enable, Outside leads to ground and +5V
 #define SteeringPotPin 36      // Potentiometer wiper (middle terminal) connected to analog pin 0
 #define SteeringLimitSWPin 33  // Hall-sensor input for Limit steering angle
 #define DrivingDirPin 25       // Direction output for Driver motor controlle
@@ -149,7 +149,7 @@ ESP32Timer Speed_Calculation_Timer(1);
 // error function
 void error_loop(){
   while(1){
-    Serial.print("ROS2 error... \n");
+    Serial.print("Micro ROS Error... \n");
   }
 }
 
@@ -247,13 +247,13 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 
 
 //Timer interrupt for Steering Pulse
-void IRAM_ATTR Steering_Pulse_Interrupt(void) {
+bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
   if (Steering_Enable == 1) {
     if (Steering_Difference <= Steering_Speed_Change) {
-      //timerAlarmWrite(Steering_Pulse_Timer, Steering_Speed_Slow, true);
+      // Change the interval to Steering_Speed_Slow
       Steering_Pulse_Timer.setInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
     } else {
-      //timerAlarmWrite(Steering_Pulse_Timer, Steering_Speed_Fast, true);
+      // Change the interval to Steering_Speed_Fast
       Steering_Pulse_Timer.setInterval(Steering_Speed_Fast, Steering_Pulse_Interrupt);
     }
     Steering_Motor_Pulse = !Steering_Motor_Pulse;
@@ -261,15 +261,17 @@ void IRAM_ATTR Steering_Pulse_Interrupt(void) {
     Steering_Motor_Pulse = 0;
   }
   digitalWrite(SteeringPulsePin, Steering_Motor_Pulse);
+  return true; // Return true to indicate the interrupt was handled
 }
 
 
 // Timer interrupt for Real Speed Calculation
-void IRAM_ATTR Speed_Calculation_Interrupt(void) {
+bool IRAM_ATTR Speed_Calculation_Interrupt(void* param) {
   Previous_Odometry = Odometry;
   Odometry = (FL_Wheel_Pulses + FR_Wheel_Pulses) * Odometry_Coefficient;
   ROS_Speed_Measured = (Odometry - Previous_Odometry) / Speed_Calculation_Interval;  // (mm-mm)/ms = m/s
-  //Speed_Measured = ROS_Speed_Measured*Speed_Measurement_Slope+Speed_Measurement_yIntercept;   // Conver -/+ m/s to scale 0-50-100
+  // Speed_Measured = ROS_Speed_Measured * Speed_Measurement_Slope + Speed_Measurement_yIntercept;   // Convert -/+ m/s to scale 0-50-100
+  return true; // Return true to indicate the interrupt was handled
 }
 
 /*
@@ -322,8 +324,8 @@ void setup() {
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
   attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, CHANGE);
-  // pinMode(SteeringEnablePin, OUTPUT);
-  // digitalWrite(SteeringEnablePin, 0);
+  pinMode(SteeringEnablePin, OUTPUT);
+  digitalWrite(SteeringEnablePin, 0);
   pinMode(SteeringPulsePin, OUTPUT);
   pinMode(SteeringDirPin, OUTPUT);
   digitalWrite(SteeringDirPin, 1);
@@ -355,7 +357,7 @@ void setup() {
   /* ROS Initialize */
   set_microros_wifi_transports("SSID", "password", "192.168.191.38", 8888);
   allocator = rcl_get_default_allocator();
-  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));//create init_options
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_wifi_node", "", &support));// create node
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/atv/debug")); // create debug publisher
 }
