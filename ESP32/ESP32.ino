@@ -25,7 +25,7 @@
 /* ESP32 pin definition */
 #define SteeringDirPin 12      // Steering Motor Direction
 #define SteeringPulsePin 13    // Steering Motor drive pulse
-#define SteeringEnablePin 19    // Steering Motor Enable, Outside leads to ground and +5V
+#define SteeringEnablePin 9    // Steering Motor Enable, Outside leads to ground and +5V
 #define SteeringPotPin 36      // Potentiometer wiper (middle terminal) connected to analog pin 0
 #define SteeringLimitSWPin 33  // Hall-sensor input for Limit steering angle
 #define DrivingDirPin 25       // Direction output for Driver motor controlle
@@ -39,11 +39,9 @@
 /* Constants for Steering  */
 #define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Left_Limit 2     // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 98   // Right direction limit value for Steering Pot
-#define Steering_Speed_Fast 900   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Steering_Speed_Slow 1200  // Change Steering Speed Slow (half pulse 3350 => 2*3350 = 6700)6700us ~ 150Hz
-#define Steering_Speed_Change 10  // Steering difference when change Steering Speed from Fast to Slow and vica verse
+#define Steering_Left_Limit 25     // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 75   // Right direction limit value for Steering Pot
+#define Steering_Speed 1000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
 #define ADC_Bits 4095;
 #define Left 1
 #define Right 0
@@ -249,13 +247,6 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 //Timer interrupt for Steering Pulse
 bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
   if (Steering_Enable == 1) {
-    if (Steering_Difference <= Steering_Speed_Change) {
-      // Change the interval to Steering_Speed_Slow
-      Steering_Pulse_Timer.setInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
-    } else {
-      // Change the interval to Steering_Speed_Fast
-      Steering_Pulse_Timer.setInterval(Steering_Speed_Fast, Steering_Pulse_Interrupt);
-    }
     Steering_Motor_Pulse = !Steering_Motor_Pulse;
   } else {
     Steering_Motor_Pulse = 0;
@@ -318,8 +309,7 @@ void generate_debug_data() {
 
 
 void setup() {
-  Serial.begin(115200);
-  Serial.print("Serial Setup");
+  // Serial.begin(115200);
 
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
@@ -349,8 +339,17 @@ void setup() {
 
   setup_pwmRead();  // call routine to setup RC input and interrupts
 
-  // Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
-  // Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
+  if(Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt)){
+    Serial.println("Steering_Pulse_Interrupt successfully.");
+  } else {
+    Serial.println("Failed to attach Steering_Pulse_Interrupt");
+  }
+
+  if(Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt)){
+    Serial.println("Speed_Calculation_Interrupt successfully.");
+  } else {
+    Serial.println("Failed to attach Speed_Calculation_Interrupt");
+  }
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
@@ -365,6 +364,7 @@ void setup() {
 
 void loop() {
   generate_debug_data();
+  delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT 
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
