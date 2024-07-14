@@ -24,14 +24,15 @@ rcl_node_t node;
 
 void error_loop(){
   while(1){
-    Serial.print("error \n");
+    // Serial.print("error \n");
     delay(100);
   }
 }
 
 void setup() {
-  Serial.begin(9600);
-  set_microros_wifi_transports("Sohan_A54", "hotspot@6789", "192.168.191.38", 8888);
+  // Serial.begin(115200);
+  // set_microros_wifi_transports("SSID", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  set_microros_transports(); // microros over serial
 
   delay(2000);
 
@@ -41,7 +42,7 @@ void setup() {
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
 
   // create node
-  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_wifi_node", "", &support));
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));
 
   // create publisher
   RCCHECK(rclc_publisher_init_best_effort(

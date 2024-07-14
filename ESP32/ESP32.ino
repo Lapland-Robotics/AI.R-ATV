@@ -354,10 +354,11 @@ void setup() {
   digitalWrite(HWIsolatorEnablePin, 1);
 
   /* ROS Initialize */
-  set_microros_wifi_transports("SSID", "password", "192.168.191.38", 8888);
+  // set_microros_wifi_transports("SSID", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
-  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_wifi_node", "", &support));// create node
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/atv/debug")); // create debug publisher
 }
 
