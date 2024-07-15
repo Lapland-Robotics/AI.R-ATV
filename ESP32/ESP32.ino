@@ -133,7 +133,7 @@ unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
 /* ROS topics related variables*/
 rcl_publisher_t debugPublisher;
-std_msgs__msg__Int32 debugMsg;
+std_msgs__msg__String debugMsg;
 geometry_msgs__msg__Twist steeringMsg;
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -288,28 +288,29 @@ void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped &steering
 }
 */
 
+
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Potentiometer" };    // names of the variables
-  long *variable_reference[] = { &Steering_Potentiometer };  // reference of the variables
-  int variable_count = sizeof(variable_reference);
-
+  char *variable_names[] = { "Steering_Request", "Steering_Potentiometer" };    // names of the variables
+  long *variable_reference[] = { &Steering_Request, &Steering_Potentiometer };  // reference of the variables
+  
   char final_string[256] = "";
   char buffer[128];
 
-  for (int i = 0; i < variable_count; i++) {
+  for (int i = 0; i < 2; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
 
-  debugMsg.data = Steering_Potentiometer;
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, final_string);
+  debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
 
 
 void setup() {
-  // Serial.begin(115200);
+  Serial.begin(115200);
 
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
@@ -359,13 +360,18 @@ void setup() {
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
-  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/atv/debug")); // create debug publisher
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/atv/debug")); // create debug publisher
+
+  // Initialize the String message
+  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.size = 0;
+  debugMsg.data.capacity = 100;
 }
 
 
 void loop() {
   generate_debug_data();
-  delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT 
+  delay(200); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT 
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {

@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from std_msgs.msg import Int32
+from std_msgs.msg import String
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 
@@ -12,11 +12,11 @@ class Esp32ControllerNode(Node):
         super().__init__('esp32_controller_node')
         topic = "/atv/debug"
         self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
-        self.sub = self.create_subscription(Int32, topic, self.chatter_callback, 5)
+        self.sub = self.create_subscription(String, topic, self.chatter_callback, 5)
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-        self.sub = self.create_subscription(Int32, topic, self.chatter_callback, qos_profile)
+        self.sub = self.create_subscription(String, topic, self.chatter_callback, qos_profile)
 
-    def chatter_callback(self, msg: Int32):
+    def chatter_callback(self, msg: String):
         self.get_logger().info(str(msg))
 
 
