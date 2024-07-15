@@ -24,4 +24,4 @@ Error while starting serial agent!
 Serial port not found. | device: /dev/ttyUSB0, error 2, waiting for connection...
 ```
 
-If you able to solve that issue using Docker Desktop, please let us know by updating this README.md file.
+> But if you able to solve that issue using Docker Desktop, please let us know by updating this README.md file.
