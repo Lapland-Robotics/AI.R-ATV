@@ -132,12 +132,15 @@ unsigned long Current_Time = 0;   // Time now in milli seconds [ms]
 unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
 /* ROS topics related variables*/
-rcl_publisher_t debugPublisher;
 std_msgs__msg__String debugMsg;
-geometry_msgs__msg__Twist steeringMsg;
+geometry_msgs__msg__Twist ctrlCmdMsg;
+rcl_publisher_t debugPublisher;
+rcl_subscription_t ctrlCmdSubscription;
 rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
+rclc_executor_t ctrlCmdExecutor;
+
 
 /* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
@@ -265,28 +268,42 @@ bool IRAM_ATTR Speed_Calculation_Interrupt(void* param) {
   return true; // Return true to indicate the interrupt was handled
 }
 
-/*
+
 // ROS Callbacks
-void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped &steering_input) {
-  if (steering_input.header.seq != ROS_Control_Command_ID) {
-    // Ackermann commands to variables
-    ROS_Control_Command_ID = steering_input.header.seq;
-    ROS_Steering_Command = steering_input.drive.steering_angle;  // Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
-    ROS_Speed_Command = steering_input.drive.speed;
+void ctrlCmdCallback(const void *msgin) {
+    const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
 
-    // ROS Calculations
-    // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
-    // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    Steering_Request = ROS_Steering_Command * ROS_Steering_Command_Slope + ROS_Steering_Command_yIntercept;
+    snprintf(debugMsg.data.data, debugMsg.data.capacity, 
+             "linear.x: %f, linear.y: %f, linear.z: %f, angular.x: %f, angular.y: %f, angular.z: %f", 
+             steering_input->linear.x, steering_input->linear.y, steering_input->linear.z, 
+             steering_input->angular.x, steering_input->angular.y, steering_input->angular.z);
 
-    // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
-    // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
-    Driving_Speed_Request = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
-    ROS_Missing_Packet_Count = 0;
-    RC_Disable = 1;
-  }
+    debugMsg.data.size = strlen(debugMsg.data.data);
+    RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
+
+    // Compare frame_id and assign values if different
+    // if (strcmp(steering_input->header.frame_id.data, ROS_Control_Command_ID.data) != 0) {
+    //     // Copy new frame_id to ROS_Control_Command_ID
+    //     snprintf(ROS_Control_Command_ID.data, ROS_Control_Command_ID.capacity, "%s", steering_input->header.frame_id.data);
+    //     ROS_Control_Command_ID.size = strlen(ROS_Control_Command_ID.data);
+
+    //     // Ackermann commands to variables
+    //     ROS_Steering_Command = steering_input->drive.steering_angle;  // Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
+    //     ROS_Speed_Command = steering_input->drive.speed;
+
+    //     // ROS Calculations
+    //     // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
+    //     // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
+    //     Steering_Request = ROS_Steering_Command * ROS_Steering_Command_Slope + ROS_Steering_Command_yIntercept;
+
+    //     // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
+    //     // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
+    //     Driving_Speed_Request = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
+
+    //     ROS_Missing_Packet_Count = 0;
+    //     RC_Disable = 1;
+    // }
 }
-*/
 
 
 /*Genarate debug String and push to the topic*/
@@ -366,12 +383,24 @@ void setup() {
   debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
   debugMsg.data.capacity = 100;
+
+  // Create subscription
+  RCCHECK(rclc_subscription_init_default(
+  &ctrlCmdSubscription,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+  "/atv/ctrl_cmd"));
+
+  // Initialize executor
+  RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+
 }
 
 
 void loop() {
   generate_debug_data();
-  delay(200); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT 
+  delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
@@ -416,6 +445,9 @@ void loop() {
   Steering_Difference = Steering_Request - Steering_Potentiometer;
   Steering_Difference = abs(Steering_Difference);
   ROS_Steering_Measured = (-ROS_Steering_Command_yIntercept + float(Steering_Potentiometer)) / ROS_Steering_Command_Slope;  // Wheel steering angle in radians
+
+  // Spin the executor to handle incoming messages
+  rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
 
 #ifdef Simulation                                            // Compiler directives for simulation or not
 #define State1 Safety_SW_State == 0 || Safety_SW_State == 1  // Safety Switch OK or not
