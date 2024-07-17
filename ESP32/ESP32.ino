@@ -39,8 +39,8 @@
 /* Constants for Steering  */
 #define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Left_Limit 25     // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 75   // Right direction limit value for Steering Pot
+#define Steering_Left_Limit 45     // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 55   // Right direction limit value for Steering Pot
 #define Steering_Speed 1000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
 #define ADC_Bits 4095;
 #define Left 1
@@ -272,14 +272,22 @@ bool IRAM_ATTR Speed_Calculation_Interrupt(void* param) {
 // ROS Callbacks
 void ctrlCmdCallback(const void *msgin) {
   const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
-  
+
     ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
     ROS_Speed_Command = steering_input->linear.x; // Assuming linear.x is used for speed
 
     // ROS Calculations
     // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
     // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    Steering_Request = ROS_Steering_Command * ROS_Steering_Command_Slope + ROS_Steering_Command_yIntercept;
+    int temp_request = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
+
+    if(temp_request> Steering_Right_Limit){
+      temp_request = Steering_Right_Limit;
+    } else if (temp_request< Steering_Left_Limit){
+      temp_request = Steering_Left_Limit;
+    }
+
+    Steering_Request = temp_request;
 
     // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
     // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
