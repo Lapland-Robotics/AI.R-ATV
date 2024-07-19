@@ -37,12 +37,13 @@
 #define SafetySWPin 32         // Safety HW If '0' = safe
 
 /* Constants for Steering  */
-#define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
 #define Steering_Left_Limit 45     // Left direction limit value for Steering Pot
 #define Steering_Right_Limit 55   // Right direction limit value for Steering Pot
 #define Steering_Speed 1000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define ADC_Bits 4095;
+#define Max_Half_Step_Count = 32;
+#define ADC_Bits 4095
 #define Left 1
 #define Right 0
 
@@ -102,6 +103,7 @@ volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volati
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
 boolean Steering_Enable = 0;                   // Enabling or disabling steering
 boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
+volatile int Half_Step_Count = 0;
 
 /* Variables for Speed measurement and Odometry calculation */
 volatile long FR_Wheel_Pulses = 0;        // Front Right Wheel Pulse count (volatile because use in interrupt)
@@ -152,6 +154,15 @@ void error_loop(){
   while(1){
     Serial.print("Micro ROS Error... \n");
   }
+}
+
+
+/*Genarate debug String and push to the topic*/
+void error_debug(char error_cause[256]) {
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, strcat("CRITICAL ERROR : ", error_cause));
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
+  error_debug(error_cause);
 }
 
 

@@ -5,20 +5,26 @@ from rclpy.node import Node
 from std_msgs.msg import String
 from geometry_msgs.msg import Twist
 from rclpy.qos import QoSProfile, ReliabilityPolicy
-import time
-
 
 class Esp32ControllerNode(Node):
 
     def __init__(self):
         super().__init__('esp32_controller_node')
-        # topic = "/atv/debug"
-        # self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
-        # qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-        # self.sub = self.create_subscription(String, topic, self.chatter_callback, qos_profile)
+        topic = "/atv/debug"
+        self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
+        self.sub = self.create_subscription(String, topic, self.chatter_callback, 5)
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.sub = self.create_subscription(String, topic, self.chatter_callback, qos_profile)
         
         # Create a publisher for the Twist message
         self.twist_pub = self.create_publisher(Twist, '/atv/ctrl_cmd', 10)
+        
+        # Create a timer to publish the Twist message every 30 seconds
+        timer_period = 4.0  # seconds
+        self.timer = self.create_timer(timer_period, self.timer_callback)
+        
+        # Initialize iteration counter
+        self.iteration = 0
 
     def chatter_callback(self, msg: String):
         self.get_logger().info(str(msg))
@@ -34,28 +40,31 @@ class Esp32ControllerNode(Node):
         self.twist_pub.publish(twist_msg)
         self.get_logger().info(f'Publishing Twist message with speed {speed} and angle {angle}')
 
+    def timer_callback(self):
+
+        # Change angle based on iteration count
+        if self.iteration % 4 == 0:
+            self.publish_twist(0.0, 0.03)
+        if self.iteration % 4 == 1:
+            self.publish_twist(0.0, 0.0)
+        if self.iteration % 4 == 2:
+            self.publish_twist(0.0, -0.03)
+        if self.iteration % 4 == 3:
+            self.publish_twist(0.0, 0.0)
+        
+        # Increment iteration counter
+        self.iteration += 1
+
 def main(args=None):
     rclpy.init(args=args)
     node = Esp32ControllerNode()
-
     try:
-        while rclpy.ok():
-            rclpy.spin_once(node, timeout_sec=0.1)
-            
-            node.publish_twist(0.0, 0.03)
-            time.sleep(4)
-            node.publish_twist(0.0, 0.0)
-            time.sleep(4)
-            node.publish_twist(0.0, -0.03)
-            time.sleep(4)
-            node.publish_twist(0.0, 0.0)
-            time.sleep(4)
-
+        rclpy.spin(node)
     except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()
-        rclpy.shutdown()
+        rclpy.try_shutdown()
 
 if __name__ == '__main__':
     main()
