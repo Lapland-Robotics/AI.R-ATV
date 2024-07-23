@@ -40,12 +40,12 @@
 #define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
 #define Steering_Left_Limit 45     // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 55   // Right direction limit value for Steering Pot
-#define Steering_Speed 1000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Max_Half_Step_Count = 32;
+#define Steering_Right_Limit 54   // Right direction limit value for Steering Pot
+#define Steering_Speed 5000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Max_Half_Step_Count 100
 #define ADC_Bits 4095
-#define Left 1
-#define Right 0
+#define Left 0
+#define Right 1
 
 /* Constants for Driving  */
 #define Driving_Speed_Middlepoint 50  // Dummy engineering constant for setting middlepoint of Speed Command
@@ -95,15 +95,16 @@ unsigned ROS_Missing_Packet_Count = 0;     // Counter to count Missing ROS subse
 volatile boolean Safety_SW_State = 1;      // State for Safety Switch (volatile because use in interrupt)
 
 /* Variables for Steering */
-long Steering_AD_Value = 2047;
-long Steering_Potentiometer = 50;              // store the value read (ADC)
+volatile long Steering_AD_Value = 2047;
+volatile long Steering_Potentiometer = 50;     // store the value read (ADC)
 long Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
 volatile long Steering_Difference = 0;         // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
 boolean Steering_Enable = 0;                   // Enabling or disabling steering
-boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
+volatile boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
 volatile int Half_Step_Count = 0;
+volatile int Last_Potentiometer = 50;
 
 /* Variables for Speed measurement and Odometry calculation */
 volatile long FR_Wheel_Pulses = 0;        // Front Right Wheel Pulse count (volatile because use in interrupt)
@@ -147,6 +148,7 @@ rclc_executor_t ctrlCmdExecutor;
 /* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
+ESP32Timer Steering_Calculation_Timer(2);
 
 
 // error function
@@ -261,7 +263,26 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 //Timer interrupt for Steering Pulse
 bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
   if (Steering_Enable == 1) {
-    Steering_Motor_Pulse = !Steering_Motor_Pulse;
+    
+    if(Half_Step_Count<=Max_Half_Step_Count || 
+      Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Left||
+      -1 * Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Right){
+
+      Steering_Motor_Pulse = !Steering_Motor_Pulse;
+      
+      if((Steering_Direction == Right && Steering_Potentiometer > Last_Potentiometer) ||
+        (Steering_Direction == Left && Steering_Potentiometer < Last_Potentiometer) ){
+        Last_Potentiometer = Steering_Potentiometer;
+        Half_Step_Count = 0;
+      }
+
+      if(Steering_Direction == Right){
+        Half_Step_Count++;
+      } else {
+        Half_Step_Count--;
+      }
+
+    }
   } else {
     Steering_Motor_Pulse = 0;
   }
@@ -279,6 +300,12 @@ bool IRAM_ATTR Speed_Calculation_Interrupt(void* param) {
   return true; // Return true to indicate the interrupt was handled
 }
 
+bool IRAM_ATTR Steering_Calculation_Interrupt(void* param) {
+  // Read Steering Potentiometer scale it 0-100%, Scale RC value to 0-100%, Check Switches
+  Steering_AD_Value = analogRead(SteeringPotPin);               // read the potentiometer input pin
+  Steering_Potentiometer = Steering_AD_Value * 100 / ADC_Bits;  // and convert it to 0-100%
+  return true;
+}
 
 // ROS Callbacks
 void ctrlCmdCallback(const void *msgin) {
@@ -311,13 +338,13 @@ void ctrlCmdCallback(const void *msgin) {
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Request", "Steering_Potentiometer" };    // names of the variables
-  long *variable_reference[] = { &Steering_Request, &Steering_Potentiometer };  // reference of the variables
+  char *variable_names[] = { "Steering_Request1", "Steering_Potentiometer1", "Half_Step_Count1" };    // names of the variables
+  long *variable_reference[] = { &Steering_Request, (long *)&Steering_Potentiometer, (long *)&Half_Step_Count };  // reference of the variables
   
   char final_string[256] = "";
   char buffer[128];
 
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 3; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
@@ -359,6 +386,8 @@ void setup() {
 
   setup_pwmRead();  // call routine to setup RC input and interrupts
 
+  // cal_steering_position();
+
   if(Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt)){
     Serial.println("Steering_Pulse_Interrupt successfully.");
   } else {
@@ -370,6 +399,13 @@ void setup() {
   } else {
     Serial.println("Failed to attach Speed_Calculation_Interrupt");
   }
+
+  if(Steering_Calculation_Timer.attachInterruptInterval(60000, Steering_Calculation_Interrupt)){
+    Serial.println("Steering_Calculation_Timer successfully.");
+  } else {
+    Serial.println("Failed to attach Speed_Calculation_Interrupt");
+  }
+
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
@@ -439,10 +475,6 @@ void loop() {
     // Steering_Request = (RC_in[0]-RC_Minimum)/RC_Scaler;   // Convert RC PWM value 1100 - 1900 to 0-100%, y = (x-1100)/8
     Driving_Speed_Request = (RC_in[1] - RC_Minimum) / RC_Scaler;
   }
-
-  // Read Steering Potentiometer scale it 0-100%, Scale RC value to 0-100%, Check Switches
-  Steering_AD_Value = analogRead(SteeringPotPin);               // read the potentiometer input pin
-  Steering_Potentiometer = Steering_AD_Value * 100 / ADC_Bits;  // and convert it to 0-100%
 
   Steering_Difference = Steering_Request - Steering_Potentiometer;
   Steering_Difference = abs(Steering_Difference);

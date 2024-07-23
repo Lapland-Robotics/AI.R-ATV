@@ -19,11 +19,10 @@ class Esp32ControllerNode(Node):
         # Create a publisher for the Twist message
         self.twist_pub = self.create_publisher(Twist, '/atv/ctrl_cmd', 10)
         
-        # Create a timer to publish the Twist message every 30 seconds
+        # Create a timer to publish the Twist message
         timer_period = 4.0  # seconds
         self.timer = self.create_timer(timer_period, self.timer_callback)
         
-        # Initialize iteration counter
         self.iteration = 0
 
     def chatter_callback(self, msg: String):
@@ -40,19 +39,17 @@ class Esp32ControllerNode(Node):
         self.twist_pub.publish(twist_msg)
         self.get_logger().info(f'Publishing Twist message with speed {speed} and angle {angle}')
 
+    # demo program to move the steering
     def timer_callback(self):
-
-        # Change angle based on iteration count
         if self.iteration % 4 == 0:
-            self.publish_twist(0.0, 0.03)
+            self.publish_twist(0.0, +0.05)
         if self.iteration % 4 == 1:
-            self.publish_twist(0.0, 0.0)
+            self.publish_twist(0.0, -0.50)
         if self.iteration % 4 == 2:
-            self.publish_twist(0.0, -0.03)
+            self.publish_twist(0.0, +0.05)
         if self.iteration % 4 == 3:
-            self.publish_twist(0.0, 0.0)
-        
-        # Increment iteration counter
+            self.publish_twist(0.0, -0.05)
+
         self.iteration += 1
 
 def main(args=None):
