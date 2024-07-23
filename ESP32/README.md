@@ -14,7 +14,7 @@ or:
 
 ## Arduino IDE configuration 
 You have to make following changes in Arduino IDE to make code work:
-1. Board: BoardManager: "esp32" version 1.0.6 then use Board "ESP32 Dev Module" Otherwise you get an error along the lines of "mismatched rosserial version error (e.g. having rosserial melodic and ros noetic")
+1. Board: BoardManager: "esp32" version 2.0.13 then use Board "ESP32 Dev Module" Otherwise you get an error in ledcSetup() and ledcAttachPin()
 2. in library manager, use ESP32TimerInterrupt version 1.5.0
 3. in library manager, use ROSserial version 0.9.1
 4. Go here https://github.com/enwaytech/ros_lib_arduino/tree/master,download ZIP, and then move ackermann_msgs folder from src folder
