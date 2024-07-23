@@ -9,8 +9,6 @@ RUN rm -rf /var/lib/apt/lists/*
 
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
 
-ENV TOPIC="/ouster/imu"
-
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app

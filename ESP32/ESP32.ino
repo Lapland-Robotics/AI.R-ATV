@@ -7,11 +7,18 @@
  *  HAZARDOUS RISK/UNDESIRED MOTOR OUTPUT!!!
  */
 
+/* Boards Manager -> esp32 by Expressif Systems 2.0.2 version */
+
 #include <stdio.h>
-#include <ros.h>
-#include <std_msgs/String.h>
-#include <ackermann_msgs/AckermannDriveStamped.h>
-#include <ESP32TimerInterrupt.h>
+#include <ESP32TimerInterrupt.h>    // 2.3.0 version
+#include <micro_ros_arduino.h>
+#include <rcl/rcl.h>
+#include <rcl/error_handling.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
+#include <geometry_msgs/msg/twist.h>
+#include <std_msgs/msg/string.h>
+#include <std_msgs/msg/int32.h>
 #include "ATV.h"
 
 
@@ -30,21 +37,21 @@
 #define SafetySWPin 32         // Safety HW If '0' = safe
 
 /* Constants for Steering  */
-#define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Left_Limit 2     // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 98   // Right direction limit value for Steering Pot
-#define Steering_Speed_Fast 900   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Steering_Speed_Slow 1200  // Change Steering Speed Slow (half pulse 3350 => 2*3350 = 6700)6700us ~ 150Hz
-#define Steering_Speed_Change 10  // Steering difference when change Steering Speed from Fast to Slow and vica verse
-#define ADC_Bits 4095;
-#define Left 1
-#define Right 0
+#define Steering_Left_Limit 45     // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 54   // Right direction limit value for Steering Pot
+#define Steering_Speed 5000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Max_Half_Step_Count 100
+#define ADC_Bits 4095
+#define Left 0
+#define Right 1
 
 /* Constants for Driving  */
 #define Driving_Speed_Middlepoint 50  // Dummy engineering constant for setting middlepoint of Speed Command
 #define Driving_Reverse_Limit 30      // Reverse Driving Speed limit (not actual speed m/s)
 #define Driving_Forward_Limit 70      // Forward Driving Speed limit (not actual speed m/s)
+#define Driving_Speed_Duty_Coef 20  // Dummy engineer Coefficient for scale PWM duty cycle
 #define Forward 1                     // Forward = 1
 #define Backward 0                    // Backward (Reverse) = 0
 
@@ -63,7 +70,10 @@
 //#define ROS_Interval 1000  // FOR DEBUGING VIA SERIAL PORT
 #define ROS_Interval 200            // ROS Commands update interval in milli second [ms]
 #define ROS_Max_Missing_Packets 10  // How many (ROS_Interval) subsequent ROS command not receive and then reject ROS control, If ROS_Interval = 100 ms and ROS_Max_Missing_Packets = 10 than Max silent time is 100 ms * 10 = 1s
-#define Driving_Speed_Duty_Coef 20  // Dummy engineer Coefficient for scale PWM duty cycle
+
+/*ROS2 Constants*/
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
+#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 /* Dummy engineering constants for setting Slope and y-intercept for calculation: Real Speed(ROS_Speed_Measured) * Slope + y-intercept */
 #define Speed_Measurement_Slope 12.0  // Example 3m/s*12+50 = 86
@@ -85,14 +95,16 @@ unsigned ROS_Missing_Packet_Count = 0;     // Counter to count Missing ROS subse
 volatile boolean Safety_SW_State = 1;      // State for Safety Switch (volatile because use in interrupt)
 
 /* Variables for Steering */
-long Steering_AD_Value = 2047;
-long Steering_Potentiometer = 50;              // store the value read (ADC)
+volatile long Steering_AD_Value = 2047;
+volatile long Steering_Potentiometer = 50;     // store the value read (ADC)
 long Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
 volatile long Steering_Difference = 0;         // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
 boolean Steering_Enable = 0;                   // Enabling or disabling steering
-boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
+volatile boolean Steering_Direction;                    // '1' = left CW and '0' = right CCW
+volatile int Half_Step_Count = 0;
+volatile int Last_Potentiometer = 50;
 
 /* Variables for Speed measurement and Odometry calculation */
 volatile long FR_Wheel_Pulses = 0;        // Front Right Wheel Pulse count (volatile because use in interrupt)
@@ -123,15 +135,37 @@ unsigned long Current_Time = 0;   // Time now in milli seconds [ms]
 unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
 /* ROS topics related variables*/
-std_msgs::String debug_string;                           // Debug String
-ackermann_msgs::AckermannDriveStamped ROS_ControlState;  // ROS_ControlState (ackermann message) = Measures Steering Angle(float32, radians), Measured Speed (m/s)
-ros::NodeHandle nh;                                      // ROS Node Handle "nh"
-ros::Publisher State("atv_state", &ROS_ControlState);    // ATV State Publisher
-ros::Publisher Debug("debug", &debug_string);            // debug string Publisher
+std_msgs__msg__String debugMsg;
+geometry_msgs__msg__Twist ctrlCmdMsg;
+rcl_publisher_t debugPublisher;
+rcl_subscription_t ctrlCmdSubscription;
+rclc_support_t support;
+rcl_allocator_t allocator;
+rcl_node_t node;
+rclc_executor_t ctrlCmdExecutor;
+
 
 /* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
+ESP32Timer Steering_Calculation_Timer(2);
+
+
+// error function
+void error_loop(){
+  while(1){
+    Serial.print("Micro ROS Error... \n");
+  }
+}
+
+
+/*Genarate debug String and push to the topic*/
+void error_debug(char error_cause[256]) {
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, strcat("CRITICAL ERROR : ", error_cause));
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
+  error_debug(error_cause);
+}
 
 
 // Steering subroutine
@@ -227,77 +261,102 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 
 
 //Timer interrupt for Steering Pulse
-void IRAM_ATTR Steering_Pulse_Interrupt(void) {
+bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
   if (Steering_Enable == 1) {
-    if (Steering_Difference <= Steering_Speed_Change) {
-      //timerAlarmWrite(Steering_Pulse_Timer, Steering_Speed_Slow, true);
-      Steering_Pulse_Timer.setInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
-    } else {
-      //timerAlarmWrite(Steering_Pulse_Timer, Steering_Speed_Fast, true);
-      Steering_Pulse_Timer.setInterval(Steering_Speed_Fast, Steering_Pulse_Interrupt);
+    
+    if(Half_Step_Count<=Max_Half_Step_Count || 
+      Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Left||
+      -1 * Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Right){
+
+      Steering_Motor_Pulse = !Steering_Motor_Pulse;
+      
+      if((Steering_Direction == Right && Steering_Potentiometer > Last_Potentiometer) ||
+        (Steering_Direction == Left && Steering_Potentiometer < Last_Potentiometer) ){
+        Last_Potentiometer = Steering_Potentiometer;
+        Half_Step_Count = 0;
+      }
+
+      if(Steering_Direction == Right){
+        Half_Step_Count++;
+      } else {
+        Half_Step_Count--;
+      }
+
     }
-    Steering_Motor_Pulse = !Steering_Motor_Pulse;
   } else {
     Steering_Motor_Pulse = 0;
   }
   digitalWrite(SteeringPulsePin, Steering_Motor_Pulse);
+  return true; // Return true to indicate the interrupt was handled
 }
 
 
 // Timer interrupt for Real Speed Calculation
-void IRAM_ATTR Speed_Calculation_Interrupt(void) {
+bool IRAM_ATTR Speed_Calculation_Interrupt(void* param) {
   Previous_Odometry = Odometry;
   Odometry = (FL_Wheel_Pulses + FR_Wheel_Pulses) * Odometry_Coefficient;
   ROS_Speed_Measured = (Odometry - Previous_Odometry) / Speed_Calculation_Interval;  // (mm-mm)/ms = m/s
-  //Speed_Measured = ROS_Speed_Measured*Speed_Measurement_Slope+Speed_Measurement_yIntercept;   // Conver -/+ m/s to scale 0-50-100
+  // Speed_Measured = ROS_Speed_Measured * Speed_Measurement_Slope + Speed_Measurement_yIntercept;   // Convert -/+ m/s to scale 0-50-100
+  return true; // Return true to indicate the interrupt was handled
 }
 
+bool IRAM_ATTR Steering_Calculation_Interrupt(void* param) {
+  // Read Steering Potentiometer scale it 0-100%, Scale RC value to 0-100%, Check Switches
+  Steering_AD_Value = analogRead(SteeringPotPin);               // read the potentiometer input pin
+  Steering_Potentiometer = Steering_AD_Value * 100 / ADC_Bits;  // and convert it to 0-100%
+  return true;
+}
 
 // ROS Callbacks
-void cb_ROS_ControlCommand(const ackermann_msgs::AckermannDriveStamped &ackermann_input) {
-  if (ackermann_input.header.seq != ROS_Control_Command_ID) {
-    // Ackermann commands to variables
-    ROS_Control_Command_ID = ackermann_input.header.seq;
-    ROS_Steering_Command = ackermann_input.drive.steering_angle;  // Note! here Steering angle is real Wheel steering angle, not steppermotor angle!
-    ROS_Speed_Command = ackermann_input.drive.speed;
+void ctrlCmdCallback(const void *msgin) {
+  const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
+
+    ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
+    ROS_Speed_Command = steering_input->linear.x; // Assuming linear.x is used for speed
 
     // ROS Calculations
     // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
     // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    Steering_Request = ROS_Steering_Command * ROS_Steering_Command_Slope + ROS_Steering_Command_yIntercept;
+    int temp_request = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
+
+    if(temp_request> Steering_Right_Limit){
+      temp_request = Steering_Right_Limit;
+    } else if (temp_request< Steering_Left_Limit){
+      temp_request = Steering_Left_Limit;
+    }
+
+    Steering_Request = temp_request;
 
     // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
     // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
     Driving_Speed_Request = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
     ROS_Missing_Packet_Count = 0;
     RC_Disable = 1;
-  }
 }
-ros::Subscriber<ackermann_msgs::AckermannDriveStamped> Control("/ackermann_cmd", &cb_ROS_ControlCommand);  // ROS Subscribers, Control message for Steering and Driving control
 
 
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Potentiometer", "Steering_Request" };    // names of the variables
-  long *variable_reference[] = { &Steering_Potentiometer, &Steering_Request };  // reference of the variables
-
+  char *variable_names[] = { "Steering_Request1", "Steering_Potentiometer1", "Half_Step_Count1" };    // names of the variables
+  long *variable_reference[] = { &Steering_Request, (long *)&Steering_Potentiometer, (long *)&Half_Step_Count };  // reference of the variables
+  
   char final_string[256] = "";
   char buffer[128];
 
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 3; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
 
-  debug_string.data = final_string;
-  Debug.publish(&debug_string);
-  nh.spinOnce();
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, final_string);
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
 
 
 void setup() {
-  //Serial.begin(57600);
+  Serial.begin(115200);
 
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
@@ -327,21 +386,59 @@ void setup() {
 
   setup_pwmRead();  // call routine to setup RC input and interrupts
 
-  Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed_Slow, Steering_Pulse_Interrupt);
-  Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
+  // cal_steering_position();
+
+  if(Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt)){
+    Serial.println("Steering_Pulse_Interrupt successfully.");
+  } else {
+    Serial.println("Failed to attach Steering_Pulse_Interrupt");
+  }
+
+  if(Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt)){
+    Serial.println("Speed_Calculation_Interrupt successfully.");
+  } else {
+    Serial.println("Failed to attach Speed_Calculation_Interrupt");
+  }
+
+  if(Steering_Calculation_Timer.attachInterruptInterval(60000, Steering_Calculation_Interrupt)){
+    Serial.println("Steering_Calculation_Timer successfully.");
+  } else {
+    Serial.println("Failed to attach Speed_Calculation_Interrupt");
+  }
+
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
-  // ROS Initialize
-  nh.initNode();
-  nh.subscribe(Control);
-  nh.advertise(State);
-  nh.advertise(Debug);
+  /* ROS Initialize */
+  // set_microros_wifi_transports("SSID", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  set_microros_transports(); // microros over serial
+  allocator = rcl_get_default_allocator();
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/atv/debug")); // create debug publisher
+
+  // Initialize the String message
+  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.size = 0;
+  debugMsg.data.capacity = 100;
+
+  // Create subscription
+  RCCHECK(rclc_subscription_init_default(
+  &ctrlCmdSubscription,
+  &node,
+  ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),
+  "/atv/ctrl_cmd"));
+
+  // Initialize executor
+  RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+
 }
 
 
 void loop() {
   generate_debug_data();
+  delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
@@ -353,7 +450,7 @@ void loop() {
       ROS_Missing_Packet_Count = ++ROS_Missing_Packet_Count;
     }
     Previous_Time = Current_Time;
-
+/*
 #ifdef Simulation  // Compiler directives for simulation or not
     ROS_ControlState.drive.steering_angle = ROS_Steering_Command;
     ROS_ControlState.drive.speed = ROS_Speed_Command;
@@ -363,6 +460,7 @@ void loop() {
 #endif
     State.publish(&ROS_ControlState);
     nh.spinOnce();
+*/
   }
 
   if (RC_Disable == 0) {
@@ -378,13 +476,12 @@ void loop() {
     Driving_Speed_Request = (RC_in[1] - RC_Minimum) / RC_Scaler;
   }
 
-  // Read Steering Potentiometer scale it 0-100%, Scale RC value to 0-100%, Check Switches
-  Steering_AD_Value = analogRead(SteeringPotPin);               // read the potentiometer input pin
-  Steering_Potentiometer = Steering_AD_Value * 100 / ADC_Bits;  // and convert it to 0-100%
-
   Steering_Difference = Steering_Request - Steering_Potentiometer;
   Steering_Difference = abs(Steering_Difference);
   ROS_Steering_Measured = (-ROS_Steering_Command_yIntercept + float(Steering_Potentiometer)) / ROS_Steering_Command_Slope;  // Wheel steering angle in radians
+
+  // Spin the executor to handle incoming messages
+  rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
 
 #ifdef Simulation                                            // Compiler directives for simulation or not
 #define State1 Safety_SW_State == 0 || Safety_SW_State == 1  // Safety Switch OK or not
