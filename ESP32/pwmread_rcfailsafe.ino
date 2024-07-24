@@ -65,8 +65,9 @@ int RC_decode(int i) {
 }
 
 
-// Basic Receiver FAIL SAFE
-// check for 500-2500us and 10-330Hz (same limits as pololu)
+/* Basic Receiver FAIL SAFE
+* check for 500-2500us and 10-330Hz (same limits as pololu)
+*/
 boolean FAILSAFE(int i) {
   boolean failsafe_flag = LOW;
   if (pwmFlag[i] == 1) {          // if a new pulse has been measured
