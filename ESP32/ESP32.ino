@@ -136,8 +136,10 @@ unsigned long Previous_Time = 0;  // Last iteration time in milli seconds [ms]
 
 /* ROS topics related variables*/
 std_msgs__msg__String debugMsg;
+geometry_msgs__msg__Twist atvStatus;
 geometry_msgs__msg__Twist ctrlCmdMsg;
 rcl_publisher_t debugPublisher;
+rcl_publisher_t atvStatusPublisher;
 rcl_subscription_t ctrlCmdSubscription;
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -354,6 +356,17 @@ void generate_debug_data() {
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
 
+/*Assemble the atvStatus and publish to the topic*/
+void publish_status() {
+  // Computed speed of the vehicle based on the hall sensor readings
+  atvStatus.angular.z = Steering_Potentiometer // Steering angle as read from the potentiometer
+  atvStatus.linear.x = ROS_Speed_Measured // Current speed calculated based on hall sensor measurement
+  // CS: Not sure if I got the structure right for assigning size and capacity
+  // CS: https://github.com/micro-ROS/micro_ros_arduino/blob/humble/src/geometry_msgs/msg/detail/twist__struct.h
+  atvStatus.data.size = sizeof(atvStatus.data.data int)
+  RCSOFTCHECK(rcl_publish(&atvStatusPublisher, &atvStatus, NULL));
+}
+
 
 void setup() {
   Serial.begin(115200);
@@ -416,11 +429,20 @@ void setup() {
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/atv/debug")); // create debug publisher
+  RCCHECK(rclc_publisher_init_best_effort(&atvStatusPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/atv/status")); // create atvStatus publisher
 
   // Initialize the String message
   debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
   debugMsg.data.capacity = 100;
+
+  // Initialize the status twist message
+  // CS: probably wrong since angular and linear are each a 3 dim vector with x, y and z
+  // CS: Do I have to assign size for each of those or for each vector or only for angular and linear? Unclear
+  // https://github.com/micro-ROS/micro_ros_arduino/blob/humble/src/geometry_msgs/msg/detail/twist__struct.h
+  atvStateMsg.data.data = (long *)malloc(100 * sizeof(long)); // Allocate memory for the long
+  atvStateMsg.data.size = 0;
+  atvStateMsg.data.capacity = 100;
 
   // Create subscription
   RCCHECK(rclc_subscription_init_default(
@@ -438,13 +460,14 @@ void setup() {
 
 void loop() {
   generate_debug_data();
+  publish_status(); //CS: 2 Questions: Own delay? Do I have to give parameters since they seem to be publicly available for the function(method?) to get on its own
   delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
     if (ROS_Missing_Packet_Count >= ROS_Max_Missing_Packets) {
       RC_Disable = 0;
-      ROS_Steering_Command = 0;
+      ROS_Steering_Command = 0; 
       ROS_Speed_Command = 0;
     } else {
       ROS_Missing_Packet_Count = ++ROS_Missing_Packet_Count;
