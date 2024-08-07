@@ -37,12 +37,12 @@
 #define SafetySWPin 32         // Safety HW If '0' = safe
 
 /* Constants for Steering  */
-#define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Left_Limit 45     // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 54   // Right direction limit value for Steering Pot
-#define Steering_Speed 5000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Max_Half_Step_Count 100
+#define Steering_Left_Limit 25     // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 75   // Right direction limit value for Steering Pot
+#define Steering_Speed 10000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Max_Half_Step_Count 50
 #define ADC_Bits 4095
 #define Left 0
 #define Right 1
