@@ -35,7 +35,8 @@
 #define FLWheelPulsePin 4      // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
 #define HWIsolatorEnablePin 2  // Constant for Hardware control. Enable or disable Isolator IC's on PCB
 #define SafetySWPin 32         // Safety HW If '0' = safe
-#define switch_pin 17          //  pin connected to the switch
+#define ModeSwitchPin  18        // ESP32 pin GPIO18, which is connected to the button
+
 /* Constants for Steering  */
 #define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
@@ -150,12 +151,7 @@ ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
 ESP32Timer Steering_Calculation_Timer(2);
 
-enum ControlMode {
-  AUTONOMOUS,
-  RC
-};
-
-ControlMode currentMode;
+int mode_switch;       // the current state of the button
 
 // error function
 void error_loop(){
@@ -315,8 +311,7 @@ bool IRAM_ATTR Steering_Calculation_Interrupt(void* param) {
 
 // ROS Callbacks
 void ctrlCmdCallback(const void *msgin) {
-  if(currentMode = AUTONOMOUS){
-    Serial.println("Mode:Autonomous");
+  if(mode_switch == 0){
   const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
 
     ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
@@ -346,13 +341,13 @@ void ctrlCmdCallback(const void *msgin) {
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Request", "Steering_Potentiometer", "Driving_Speed_Request" };    // names of the variables
-  long *variable_reference[] = { &Steering_Request, (long *)&Steering_Potentiometer, &Driving_Speed_Request };  // reference of the variables
+  char *variable_names[] = { "Steering_Request", "Steering_Potentiometer", "Driving_Speed_Request", "MODE" };    // names of the variables
+  long *variable_reference[] = { &Steering_Request, (long *)&Steering_Potentiometer, &Driving_Speed_Request, (long *)&mode_switch};  // reference of the variables
   
   char final_string[256] = "";
   char buffer[128];
 
-  for (int i = 0; i < 3; i++) {
+  for (int i = 0; i < 4; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
     strcat(final_string, buffer);
   }
@@ -365,9 +360,8 @@ void generate_debug_data() {
 
 void setup() {
   Serial.begin(115200);
-  pinMode(switch_pin, INPUT_PULLUP);
-  currentMode = AUTONOMOUS;          // Default mode
 
+  pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
   attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, CHANGE);
@@ -398,29 +392,15 @@ void setup() {
 
   // cal_steering_position();
 
-  if(Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt)){
-    Serial.println("Steering_Pulse_Interrupt successfully.");
-  } else {
-    Serial.println("Failed to attach Steering_Pulse_Interrupt");
-  }
-
-  if(Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt)){
-    Serial.println("Speed_Calculation_Interrupt successfully.");
-  } else {
-    Serial.println("Failed to attach Speed_Calculation_Interrupt");
-  }
-
-  if(Steering_Calculation_Timer.attachInterruptInterval(60000, Steering_Calculation_Interrupt)){
-    Serial.println("Steering_Calculation_Timer successfully.");
-  } else {
-    Serial.println("Failed to attach Speed_Calculation_Interrupt");
-  }
+  Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt);
+  Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
+  Steering_Calculation_Timer.attachInterruptInterval(60000, Steering_Calculation_Interrupt);
 
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
   /* ROS Initialize */
-  // set_microros_wifi_transports("SSID", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  // set_microros_wifi_transports("Sohan_A54", "hotspot@6789", "192.168.55.63", 8888); // microros over wifi
   set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
@@ -447,15 +427,11 @@ void setup() {
 
 
 void loop() {
-  if (digitalRead(switch_pin) ==HIGH){
-    currentMode = AUTONOMOUS;
-  }
-  else {
-    currentMode = RC;
-  }
-
+  
   generate_debug_data();
   delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
+  
+  mode_switch = digitalRead(ModeSwitchPin);    // read new state 
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
@@ -478,10 +454,9 @@ void loop() {
     State.publish(&ROS_ControlState);
     nh.spinOnce();
 */
-  }
-
-   else if (currentMode = RC) {
-    Serial.println("Mode: RC");
+  } 
+  
+  if (mode_switch == 1) {
     rc_time = millis();
     if (RC_avail() || rc_time - rc_update > 25) {  // if RC data is available or 25ms has passed since last update (adjust to be equal or greater than the frame rate of receiver)
       rc_update = rc_time;
