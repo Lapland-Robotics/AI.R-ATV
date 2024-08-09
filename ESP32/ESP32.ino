@@ -400,7 +400,7 @@ void setup() {
   digitalWrite(HWIsolatorEnablePin, 1);
 
   /* ROS Initialize */
-  // set_microros_wifi_transports("Sohan_A54", "hotspot@6789", "192.168.55.63", 8888); // microros over wifi
+  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
   set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
