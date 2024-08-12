@@ -98,7 +98,6 @@ volatile boolean Safety_SW_State = 1;      // State for Safety Switch (volatile 
 /* Variables for Steering */
 volatile long Steering_AD_Value = 2047;
 volatile long Steering_Potentiometer = 50;     // store the value read (ADC)
-long Steering_Request = 50;                    // Requested steering value 0-100, 0 = Full Left, 50 = Center and 100 = Full Right
 volatile long Steering_Difference = 0;         // Difference between requested steering value and actual steering value (volatile because use in interrupt)
 volatile boolean Steering_Limit_SW_State = 1;  // State for limit switch (volatile because use in interrupt)
 volatile boolean Steering_Motor_Pulse = 0;     // Motor drive pulse (volatile because use in interrupt)
@@ -117,7 +116,6 @@ const float Odometry_Coefficient = (Wheel_Circumference / Wheel_Pulse_Magnet_Cou
 /* Variables for Driving */
 volatile boolean Driving_Enable = 0;  // Enabling or disabling Driving (volatile because use in interrupt)
 volatile boolean Driving_Direction;   // Driving Direction 0 = Reverse and 1 = Forward (volatile because use in interrupt)
-long Driving_Speed_Request = 50;      // Requested Driving Speed 0-100, 0 = Full Reverse, 0 = Stop and 100 = Full Forward
 long Driving_SpeedPWM_DutyCycle;      // PWM Duty Cycle for Driving motor controlle, 0 stop
 
 /* Variables for RC "pwm reading" */
@@ -125,6 +123,7 @@ int RC_in[RC_input_Count];  // an array to store the calibrated input from recei
 boolean RC_Disable = 0;     // Disable RC control
 unsigned long rc_time;      // store current time for RC measurement
 unsigned long rc_update;    // previous time of RC measurement
+int mode_switch;       // the current state of the button
 
 /* Setting Driving PWM Properties */
 const int Driving_PWMFreq = 1000;      // 1000Hz
@@ -144,14 +143,43 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rclc_executor_t ctrlCmdExecutor;
-
+struct CtrlRequest driveRequest = {50, 50}; // DON'T use this variable dirctly, always use the getters and setters
 
 /* Init ESP32 timers */
 ESP32Timer Steering_Pulse_Timer(0);
 ESP32Timer Speed_Calculation_Timer(1);
 ESP32Timer Steering_Calculation_Timer(2);
 
-int mode_switch;       // the current state of the button
+
+// Getter for steeringRequest
+int getSteeringRequest(struct CtrlRequest *request) {
+    return request->steeringRequest;
+}
+
+// Setter for steeringRequest
+void setSteeringRequest(struct CtrlRequest *request, int value) {
+    if(value > Steering_Right_Limit) {
+        value = Steering_Right_Limit;
+    } else if (value < Steering_Left_Limit) {
+        value = Steering_Left_Limit;
+    }
+    request->steeringRequest = value;
+}
+
+// Getter for speedRequest
+int getDrivingSpeedRequest(struct CtrlRequest *request) {
+    return request->speedRequest;
+}
+
+// Setter for speedRequest
+void setDrivingSpeedRequest(struct CtrlRequest *request, int value) {
+    if(value > Driving_Forward_Limit) {
+        value = Driving_Forward_Limit;
+    } else if (value < Driving_Reverse_Limit) {
+        value = Driving_Reverse_Limit;
+    }
+    request->speedRequest = value;
+}
 
 // error function
 void error_loop(){
@@ -172,24 +200,12 @@ void error_debug(char error_cause[256]) {
 
 // Steering subroutine
 void Steering() {
-  if (Steering_Request < Steering_Potentiometer) {  // Steering more left?
-                                                    // Left limit activated or left pot limit?
-    if (Steering_Limit_SW_State == 0 && Steering_Potentiometer < Steering_Middlepoint || Steering_Potentiometer <= Steering_Left_Limit) {
-      Steering_Enable = 0;                     // Limits on
-      Steering_Request = Steering_Left_Limit;  // Update value only for debubing presentation
-    } else {                                   // No limits, lets steer more to left
-      Steering_Enable = 1;
-      Steering_Direction = Left;
-    }
-    // Right limit activated or right pot limit?
-  } else if (Steering_Request > Steering_Potentiometer) {  // Steering more right?
-    if (Steering_Limit_SW_State == 0 && Steering_Potentiometer > Steering_Middlepoint || Steering_Potentiometer >= Steering_Right_Limit) {
-      Steering_Enable = 0;                      // Limits on
-      Steering_Request = Steering_Right_Limit;  // Update value only for debubing presentation
-    } else {                                    // No limits, lets steer more to right
-      Steering_Enable = 1;
-      Steering_Direction = Right;
-    }
+  if (getSteeringRequest(&driveRequest) < Steering_Potentiometer) {  // Steering more left?
+    Steering_Enable = 1;
+    Steering_Direction = Left;
+  } else if (getSteeringRequest(&driveRequest) > Steering_Potentiometer) {  // Steering more right?
+    Steering_Enable = 1;
+    Steering_Direction = Right;
   } else {  // Don't steer :)
     Steering_Enable = 0;
   }
@@ -200,18 +216,12 @@ void Steering() {
 // Driving subroutine
 void Driving() {
   if (Driving_Enable == 1) {
-    if (Driving_Speed_Request > Driving_Speed_Middlepoint) {  // Driving_Speed_Request >50 => Drive Forward
+    if (getDrivingSpeedRequest(&driveRequest) > Driving_Speed_Middlepoint) {  // speedRequest >50 => Drive Forward
       Driving_Direction = Forward;
-      if (Driving_Speed_Request >= Driving_Forward_Limit) {
-        Driving_Speed_Request = Driving_Forward_Limit;
-      }
-      Driving_SpeedPWM_DutyCycle = ((Driving_Speed_Request - Driving_Speed_Middlepoint) * Driving_Speed_Duty_Coef);  // Driving_Speed_Request 75 => Half Gas Forward => (75-50 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
-    } else if (Driving_Speed_Request < Driving_Speed_Middlepoint) {                                                  // Driving_Speed_Request <50 => Drive Reverse
+      Driving_SpeedPWM_DutyCycle = ((getDrivingSpeedRequest(&driveRequest) - Driving_Speed_Middlepoint) * Driving_Speed_Duty_Coef);  // speedRequest 75 => Half Gas Forward => (75-50 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
+    } else if (getDrivingSpeedRequest(&driveRequest) < Driving_Speed_Middlepoint) {                                                  // speedRequest <50 => Drive Reverse
       Driving_Direction = Backward;
-      if (Driving_Speed_Request <= Driving_Reverse_Limit) {
-        Driving_Speed_Request = Driving_Reverse_Limit;
-      }
-      Driving_SpeedPWM_DutyCycle = ((Driving_Speed_Middlepoint - Driving_Speed_Request) * Driving_Speed_Duty_Coef);  // Driving_Speed_Request 25 => Half Gas Reverse => (50-25 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
+      Driving_SpeedPWM_DutyCycle = ((Driving_Speed_Middlepoint - getDrivingSpeedRequest(&driveRequest)) * Driving_Speed_Duty_Coef);  // speedRequest 25 => Half Gas Reverse => (50-25 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
     } else {
       Driving_SpeedPWM_DutyCycle = 0;
     }
@@ -320,20 +330,13 @@ void ctrlCmdCallback(const void *msgin) {
     // ROS Calculations
     // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
     // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    int temp_request = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
-
-    if(temp_request> Steering_Right_Limit){
-      temp_request = Steering_Right_Limit;
-    } else if (temp_request< Steering_Left_Limit){
-      temp_request = Steering_Left_Limit;
-    }
-
-    Steering_Request = temp_request;
+    int tempSteeringRequest = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
+    setSteeringRequest(&driveRequest, tempSteeringRequest);
 
     // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
     // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
-    Driving_Speed_Request = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
-    ROS_Missing_Packet_Count = 0;
+    int tempSpeedRequest = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
+    setDrivingSpeedRequest(&driveRequest, tempSpeedRequest);
   }
 }
 
@@ -341,8 +344,10 @@ void ctrlCmdCallback(const void *msgin) {
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
 
-  char *variable_names[] = { "Steering_Request", "Steering_Potentiometer", "Driving_Speed_Request", "MODE" };    // names of the variables
-  long *variable_reference[] = { &Steering_Request, (long *)&Steering_Potentiometer, &Driving_Speed_Request, (long *)&mode_switch};  // reference of the variables
+  int steering = getSteeringRequest(&driveRequest);
+  int speed = getDrivingSpeedRequest(&driveRequest);
+  char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "MODE" };    // names of the variables
+  int *variable_reference[] = {&steering, (int *)&Steering_Potentiometer, &speed, &mode_switch};  // reference of the variables
   
   char final_string[256] = "";
   char buffer[128];
@@ -428,10 +433,10 @@ void setup() {
 
 void loop() {
   
-  generate_debug_data();
   delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
   
   mode_switch = digitalRead(ModeSwitchPin);    // read new state 
+  generate_debug_data();
   
   Current_Time = millis();
   if ((Current_Time - Previous_Time) >= ROS_Interval) {
@@ -465,11 +470,15 @@ void loop() {
         RC_in[i] = RC_decode(i);                  // receiver channel and apply failsafe
       }
     }
-    Steering_Request = (RC_in[0]-RC_Minimum)/RC_Scaler;   // Convert RC PWM value 1100 - 1900 to 0-100%, y = (x-1100)/8
-    Driving_Speed_Request = (RC_in[1] - RC_Minimum) / RC_Scaler;
+    int tempSteeringRequest = (RC_in[0]-RC_Minimum)/RC_Scaler;   // Convert RC PWM value 1100 - 1900 to 0-100%, y = (x-1100)/8
+    setSteeringRequest(&driveRequest, tempSteeringRequest);
+
+    int tempSpeedRequest = (RC_in[1] - RC_Minimum) / RC_Scaler;
+    setDrivingSpeedRequest(&driveRequest, tempSpeedRequest);
+    
   }
 
-  Steering_Difference = Steering_Request - Steering_Potentiometer;
+  Steering_Difference = getSteeringRequest(&driveRequest) - Steering_Potentiometer;
   Steering_Difference = abs(Steering_Difference);
   ROS_Steering_Measured = (-ROS_Steering_Command_yIntercept + float(Steering_Potentiometer)) / ROS_Steering_Command_Slope;  // Wheel steering angle in radians
 
