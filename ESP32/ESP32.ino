@@ -38,12 +38,12 @@ extern "C"{
 #define FLWheelPulsePin 4      // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
 #define HWIsolatorEnablePin 2  // Constant for Hardware control. Enable or disable Isolator IC's on PCB
 #define SafetySWPin 32         // Safety HW If '0' = safe
-#define ModeSwitchPin  18        // ESP32 pin GPIO18, which is connected to the button
+#define ModeSwitchPin 5        // ESP32 pin GPIO18, which is connected to the button
 
 /* Constants for Steering  */
 #define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Speed 10000   // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Steering_Speed 10000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
 #define Max_Half_Step_Count 50
 #define ADC_Bits 4095
 #define Left 0
@@ -51,7 +51,7 @@ extern "C"{
 
 /* Constants for Driving  */
 #define Driving_Speed_Middlepoint 50  // Dummy engineering constant for setting middlepoint of Speed Command
-#define Driving_Speed_Duty_Coef 20  // Dummy engineer Coefficient for scale PWM duty cycle
+#define Driving_Speed_Duty_Coef 20    // Dummy engineer Coefficient for scale PWM duty cycle
 #define Forward 1                     // Forward = 1
 #define Backward 0                    // Backward (Reverse) = 0
 
@@ -76,7 +76,7 @@ extern "C"{
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 /* Dummy engineering constants for setting Slope and y-intercept for calculation: Real Speed(ROS_Speed_Measured) * Slope + y-intercept */
-#define Speed_Measurement_Slope 12.0  // Example 3m/s*12+50 = 86
+#define Speed_Measurement_Slope 12.0        // Example 3m/s*12+50 = 86
 #define Speed_Measurement_yIntercept 50.0
 
 /* Constants for RC "pwm reading"  */
@@ -372,7 +372,7 @@ void setup() {
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
 
-  driveRequest = createCtrlRequest();
+  driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
 
   /* ROS Initialize */
   // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi

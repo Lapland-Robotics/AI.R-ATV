@@ -10,11 +10,11 @@ struct CtrlRequest {
 };
 
 // Function to create a new CtrlRequest object
-struct CtrlRequest* createCtrlRequest() {
+struct CtrlRequest* createCtrlRequest(int defaultSteering, int defaultSpeed) {
     struct CtrlRequest *newRequest = (struct CtrlRequest*)malloc(sizeof(struct CtrlRequest));
     if (newRequest) {
-        newRequest->steeringRequest = 50;
-        newRequest->speedRequest = 50;
+        newRequest->steeringRequest = defaultSteering;
+        newRequest->speedRequest = defaultSpeed;
     }
     return newRequest;
 }

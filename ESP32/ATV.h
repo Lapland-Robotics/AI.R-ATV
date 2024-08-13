@@ -19,7 +19,7 @@ int getDrivingSpeedRequest(struct CtrlRequest *request);
 void setDrivingSpeedRequest(struct CtrlRequest *request, int value);
 
 // Function to create and destroy CtrlRequest objects
-struct CtrlRequest* createCtrlRequest();
+struct CtrlRequest* createCtrlRequest(int defaultSteering, int defaultSpeed);
 void destroyCtrlRequest(struct CtrlRequest *request);
 
 #endif // ATV_CONTROL_H
