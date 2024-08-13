@@ -160,10 +160,9 @@ void error_loop(){
 
 /*Genarate debug String and push to the topic*/
 void error_debug(char error_cause[256]) {
-  snprintf(debugMsg.data.data, debugMsg.data.capacity, strcat("CRITICAL ERROR : ", error_cause));
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, "CRITICAL ERROR : %s", error_cause);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
-  error_debug(error_cause);
 }
 
 
@@ -314,7 +313,7 @@ void ctrlCmdCallback(const void *msgin) {
 void generate_debug_data() {
   int steering = getSteeringRequest(driveRequest);
   int speed = getDrivingSpeedRequest(driveRequest);
-  char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "MODE" };    // names of the variables
+  const char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "MODE" };    // names of the variables
   int *variable_reference[] = {&steering, (int *)&Steering_Potentiometer, &speed, &mode_switch};  // reference of the variables
   
   char final_string[256] = "";
