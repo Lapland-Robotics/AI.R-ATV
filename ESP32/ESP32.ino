@@ -43,8 +43,8 @@ extern "C"{
 /* Constants for Steering  */
 #define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Speed 10000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Max_Half_Step_Count 50
+#define Steering_Speed 8000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Max_Half_Step_Count 100
 #define ADC_Bits 4095
 #define Left 0
 #define Right 1
@@ -52,8 +52,8 @@ extern "C"{
 /* Constants for Driving  */
 #define Driving_Speed_Middlepoint 50  // Dummy engineering constant for setting middlepoint of Speed Command
 #define Driving_Speed_Duty_Coef 20    // Dummy engineer Coefficient for scale PWM duty cycle
-#define Forward 1                     // Forward = 1
-#define Backward 0                    // Backward (Reverse) = 0
+#define Forward 0                     // Forward = 0
+#define Backward 1                    // Backward (Reverse) = 1
 
 /* Constants for ROS Steering command calculation */
 #define ROS_Steering_Command_Slope -111.0
@@ -244,9 +244,8 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
   if (Steering_Enable == 1) {
     
-    if(Half_Step_Count<=Max_Half_Step_Count || 
-      Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Left||
-      -1 * Half_Step_Count>Max_Half_Step_Count && Steering_Direction == Right){
+    if(((-1 * Half_Step_Count)<Max_Half_Step_Count && Steering_Direction == Left) || 
+    (Half_Step_Count<Max_Half_Step_Count && Steering_Direction == Right)){
 
       Steering_Motor_Pulse = !Steering_Motor_Pulse;
       
@@ -313,8 +312,8 @@ void ctrlCmdCallback(const void *msgin) {
 void generate_debug_data() {
   int steering = getSteeringRequest(driveRequest);
   int speed = getDrivingSpeedRequest(driveRequest);
-  const char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "MODE" };    // names of the variables
-  int *variable_reference[] = {&steering, (int *)&Steering_Potentiometer, &speed, &mode_switch};  // reference of the variables
+  const char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "step" };    // names of the variables
+  int *variable_reference[] = {&steering, (int *)&Steering_Potentiometer, &speed, (int *)&Half_Step_Count};  // reference of the variables
   
   char final_string[256] = "";
   char buffer[128];

@@ -7,7 +7,7 @@
 #define Steering_Left_Limit 25    // Left direction limit value for Steering Pot
 #define Steering_Right_Limit 75   // Right direction limit value for Steering Pot
 #define Driving_Reverse_Limit 30  // Reverse Driving Speed limit (not actual speed m/s)
-#define Driving_Forward_Limit 70  // Forward Driving Speed limit (not actual speed m/s)
+#define Driving_Forward_Limit 75  // Forward Driving Speed limit (not actual speed m/s)
 
 struct CtrlRequest;
 

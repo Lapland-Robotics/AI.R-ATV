@@ -41,13 +41,13 @@ class Esp32ControllerNode(Node):
     # demo program to move the steering
     def timer_callback(self):
         if self.iteration % 4 == 0:
-            self.publish_twist(0.0, +0.1)
+            self.publish_twist(0.1, +0.1)
         if self.iteration % 4 == 1:
-            self.publish_twist(0.0, -0.2)
+            self.publish_twist(0.1, -0.2)
         if self.iteration % 4 == 2:
-            self.publish_twist(0.0, +0.1)
+            self.publish_twist(-0.1, +0.1)
         if self.iteration % 4 == 3:
-            self.publish_twist(0.0, -0.2)
+            self.publish_twist(-0.1, -0.2)
 
         self.iteration += 1
 
