@@ -24,7 +24,6 @@ extern "C"{
 }
 
 
-
 /* ESP32 pin definition */
 #define SteeringDirPin 12      // Steering Motor Direction
 #define SteeringPulsePin 13    // Steering Motor drive pulse
@@ -41,9 +40,9 @@ extern "C"{
 #define ModeSwitchPin 5        // ESP32 pin GPIO18, which is connected to the button
 
 /* Constants for Steering  */
-#define Steering_Deadband 3       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
+#define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
-#define Steering_Speed 8000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
+#define Steering_Speed 10000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
 #define Max_Half_Step_Count 100
 #define ADC_Bits 4095
 #define Left 0
