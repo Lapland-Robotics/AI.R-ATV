@@ -1,16 +1,19 @@
 # Main Brain - Jetson
 High-level functionality of the ATV. Running this part of the project is peace of cake. You just have to install Docker Engine and run two docker command to make this work!!!
 
-## Build
+## Build & Run
+
 ```bash
-sudo docker compose build
-```
-## Run 
-```bash
-docker compose up
+sudo docker compose build && sudo docker compose up
 ```
 
 ## Warning
+
+> **Warning:**
+> If you have a older docker composer version(Compose v1) use **docker-compose** command 
+```bash
+sudo docker-compose build && sudo docker-compose up
+```
 
 > **Warning:**
 > Ensure you are using Docker Engine directly for compatibility and performance reasons. If you use Docker Desktop you might find issues with serial communication. 
