@@ -37,7 +37,7 @@ extern "C"{
 #define FLWheelPulsePin 4      // Front Left Wheel rotation pulse, Use Hall Sensor with 8 magnets
 #define HWIsolatorEnablePin 2  // Constant for Hardware control. Enable or disable Isolator IC's on PCB
 #define SafetySWPin 32         // Safety HW If '0' = safe
-#define ModeSwitchPin 5        // ESP32 pin GPIO18, which is connected to the button
+#define ModeSwitchPin 5        // switch between RC mode <-> autonomous mode
 
 /* Constants for Steering  */
 #define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
@@ -201,10 +201,7 @@ void Driving() {
 // Safety Switch subroutine (interrupted)
 void Safety_Switch() {
   Safety_SW_State = digitalRead(SafetySWPin);
-  /* if (Safety_SW_State == 0){
-  Steering_Enable = 0;
-  Driving_Enable = 0;
-   }                */
+  ledcWrite(Driving_PWMChannel, 0);
 }
 
 
@@ -311,14 +308,14 @@ void ctrlCmdCallback(const void *msgin) {
 void generate_debug_data() {
   int steering = getSteeringRequest(driveRequest);
   int speed = getDrivingSpeedRequest(driveRequest);
-  const char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "step" };    // names of the variables
-  int *variable_reference[] = {&steering, (int *)&Steering_Potentiometer, &speed, (int *)&Half_Step_Count};  // reference of the variables
-  
+  const char *variable_names[] = { "Steering Request", "Steering Potentiometer", "Speed Request", "step", "Safety" };    // names of the variables
+  int variable_values[] = {steering,(int)Steering_Potentiometer, speed, (int)Half_Step_Count, (int)Safety_SW_State};  // values of the variables
+
   char final_string[256] = "";
   char buffer[128];
-
-  for (int i = 0; i < 4; i++) {
-    snprintf(buffer, sizeof(buffer), "%s: %ld | ", variable_names[i], *variable_reference[i]);
+  
+  for (int i = 0; i < 5; i++) {
+    snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
     strcat(final_string, buffer);
   }
 
@@ -328,13 +325,14 @@ void generate_debug_data() {
 }
 
 
+
 void setup() {
   Serial.begin(115200);
 
   pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
-  attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, RISING);
   pinMode(SteeringEnablePin, OUTPUT);
   digitalWrite(SteeringEnablePin, 0);
   pinMode(SteeringPulsePin, OUTPUT);
@@ -415,17 +413,6 @@ void loop() {
       ROS_Missing_Packet_Count = ++ROS_Missing_Packet_Count;
     }
     Previous_Time = Current_Time;
-/*
-#ifdef Simulation  // Compiler directives for simulation or not
-    ROS_ControlState.drive.steering_angle = ROS_Steering_Command;
-    ROS_ControlState.drive.speed = ROS_Speed_Command;
-#else  // Simulation
-    ROS_ControlState.drive.steering_angle = ROS_Steering_Measured;
-    ROS_ControlState.drive.speed = ROS_Speed_Measured;
-#endif
-    State.publish(&ROS_ControlState);
-    nh.spinOnce();
-*/
   } 
   
   if (mode_switch == 1) {
@@ -452,22 +439,17 @@ void loop() {
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
 
-#ifdef Simulation                                            // Compiler directives for simulation or not
-#define State1 Safety_SW_State == 0 || Safety_SW_State == 1  // Safety Switch OK or not
-#else                                                        // Simulation
-#define State1 Safety_SW_State == 0                          // Safety Switch OK
-#endif
-
-  if (State1) {
+  if (Safety_SW_State == 0) {
     if (Steering_Difference > Steering_Deadband) {
       Steering();
     } else {
       Steering_Enable = 0;
     }
     Driving_Enable = 1;
+    Driving();
   } else {
     Steering_Enable = 0;
     Driving_Enable = 0;
   }
-  Driving();
+
 }
