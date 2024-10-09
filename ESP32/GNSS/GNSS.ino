@@ -1,22 +1,9 @@
 /*
   Use ESP32 WiFi to get RTCM data from RTK2Go (caster) as a Client
-  By: SparkFun Electronics / Nathan Seidle
-  Date: November 18th, 2021
-  License: MIT. See license file for more information but you can
-  basically do whatever you want with this code.
-
+/
   This example shows how to obtain RTCM data from a NTRIP Caster over WiFi and push it over I2C to a ZED-F9x.
   The Arduino is acting as a 'client' to a 'caster'. In this case we will use RTK2Go.com as our caster because it is free. 
   See the NTRIPServer example to see how to push RTCM data to the caster.
-
-  You will need to have a valid mountpoint available. To see available mountpoints go here: http://rtk2go.com:2101/
-
-  For more information about NTRIP Clients and the differences between Rev1 and Rev2 of the protocol
-  please see: https://www.use-snip.com/kb/knowledge-base/ntrip-rev1-versus-rev2-formats/
-
-  Hardware Connections:
-  Plug a Qwiic cable into the GNSS and a ESP32 Thing Plus
-  Open the serial monitor at 115200 baud to see the output
 */
 
 //The ESP32 core has a built in base64 library but not every platform does
@@ -32,12 +19,34 @@
 #include <math.h>
 #include "secrets.h"
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>  //http://librarymanager/All#SparkFun_u-blox_GNSS
-
-#define EARTH_RADIUS_CM 637100000.0
+#include <micro_ros_arduino.h>
+#include <rcl/rcl.h>
+#include <rcl/error_handling.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
+#include <sensor_msgs/msg/nav_sat_fix.h>
+#include <std_msgs/msg/string.h>
 
 long lastReceivedRTCM_ms = 0;        //5 RTCM messages take approximately ~300ms to arrive at 115200bps
 int maxTimeBeforeHangup_ms = 10000;  //If we fail to get a complete RTCM frame after 10s, then disconnect from caster
+double latitude;    // Get latitude and convert to degrees
+double longitude;  // Get longitude and convert to degrees
+double altitude;        // Get altitude in meters
+double horizontal_accuracy;
+double vertical_accuracy;
+double real_distance;
+rcl_publisher_t gpsMsgPublisher;
+rcl_publisher_t debugMsgPublisher; // Define the new publisher
+rclc_support_t support;
+rcl_allocator_t allocator;
+rcl_node_t node;
+sensor_msgs__msg__NavSatFix navSatMsg;
+std_msgs__msg__String debugMsg;
 SFE_UBLOX_GNSS myGNSS;
+
+#define EARTH_RADIUS_CM 637100000.0
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 // GPS test points coordinates in lapinAMK
 double gpsTestPoint[3][2] = {
@@ -75,39 +84,54 @@ double haversine_distance(double lat1, double lon1, double lat2, double lon2) {
 }
 
 void setup() {
-  Serial.begin(115200);
-  Serial.println(F("NTRIP testing"));
-  Wire.begin();  //Start I2C
+  set_microros_transports(); // microros over serial
+  allocator = rcl_get_default_allocator();
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_gnss_node", "", &support));
 
+  RCCHECK(rclc_publisher_init_best_effort(&gpsMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gps"));
+  RCCHECK(rclc_publisher_init_best_effort(&debugMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String), "/snower/debug"));
+
+  // Initialize the navSatMsg message
+  navSatMsg.latitude = 0.0;
+  navSatMsg.longitude = 0.0;
+  navSatMsg.altitude = 0.0;
+  navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_UNKNOWN;
+
+  // Initialize the navSatMsg message
+  debugMsg.data.data = (char *)malloc(50 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.size = 0;
+  debugMsg.data.capacity = 50;
+
+  debug("NTRIP testing");
+  Wire.begin();  //Start I2C
   //Connect to the Ublox module using Wire port
   if (myGNSS.begin() == false) {
-    Serial.println(F("u-blox GPS not detected at default I2C address. Please check wiring. Freezing."));
+    debug("u-blox GPS not detected at default I2C address. Please check wiring. Freezing.");
     while (1);
   }
-  Serial.println(F("u-blox module connected"));
+  debug("u-blox module connected");
 
   myGNSS.setI2COutput(COM_TYPE_UBX);                                                 //Turn off NMEA noise
   myGNSS.setPortInput(COM_PORT_I2C, COM_TYPE_UBX | COM_TYPE_NMEA | COM_TYPE_RTCM3);  //Be sure RTCM3 input is enabled. UBX + RTCM3 is not a valid state.
   myGNSS.setNavigationFrequency(1);  //Set output in Hz.
 
-  Serial.print(F("Connecting to local WiFi"));
+  debug("Connecting to local WiFi");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
-    Serial.print(F("."));
+    debug(".");
   }
-  Serial.println();
-  Serial.print(F("WiFi connected with IP: "));
-  Serial.println(WiFi.localIP());
+  debug("WiFi connected with IP: ");
+  // debug(WiFi.localIP());
 
-  while (Serial.available()) Serial.read();
 }
 
 void loop() {
-  if (true) {
-    beginClient();
-    while (Serial.available()) Serial.read();  //Empty buffer of any newline chars
-  }
+
+  beginClient();
+
+  // real_distance = haversine_distance(latitude, longitude, gpsTestPoint[0][0], gpsTestPoint[0][1]);
 
   delay(1000);
 }
@@ -117,34 +141,30 @@ void beginClient() {
   WiFiClient ntripClient;
   long rtcmCount = 0;
 
-  Serial.println(F("Subscribing to Caster. Press key to stop"));
-  delay(10);                                 //Wait for any serial to arrive
-  while (Serial.available()) Serial.read();  //Flush
-
-  while (Serial.available() == 0) {
+  while (true) {
     //Connect if we are not already. Limit to 5s between attempts.
     if (ntripClient.connected() == false) {
-      Serial.print(F("Opening socket to "));
-      Serial.println(casterHost);
+      debug("Opening socket to ");
+      // debug(casterHost);
 
       if (ntripClient.connect(casterHost, casterPort) == false)  //Attempt connection
       {
-        Serial.println(F("Connection to caster failed"));
+        debug("Connection to caster failed");
         return;
       } else {
-        Serial.print(F("Connected to "));
-        Serial.print(casterHost);
-        Serial.print(F(": "));
-        Serial.println(casterPort);
+        debug("Connected to ");
+        // debug(casterHost);
+        // debug(F(": "));
+        // debug(casterPort);
 
-        Serial.print(F("Requesting NTRIP Data from mount point "));
-        Serial.println(mountPoint);
+        debug("Requesting NTRIP Data from mount point ");
+        // debug(mountPoint);
 
         const int SERVER_BUFFER_SIZE = 512;
         char serverRequest[SERVER_BUFFER_SIZE];
 
         snprintf(serverRequest, SERVER_BUFFER_SIZE, "GET /%s HTTP/1.0\r\nUser-Agent: NTRIP SparkFun u-blox Client v1.0\r\n",
-                 mountPoint);
+                  mountPoint);
 
         char credentials[512];
         if (strlen(casterUser) == 0) {
@@ -154,40 +174,40 @@ void beginClient() {
           char userCredentials[sizeof(casterUser) + sizeof(casterUserPW) + 1];  //The ':' takes up a spot
           snprintf(userCredentials, sizeof(userCredentials), "%s:%s", casterUser, casterUserPW);
 
-          Serial.print(F("Sending credentials: "));
-          Serial.println(userCredentials);
+          debug("Sending credentials: ");
+          debug(userCredentials);
 
-#if defined(ARDUINO_ARCH_ESP32)
+  #if defined(ARDUINO_ARCH_ESP32)
           //Encode with ESP32 built-in library
           base64 b;
           String strEncodedCredentials = b.encode(userCredentials);
           char encodedCredentials[strEncodedCredentials.length() + 1];
           strEncodedCredentials.toCharArray(encodedCredentials, sizeof(encodedCredentials));  //Convert String to char array
           snprintf(credentials, sizeof(credentials), "Authorization: Basic %s\r\n", encodedCredentials);
-#else
+  #else
           //Encode with nfriendly library
           int encodedLen = base64_enc_len(strlen(userCredentials));
           char encodedCredentials[encodedLen];                                          //Create array large enough to house encoded data
           base64_encode(encodedCredentials, userCredentials, strlen(userCredentials));  //Note: Input array is consumed
-#endif
+  #endif
         }
         strncat(serverRequest, credentials, SERVER_BUFFER_SIZE);
         strncat(serverRequest, "\r\n", SERVER_BUFFER_SIZE);
 
-        Serial.print(F("serverRequest size: "));
-        Serial.print(strlen(serverRequest));
-        Serial.print(F(" of "));
-        Serial.print(sizeof(serverRequest));
-        Serial.println(F(" bytes available"));
-        Serial.println(F("Sending server request:"));
-        Serial.println(serverRequest);
+        debug("serverRequest size: ");
+        // debug(strlen(serverRequest));
+        debug(" of ");
+        // debug(sizeof(serverRequest));
+        debug(" bytes available");
+        debug("Sending server request:");
+        debug(serverRequest);
         ntripClient.write(serverRequest, strlen(serverRequest));
 
         //Wait for response
         unsigned long timeout = millis();
         while (ntripClient.available() == 0) {
           if (millis() - timeout > 5000) {
-            Serial.println(F("Caster timed out!"));
+            debug("Caster timed out!");
             ntripClient.stop();
             return;
           }
@@ -206,24 +226,24 @@ void beginClient() {
             connectionSuccess = true;
 
           if (strstr(response, "401") > 0){
-            Serial.println(F("Hey - your credentials look bad! Check you caster username and password."));
+            debug("Hey - your credentials look bad! Check you caster username and password.");
             connectionSuccess = false;
           }
         }
         response[responseSpot] = '\0';
 
-        Serial.print(F("Caster responded with: "));
-        Serial.println(response);
+        debug("Caster responded with: ");
+        debug(response);
 
         if (connectionSuccess == false) {
-          Serial.print(F("Failed to connect to "));
-          Serial.print(casterHost);
-          Serial.print(F(": "));
-          Serial.println(response);
+          debug("Failed to connect to ");
+          // debug(casterHost);
+          debug(": ");
+          debug(response);
           return;
         } else {
-          Serial.print(F("Connected to "));
-          Serial.println(casterHost);
+          debug("Connected to ");
+          // debug(casterHost);
           lastReceivedRTCM_ms = millis();  //Reset timeout
         }
       }  //End attempt to connect
@@ -235,7 +255,7 @@ void beginClient() {
 
       //Print any available RTCM data
       while (ntripClient.available()) {
-        //Serial.write(ntripClient.read()); //Pipe to serial port is fine but beware, it's a lot of binary data
+        //debug(ntripClient.read()); //Pipe to serial port is fine but beware, it's a lot of binary data
         rtcmData[rtcmCount++] = ntripClient.read();
         if (rtcmCount == sizeof(rtcmData)) break;
       }
@@ -244,40 +264,44 @@ void beginClient() {
         lastReceivedRTCM_ms = millis();
         //Push RTCM to GNSS module over I2C
         myGNSS.pushRawData(rtcmData, rtcmCount, false);
-        Serial.print(F("RTCM pushed to ZED: "));
-        Serial.println(rtcmCount);
+        debug("RTCM pushed to ZED: ");
+        // debug(rtcmCount);
       }
 
       if (myGNSS.getGnssFixOk())  // Check if GNSS fix is available
       {
-        double latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
-        double longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
-        double altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
-        double horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 100.00;
-        double vertical_accuracy = myGNSS.getVerticalAccuracy() / 100.00;
-        double real_distance = haversine_distance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
+        latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
+        longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
+        altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
+        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 100.00;
+        vertical_accuracy = myGNSS.getVerticalAccuracy() / 100.00;
+        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_FIX;
 
-        Serial.print("Latitude: ");
-        Serial.print(latitude, 9);  // Print latitude with 7 decimal places
-        Serial.print(", Longitude: ");
-        Serial.print(longitude, 9);  // Print longitude with 7 decimal places
-        Serial.print(", Altitude: ");
-        Serial.print(altitude);
-        Serial.print(", horizontal_accuracy (cm): ");
-        Serial.print(horizontal_accuracy, 4);
-        Serial.print(", vertical_accuracy (cm): ");
-        Serial.print(vertical_accuracy, 4);
-        Serial.print(", real_distance (cm): ");
-        Serial.print(real_distance, 4);
-        Serial.println();
       } else {
-        Serial.println(F("Waiting for GNSS fix..."));
+
+        latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
+        longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
+        altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
+        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 100.00;
+        vertical_accuracy = myGNSS.getVerticalAccuracy() / 100.00;
+        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_NO_FIX;
+
       }
+
+      navSatMsg.latitude = latitude;
+      navSatMsg.longitude = longitude;
+      navSatMsg.altitude = altitude;
+
+      navSatMsg.position_covariance[0] = horizontal_accuracy;  // Horizontal accuracy
+      navSatMsg.position_covariance[4] = horizontal_accuracy;  // Same for covariance
+      navSatMsg.position_covariance[8] = vertical_accuracy;    // Vertical accuracy
+
+      RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
     }
 
     //Close socket if we don't have new data for 10s
     if (millis() - lastReceivedRTCM_ms > maxTimeBeforeHangup_ms) {
-      Serial.println(F("RTCM timeout. Disconnecting..."));
+      debug("RTCM timeout. Disconnecting...");
       if (ntripClient.connected() == true)
         ntripClient.stop();
       return;
@@ -285,8 +309,12 @@ void beginClient() {
 
     delay(10);
   }
+}
 
-  Serial.println(F("User pressed a key"));
-  Serial.println(F("Disconnecting..."));
-  ntripClient.stop();
+void debug(char text[256]) {
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, text);
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
+
+  delay(50); // Delay 0,5 second
 }
