@@ -1,9 +1,6 @@
 /*
-  Use ESP32 WiFi to get RTCM data from RTK2Go (caster) as a Client
-/
-  This example shows how to obtain RTCM data from a NTRIP Caster over WiFi and push it over I2C to a ZED-F9x.
-  The Arduino is acting as a 'client' to a 'caster'. In this case we will use RTK2Go.com as our caster because it is free. 
-  See the NTRIPServer example to see how to push RTCM data to the caster.
+  GNSS module obtain RTCM data from a NTRIP Caster over WiFi and push it over I2C to a ZED-F9x.
+  The module is acting as a 'client' to a 'caster'.
 */
 
 //The ESP32 core has a built in base64 library but not every platform does
@@ -18,6 +15,7 @@
 #include <stdio.h>
 #include <math.h>
 #include "secrets.h"
+#include <string>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>  //http://librarymanager/All#SparkFun_u-blox_GNSS
 #include <micro_ros_arduino.h>
 #include <rcl/rcl.h>
@@ -102,9 +100,9 @@ void microros_init(){
   navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_UNKNOWN;
 
   // Initialize the navSatMsg message
-  debugMsg.data.data = (char *)malloc(50 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.data = (char *)malloc(200 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
-  debugMsg.data.capacity = 50;
+  debugMsg.data.capacity = 200;
 }
 
 void nTrip_init(){
@@ -135,14 +133,14 @@ void nTrip_init(){
 }
 
 void setup() {
-  Serial.begin(115200);
-  // microros_init();
+  // Serial.begin(115200);
+  microros_init();
   nTrip_init();
 }
 
 void loop() {
   beginClient();
-  delay(1000);
+  delay(500);
 }
 
 //Connect to NTRIP Caster, receive RTCM, and push to ZED module over I2C
@@ -155,8 +153,8 @@ void beginClient() {
     if (ntripClient.connected() == false) {
       debug("Opening socket to %s", casterHost);
 
-      if (ntripClient.connect(casterHost, casterPort) == false)  //Attempt connection
-      {
+      //Attempt connection
+      if (ntripClient.connect(casterHost, casterPort) == false) {
         debug("Connection to caster failed");
         return;
       } else {
@@ -259,39 +257,47 @@ void beginClient() {
         myGNSS.pushRawData(rtcmData, rtcmCount, false);
         debug("RTCM pushed to ZED: %li", rtcmCount);
       }
+      
+      // Check if GNSS fix is available
+      if (myGNSS.getGnssFixOk()) {
 
-      if (myGNSS.getGnssFixOk())  // Check if GNSS fix is available
-      {
+        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_GBAS_FIX;
+        navSatMsg.status.service = sensor_msgs__msg__NavSatStatus__SERVICE_GPS;
+        navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
+        navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
+
         latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
         longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
         altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
-        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 100.00;
-        vertical_accuracy = myGNSS.getVerticalAccuracy() / 100.00;
-        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_FIX;
+        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 10000.00;  // Convert to meters
+        vertical_accuracy = myGNSS.getVerticalAccuracy() / 10000.00;  // Convert to meters
 
       } else {
+        
+        navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
+        navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
+        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_NO_FIX;
 
         latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
         longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
         altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
-        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 100.00;
-        vertical_accuracy = myGNSS.getVerticalAccuracy() / 100.00;
-        navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_NO_FIX;
+        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 10000.00;  // Convert to meters
+        vertical_accuracy = myGNSS.getVerticalAccuracy() / 10000.00;  // Convert to meters
 
       }
 
       navSatMsg.latitude = latitude;
       navSatMsg.longitude = longitude;
       navSatMsg.altitude = altitude;
-      navSatMsg.position_covariance[0] = horizontal_accuracy;  // Horizontal accuracy
-      navSatMsg.position_covariance[4] = horizontal_accuracy;  // Same for covariance
-      navSatMsg.position_covariance[8] = vertical_accuracy;    // Vertical accuracy
+      navSatMsg.position_covariance[0] = horizontal_accuracy * horizontal_accuracy;  // Horizontal accuracy
+      navSatMsg.position_covariance[4] = horizontal_accuracy * horizontal_accuracy;  // Same for covariance
+      navSatMsg.position_covariance[8] = vertical_accuracy * vertical_accuracy;    // Vertical accuracy
       navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
       distance = haversine_distance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
-      debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf cm, distance to point- %lf cm", latitude, longitude, horizontal_accuracy, distance);
+      debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf m, distance to point- %lf cm", latitude, longitude, horizontal_accuracy, distance);
 
-      // RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
+      RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
     }
 
     //Close socket if we don't have new data for 10s
@@ -306,25 +312,18 @@ void beginClient() {
   }
 }
 
-// void debug(char text[256]) {
-//   snprintf(debugMsg.data.data, debugMsg.data.capacity, text);
-//   debugMsg.data.size = strlen(debugMsg.data.data);
-//   RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
-
-//   delay(50); // Delay 0,5 second
-// }
-
 void debug(const char* format, ...) {
-  char buffer[600];  // Buffer to store the formatted message
+  char buffer[512];  // Buffer to store the formatted message
   va_list args;
 
   va_start(args, format);  // Initialize the variable argument list
-  sprintf(buffer, "[GNSS]: ");
-  vsprintf(buffer + strlen("[GNSS]: "), format, args);
-  
+  vsprintf(buffer, format, args);  // Format the string with the variable arguments
   va_end(args);  // Clean up the variable argument list
+  // Serial.println(buffer);
 
-  Serial.println(buffer);
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[GNSS]: %s", buffer);
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
 
   delay(50); 
 }
