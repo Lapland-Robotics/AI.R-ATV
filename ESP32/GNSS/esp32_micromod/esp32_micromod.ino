@@ -34,7 +34,7 @@ double longitude;  // Get longitude and convert to degrees
 double altitude;        // Get altitude in meters
 double horizontal_accuracy;
 double vertical_accuracy;
-double real_distance;
+double distance;
 rcl_publisher_t gpsMsgPublisher;
 rcl_publisher_t debugMsgPublisher; // Define the new publisher
 rclc_support_t support;
@@ -83,13 +83,16 @@ double haversine_distance(double lat1, double lon1, double lat2, double lon2) {
   return distance;
 }
 
-void setup() {
+void microros_init(){
+  
   set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
   RCCHECK(rclc_node_init_default(&node, "micro_ros_gnss_node", "", &support));
 
+  // publisher for /snower/gps
   RCCHECK(rclc_publisher_init_best_effort(&gpsMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gps"));
+  // publisher for /snower/debug
   RCCHECK(rclc_publisher_init_best_effort(&debugMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String), "/snower/debug"));
 
   // Initialize the navSatMsg message
@@ -102,9 +105,14 @@ void setup() {
   debugMsg.data.data = (char *)malloc(50 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
   debugMsg.data.capacity = 50;
+}
 
+void nTrip_init(){
+
+  // SparkFun_u-blox_GNSS
   debug("NTRIP testing");
   Wire.begin();  //Start I2C
+
   //Connect to the Ublox module using Wire port
   if (myGNSS.begin() == false) {
     debug("u-blox GPS not detected at default I2C address. Please check wiring. Freezing.");
@@ -112,27 +120,28 @@ void setup() {
   }
   debug("u-blox module connected");
 
-  myGNSS.setI2COutput(COM_TYPE_UBX);                                                 //Turn off NMEA noise
+  myGNSS.setI2COutput(COM_TYPE_UBX);  //Turn off NMEA noise
   myGNSS.setPortInput(COM_PORT_I2C, COM_TYPE_UBX | COM_TYPE_NMEA | COM_TYPE_RTCM3);  //Be sure RTCM3 input is enabled. UBX + RTCM3 is not a valid state.
   myGNSS.setNavigationFrequency(1);  //Set output in Hz.
 
-  debug("Connecting to local WiFi");
+  debug("Connecting to local WiFi...");
   WiFi.begin(ssid, password);
   while (WiFi.status() != WL_CONNECTED) {
     delay(500);
     debug(".");
   }
-  debug("WiFi connected with IP: ");
-  // debug(WiFi.localIP());
+  debug("WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
 
 }
 
+void setup() {
+  Serial.begin(115200);
+  // microros_init();
+  nTrip_init();
+}
+
 void loop() {
-
   beginClient();
-
-  // real_distance = haversine_distance(latitude, longitude, gpsTestPoint[0][0], gpsTestPoint[0][1]);
-
   delay(1000);
 }
 
@@ -144,21 +153,15 @@ void beginClient() {
   while (true) {
     //Connect if we are not already. Limit to 5s between attempts.
     if (ntripClient.connected() == false) {
-      debug("Opening socket to ");
-      // debug(casterHost);
+      debug("Opening socket to %s", casterHost);
 
       if (ntripClient.connect(casterHost, casterPort) == false)  //Attempt connection
       {
         debug("Connection to caster failed");
         return;
       } else {
-        debug("Connected to ");
-        // debug(casterHost);
-        // debug(F(": "));
-        // debug(casterPort);
-
-        debug("Requesting NTRIP Data from mount point ");
-        // debug(mountPoint);
+        debug("Connected to %s:%i ", casterHost, casterPort);
+        debug("Requesting NTRIP Data from mount point %s", mountPoint);
 
         const int SERVER_BUFFER_SIZE = 512;
         char serverRequest[SERVER_BUFFER_SIZE];
@@ -174,8 +177,7 @@ void beginClient() {
           char userCredentials[sizeof(casterUser) + sizeof(casterUserPW) + 1];  //The ':' takes up a spot
           snprintf(userCredentials, sizeof(userCredentials), "%s:%s", casterUser, casterUserPW);
 
-          debug("Sending credentials: ");
-          debug(userCredentials);
+          debug("Sending credentials...");
 
   #if defined(ARDUINO_ARCH_ESP32)
           //Encode with ESP32 built-in library
@@ -190,17 +192,13 @@ void beginClient() {
           char encodedCredentials[encodedLen];                                          //Create array large enough to house encoded data
           base64_encode(encodedCredentials, userCredentials, strlen(userCredentials));  //Note: Input array is consumed
   #endif
+
         }
         strncat(serverRequest, credentials, SERVER_BUFFER_SIZE);
         strncat(serverRequest, "\r\n", SERVER_BUFFER_SIZE);
 
-        debug("serverRequest size: ");
-        // debug(strlen(serverRequest));
-        debug(" of ");
-        // debug(sizeof(serverRequest));
-        debug(" bytes available");
-        debug("Sending server request:");
-        debug(serverRequest);
+        debug("serverRequest size: %d of %d bytes available", strlen(serverRequest), sizeof(serverRequest));
+        debug("Sending server request: %s", serverRequest);
         ntripClient.write(serverRequest, strlen(serverRequest));
 
         //Wait for response
@@ -232,18 +230,13 @@ void beginClient() {
         }
         response[responseSpot] = '\0';
 
-        debug("Caster responded with: ");
-        debug(response);
+        debug("Caster responded with: %s", response);
 
         if (connectionSuccess == false) {
-          debug("Failed to connect to ");
-          // debug(casterHost);
-          debug(": ");
-          debug(response);
+          debug("Failed to connect to %s : %s", casterHost, response);
           return;
         } else {
-          debug("Connected to ");
-          // debug(casterHost);
+          debug("Connected to %s", casterHost);
           lastReceivedRTCM_ms = millis();  //Reset timeout
         }
       }  //End attempt to connect
@@ -264,8 +257,7 @@ void beginClient() {
         lastReceivedRTCM_ms = millis();
         //Push RTCM to GNSS module over I2C
         myGNSS.pushRawData(rtcmData, rtcmCount, false);
-        debug("RTCM pushed to ZED: ");
-        // debug(rtcmCount);
+        debug("RTCM pushed to ZED: %li", rtcmCount);
       }
 
       if (myGNSS.getGnssFixOk())  // Check if GNSS fix is available
@@ -291,12 +283,15 @@ void beginClient() {
       navSatMsg.latitude = latitude;
       navSatMsg.longitude = longitude;
       navSatMsg.altitude = altitude;
-
       navSatMsg.position_covariance[0] = horizontal_accuracy;  // Horizontal accuracy
       navSatMsg.position_covariance[4] = horizontal_accuracy;  // Same for covariance
       navSatMsg.position_covariance[8] = vertical_accuracy;    // Vertical accuracy
+      navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_DIAGONAL_KNOWN;
 
-      RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
+      distance = haversine_distance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
+      debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf cm, distance to point- %lf cm", latitude, longitude, horizontal_accuracy, distance);
+
+      // RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
     }
 
     //Close socket if we don't have new data for 10s
@@ -311,10 +306,25 @@ void beginClient() {
   }
 }
 
-void debug(char text[256]) {
-  snprintf(debugMsg.data.data, debugMsg.data.capacity, text);
-  debugMsg.data.size = strlen(debugMsg.data.data);
-  RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
+// void debug(char text[256]) {
+//   snprintf(debugMsg.data.data, debugMsg.data.capacity, text);
+//   debugMsg.data.size = strlen(debugMsg.data.data);
+//   RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
 
-  delay(50); // Delay 0,5 second
+//   delay(50); // Delay 0,5 second
+// }
+
+void debug(const char* format, ...) {
+  char buffer[600];  // Buffer to store the formatted message
+  va_list args;
+
+  va_start(args, format);  // Initialize the variable argument list
+  sprintf(buffer, "[GNSS]: ");
+  vsprintf(buffer + strlen("[GNSS]: "), format, args);
+  
+  va_end(args);  // Clean up the variable argument list
+
+  Serial.println(buffer);
+
+  delay(50); 
 }
