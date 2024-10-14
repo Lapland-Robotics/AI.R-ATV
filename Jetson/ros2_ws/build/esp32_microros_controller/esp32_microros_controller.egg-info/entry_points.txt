@@ -1,3 +1,0 @@
-[console_scripts]
-esp32_node = esp32_microros_controller.esp32_microros_controller:main
-

@@ -1,0 +1,127 @@
+Used APK3 point (66.480572358,25.722133784) for test
+
+15:41:11.530 -> rst:0x1 (POWERON_RESET),boot:0x13 (SPI_FAST_FLASH_BOOT)
+15:41:11.530 -> configsip: 0, SPIWP:0xee
+15:41:11.530 -> clk_drv:0x00,q_drv:0x00,d_drv:0x00,cs0_drv:0x00,hd_drv:0x00,wp_drv:0x00
+15:41:11.530 -> mode:DIO, clock div:1
+15:41:11.530 -> load:0x3fff0030,len:1324
+15:41:11.530 -> ho 0 tail 12 room 4
+15:41:11.530 -> load:0x40078000,len:13508
+15:41:11.530 -> load:0x40080400,len:3604
+15:41:11.530 -> entry 0x400805f0
+15:41:11.788 -> NTRIP testing
+15:41:11.852 -> u-blox module connected
+15:41:11.884 -> Connecting to local WiFi.........
+15:41:16.495 -> WiFi connected with IP: 192.168.78.195
+15:41:16.495 -> Subscribing to Caster. Press key to stop
+15:41:16.527 -> Opening socket to rtk2go.com
+15:41:16.880 -> Connected to rtk2go.com: 2101
+15:41:16.880 -> Requesting NTRIP Data from mount point Taroniemi
+15:41:16.880 -> Sending credentials: janaka-d-sohan-at-lapinamk-d-fi:xxxxxx
+15:41:16.880 -> serverRequest size: 145 of 512 bytes available
+15:41:16.880 -> Sending server request:
+15:41:16.880 -> GET /Taroniemi HTTP/1.0
+15:41:16.880 -> User-Agent: NTRIP SparkFun u-blox Client v1.0
+15:41:16.912 -> Authorization: Basic xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx==
+15:41:16.912 -> 
+15:41:16.912 -> 
+15:41:17.299 -> Caster responded with: ICY 200 OK
+15:41:17.299 -> 
+15:41:17.299 -> Connected to rtk2go.com
+15:41:19.209 -> Latitude: 66.480609000, Longitude: 25.722178300, Altitude: 99.93, horizontal_accuracy (cm): 76.4100, vertical_accuracy (cm): 134.4900, real_distance (cm): 452.7989
+15:41:19.434 -> RTCM pushed to ZED: 1601
+15:41:21.245 -> Latitude: 66.480609100, Longitude: 25.722178300, Altitude: 99.94, horizontal_accuracy (cm): 5.8300, vertical_accuracy (cm): 9.7100, real_distance (cm): 453.7998
+15:41:21.504 -> RTCM pushed to ZED: 2048
+15:41:25.231 -> Latitude: 66.480609100, Longitude: 25.722142500, Altitude: 95.14, horizontal_accuracy (cm): 4.9100, vertical_accuracy (cm): 6.8900, real_distance (cm): 410.3790
+15:41:25.489 -> RTCM pushed to ZED: 2048
+15:41:29.921 -> Latitude: 66.480563500, Longitude: 25.722142500, Altitude: 95.14, horizontal_accuracy (cm): 4.9100, vertical_accuracy (cm): 6.8900, real_distance (cm): 105.8177
+15:41:30.180 -> RTCM pushed to ZED: 2048
+15:41:30.212 -> Latitude: 66.480564300, Longitude: 25.722143000, Altitude: 95.41, horizontal_accuracy (cm): 4.7200, vertical_accuracy (cm): 6.6600, real_distance (cm): 98.4920
+15:41:30.471 -> RTCM pushed to ZED: 2048
+15:41:33.387 -> Latitude: 66.480564500, Longitude: 25.722143200, Altitude: 95.47, horizontal_accuracy (cm): 4.7200, vertical_accuracy (cm): 6.6600, real_distance (cm): 96.8529
+15:41:33.646 -> RTCM pushed to ZED: 2048
+15:41:34.263 -> Latitude: 66.480564700, Longitude: 25.722143200, Altitude: 95.58, horizontal_accuracy (cm): 4.7400, vertical_accuracy (cm): 6.6400, real_distance (cm): 94.8514
+15:41:34.523 -> RTCM pushed to ZED: 2048
+15:41:37.470 -> Latitude: 66.480564800, Longitude: 25.722143400, Altitude: 95.62, horizontal_accuracy (cm): 4.7400, vertical_accuracy (cm): 6.6400, real_distance (cm): 94.2528
+15:41:37.728 -> RTCM pushed to ZED: 2048
+15:41:38.243 -> Latitude: 66.480565200, Longitude: 25.722143700, Altitude: 95.76, horizontal_accuracy (cm): 4.6900, vertical_accuracy (cm): 6.5300, real_distance (cm): 90.9459
+15:41:38.499 -> RTCM pushed to ZED: 2048
+15:41:41.431 -> Latitude: 66.480565200, Longitude: 25.722143800, Altitude: 95.80, horizontal_accuracy (cm): 4.6900, vertical_accuracy (cm): 6.5300, real_distance (cm): 91.1614
+15:41:41.689 -> RTCM pushed to ZED: 2048
+15:41:42.204 -> Latitude: 66.480565500, Longitude: 25.722144100, Altitude: 95.90, horizontal_accuracy (cm): 4.6100, vertical_accuracy (cm): 6.4900, real_distance (cm): 88.9416
+15:41:42.462 -> RTCM pushed to ZED: 2048
+15:41:45.396 -> Latitude: 66.480565600, Longitude: 25.722144200, Altitude: 95.94, horizontal_accuracy (cm): 4.6100, vertical_accuracy (cm): 6.4900, real_distance (cm): 88.2218
+15:41:45.654 -> RTCM pushed to ZED: 2048
+15:41:46.202 -> Latitude: 66.480565900, Longitude: 25.722144500, Altitude: 96.03, horizontal_accuracy (cm): 4.6000, vertical_accuracy (cm): 6.6000, real_distance (cm): 86.1260
+15:41:46.460 -> RTCM pushed to ZED: 2048
+15:41:49.390 -> Latitude: 66.480566000, Longitude: 25.722144600, Altitude: 96.05, horizontal_accuracy (cm): 4.6000, vertical_accuracy (cm): 6.6000, real_distance (cm): 85.4495
+15:41:49.647 -> RTCM pushed to ZED: 2048
+15:41:50.259 -> Latitude: 66.480566200, Longitude: 25.722144800, Altitude: 96.13, horizontal_accuracy (cm): 4.5100, vertical_accuracy (cm): 6.3500, real_distance (cm): 84.1314
+15:41:50.516 -> RTCM pushed to ZED: 2048
+15:41:53.449 -> Latitude: 66.480566300, Longitude: 25.722144900, Altitude: 96.15, horizontal_accuracy (cm): 4.5100, vertical_accuracy (cm): 6.3500, real_distance (cm): 83.4903
+15:41:53.706 -> RTCM pushed to ZED: 2048
+15:41:54.220 -> Latitude: 66.480566300, Longitude: 25.722145000, Altitude: 96.24, horizontal_accuracy (cm): 4.5500, vertical_accuracy (cm): 6.4000, real_distance (cm): 83.7532
+15:41:54.477 -> RTCM pushed to ZED: 2048
+15:41:57.220 -> Latitude: 66.480566400, Longitude: 25.722145100, Altitude: 96.25, horizontal_accuracy (cm): 4.5500, vertical_accuracy (cm): 6.5100, real_distance (cm): 83.1288
+15:41:57.511 -> RTCM pushed to ZED: 2048
+15:41:58.608 -> Latitude: 66.480566400, Longitude: 25.722145200, Altitude: 96.28, horizontal_accuracy (cm): 4.5400, vertical_accuracy (cm): 6.5100, real_distance (cm): 83.3976
+15:41:58.866 -> RTCM pushed to ZED: 2048
+15:42:03.287 -> Latitude: 66.480566400, Longitude: 25.722145200, Altitude: 96.28, horizontal_accuracy (cm): 4.4100, vertical_accuracy (cm): 6.8000, real_distance (cm): 83.3976
+15:42:03.545 -> RTCM pushed to ZED: 2048
+15:42:06.358 -> Latitude: 66.480566900, Longitude: 25.722145400, Altitude: 96.40, horizontal_accuracy (cm): 4.4100, vertical_accuracy (cm): 6.8000, real_distance (cm): 79.6248
+15:42:06.616 -> RTCM pushed to ZED: 2048
+15:42:07.262 -> Latitude: 66.480567000, Longitude: 25.722145400, Altitude: 96.44, horizontal_accuracy (cm): 4.4900, vertical_accuracy (cm): 6.6500, real_distance (cm): 78.7805
+15:42:07.523 -> RTCM pushed to ZED: 2048
+15:42:10.172 -> Latitude: 66.480566900, Longitude: 25.722145500, Altitude: 96.44, horizontal_accuracy (cm): 4.4900, vertical_accuracy (cm): 6.2400, real_distance (cm): 79.9127
+15:42:10.429 -> RTCM pushed to ZED: 2048
+15:42:11.559 -> Latitude: 66.480567000, Longitude: 25.722145500, Altitude: 96.47, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.2400, real_distance (cm): 79.0716
+15:42:11.786 -> RTCM pushed to ZED: 2048
+15:42:16.205 -> Latitude: 66.480567000, Longitude: 25.722145500, Altitude: 96.47, horizontal_accuracy (cm): 4.4300, vertical_accuracy (cm): 6.2700, real_distance (cm): 79.0716
+15:42:16.494 -> RTCM pushed to ZED: 2048
+15:42:19.253 -> Latitude: 66.480567400, Longitude: 25.722145600, Altitude: 96.55, horizontal_accuracy (cm): 4.4300, vertical_accuracy (cm): 6.1400, real_distance (cm): 76.0818
+15:42:19.512 -> RTCM pushed to ZED: 2048
+15:42:20.614 -> Latitude: 66.480567400, Longitude: 25.722145600, Altitude: 96.57, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.1400, real_distance (cm): 76.0818
+15:42:20.873 -> RTCM pushed to ZED: 2048
+15:42:25.284 -> Latitude: 66.480567400, Longitude: 25.722145600, Altitude: 96.57, horizontal_accuracy (cm): 4.4600, vertical_accuracy (cm): 6.4200, real_distance (cm): 76.0818
+15:42:25.545 -> RTCM pushed to ZED: 2048
+15:42:28.361 -> Latitude: 66.480567600, Longitude: 25.722145900, Altitude: 96.59, horizontal_accuracy (cm): 4.4600, vertical_accuracy (cm): 6.4200, real_distance (cm): 75.4291
+15:42:28.621 -> RTCM pushed to ZED: 2048
+15:42:29.268 -> Latitude: 66.480567800, Longitude: 25.722146000, Altitude: 96.63, horizontal_accuracy (cm): 4.4100, vertical_accuracy (cm): 6.1500, real_distance (cm): 74.2098
+15:42:29.528 -> RTCM pushed to ZED: 2048
+15:42:32.447 -> Latitude: 66.480567700, Longitude: 25.722146100, Altitude: 96.65, horizontal_accuracy (cm): 4.4100, vertical_accuracy (cm): 6.1500, real_distance (cm): 75.2950
+15:42:32.706 -> RTCM pushed to ZED: 2048
+15:42:33.254 -> Latitude: 66.480567800, Longitude: 25.722146000, Altitude: 96.68, horizontal_accuracy (cm): 4.5600, vertical_accuracy (cm): 6.5000, real_distance (cm): 74.2098
+15:42:33.511 -> RTCM pushed to ZED: 2048
+15:42:36.413 -> Latitude: 66.480567800, Longitude: 25.722146100, Altitude: 96.71, horizontal_accuracy (cm): 4.5600, vertical_accuracy (cm): 6.5000, real_distance (cm): 74.5345
+15:42:36.671 -> RTCM pushed to ZED: 2048
+15:42:37.219 -> Latitude: 66.480567900, Longitude: 25.722146100, Altitude: 96.74, horizontal_accuracy (cm): 4.5000, vertical_accuracy (cm): 6.4900, real_distance (cm): 73.7829
+15:42:37.477 -> RTCM pushed to ZED: 2048
+15:42:40.410 -> Latitude: 66.480567900, Longitude: 25.722146200, Altitude: 96.76, horizontal_accuracy (cm): 4.5000, vertical_accuracy (cm): 6.4900, real_distance (cm): 74.1122
+15:42:40.667 -> RTCM pushed to ZED: 2048
+15:42:41.182 -> Latitude: 66.480568100, Longitude: 25.722146400, Altitude: 96.80, horizontal_accuracy (cm): 4.5500, vertical_accuracy (cm): 6.6200, real_distance (cm): 73.3188
+15:42:41.440 -> RTCM pushed to ZED: 2048
+15:42:44.377 -> Latitude: 66.480568100, Longitude: 25.722146400, Altitude: 96.81, horizontal_accuracy (cm): 4.5500, vertical_accuracy (cm): 6.6200, real_distance (cm): 73.3188
+15:42:44.634 -> RTCM pushed to ZED: 2048
+15:42:45.279 -> Latitude: 66.480568200, Longitude: 25.722146600, Altitude: 96.84, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.5200, real_distance (cm): 73.2922
+15:42:45.537 -> RTCM pushed to ZED: 2048
+15:42:48.467 -> Latitude: 66.480568300, Longitude: 25.722146700, Altitude: 96.87, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.5200, real_distance (cm): 72.9440
+15:42:48.725 -> RTCM pushed to ZED: 2048
+15:42:49.240 -> Latitude: 66.480568500, Longitude: 25.722146800, Altitude: 96.91, horizontal_accuracy (cm): 4.3100, vertical_accuracy (cm): 6.0500, real_distance (cm): 71.9454
+15:42:49.497 -> RTCM pushed to ZED: 2048
+15:42:55.271 -> Latitude: 66.480568500, Longitude: 25.722146800, Altitude: 96.91, horizontal_accuracy (cm): 4.3100, vertical_accuracy (cm): 6.3400, real_distance (cm): 71.9454
+15:42:55.530 -> RTCM pushed to ZED: 2048
+15:42:56.629 -> Latitude: 66.480568600, Longitude: 25.722146900, Altitude: 96.91, horizontal_accuracy (cm): 4.4200, vertical_accuracy (cm): 6.3400, real_distance (cm): 71.6479
+15:42:56.886 -> RTCM pushed to ZED: 2048
+15:43:01.304 -> Latitude: 66.480568600, Longitude: 25.722146900, Altitude: 96.91, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.4400, real_distance (cm): 71.6479
+15:43:01.561 -> RTCM pushed to ZED: 2048
+15:43:04.405 -> Latitude: 66.480568900, Longitude: 25.722147100, Altitude: 96.95, horizontal_accuracy (cm): 4.4400, vertical_accuracy (cm): 6.4400, real_distance (cm): 70.4972
+15:43:04.630 -> RTCM pushed to ZED: 2048
+15:43:05.182 -> Latitude: 66.480569000, Longitude: 25.722147200, Altitude: 96.95, horizontal_accuracy (cm): 4.3700, vertical_accuracy (cm): 6.3700, real_distance (cm): 70.2724
+15:43:05.440 -> RTCM pushed to ZED: 2048
+15:43:07.182 -> Latitude: 66.480569000, Longitude: 25.722147200, Altitude: 96.97, horizontal_accuracy (cm): 4.5700, vertical_accuracy (cm): 7.1000, real_distance (cm): 70.2724
+15:43:07.441 -> RTCM pushed to ZED: 2048
+15:43:09.638 -> Latitude: 66.480569100, Longitude: 25.722147300, Altitude: 97.00, horizontal_accuracy (cm): 4.5700, vertical_accuracy (cm): 7.1000, real_distance (cm): 70.0674
+15:43:09.895 -> RTCM pushed to ZED: 2048
+15:43:14.323 -> Latitude: 66.480569100, Longitude: 25.722147300, Altitude: 97.00, horizontal_accuracy (cm): 4.4800, vertical_accuracy (cm): 6.5800, real_distance (cm): 70.0674
+15:43:14.581 -> RTCM pushed to ZED: 2048
+15:43:17.398 -> Latitude: 66.480569400, Longitude: 25.722147500, Altitude: 97.08, horizontal_accuracy (cm): 4.4800, vertical_accuracy (cm): 6.5800, real_distance (cm): 69.1817
