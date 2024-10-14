@@ -6,7 +6,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: atv_docker
-    container_name: atv_container
+    container_name: atv_docker
     tty: true
     privileged: true
     devices:
