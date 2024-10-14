@@ -15,9 +15,9 @@
 #include <stdio.h>
 #include <math.h>
 #include "secrets.h"
-#include <string>
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>  //http://librarymanager/All#SparkFun_u-blox_GNSS
 #include <micro_ros_arduino.h>
+#include <rosidl_runtime_c/string_functions.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
@@ -30,8 +30,8 @@ int maxTimeBeforeHangup_ms = 10000;  //If we fail to get a complete RTCM frame a
 double latitude;    // Get latitude and convert to degrees
 double longitude;  // Get longitude and convert to degrees
 double altitude;        // Get altitude in meters
-double horizontal_accuracy;
-double vertical_accuracy;
+double horizontalAccuracy;
+double verticalAccuracy;
 double distance;
 rcl_publisher_t gpsMsgPublisher;
 rcl_publisher_t debugMsgPublisher; // Define the new publisher
@@ -55,33 +55,30 @@ double gpsTestPoint[3][2] = {
 
 
 // Convert degrees to radians
-double deg_to_rad(double deg) {
+double degToRad(double deg) {
   return deg * (M_PI / 180.0);
 }
 
 // Haversine formula to calculate distance between two GPS coordinates in cm
-double haversine_distance(double lat1, double lon1, double lat2, double lon2) {
+double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
   // Convert latitudes and longitudes from degrees to radians
-  lat1 = deg_to_rad(lat1);
-  lon1 = deg_to_rad(lon1);
-  lat2 = deg_to_rad(lat2);
-  lon2 = deg_to_rad(lon2);
-
+  lat1 = degToRad(lat1);
+  lon1 = degToRad(lon1);
+  lat2 = degToRad(lat2);
+  lon2 = degToRad(lon2);
   // Differences between the points
   double dlat = lat2 - lat1;
   double dlon = lon2 - lon1;
-
   // Haversine formula
   double a = pow(sin(dlat / 2), 2) + cos(lat1) * cos(lat2) * pow(sin(dlon / 2), 2);
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
   // Distance in centimeters
   double distance = EARTH_RADIUS_CM * c;
 
   return distance;
 }
 
-void microros_init(){
+void microrosInit(){
   
   set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
@@ -105,7 +102,7 @@ void microros_init(){
   debugMsg.data.capacity = 200;
 }
 
-void nTrip_init(){
+void nTripInit(){
 
   // SparkFun_u-blox_GNSS
   debug("NTRIP testing");
@@ -134,13 +131,56 @@ void nTrip_init(){
 
 void setup() {
   // Serial.begin(115200);
-  microros_init();
-  nTrip_init();
+  microrosInit();
+  nTripInit();
 }
 
 void loop() {
   beginClient();
   delay(500);
+}
+
+void updateGpsVar(){
+  navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
+  navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
+
+  latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
+  longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
+  altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
+  horizontalAccuracy = myGNSS.getHorizontalAccuracy() / 10000.00;  // Convert to meters
+  verticalAccuracy = myGNSS.getVerticalAccuracy() / 10000.00;  // Convert to meters
+}
+
+
+void publishMsg(){
+  navSatMsg.latitude = latitude;
+  navSatMsg.longitude = longitude;
+  navSatMsg.altitude = altitude;
+  navSatMsg.position_covariance[0] = horizontalAccuracy * horizontalAccuracy;  // Horizontal accuracy
+  navSatMsg.position_covariance[4] = horizontalAccuracy * horizontalAccuracy;  // Same for covariance
+  navSatMsg.position_covariance[8] = verticalAccuracy * verticalAccuracy;    // Vertical accuracy
+  navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_DIAGONAL_KNOWN;
+
+  distance = haversineDistance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
+  debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf m, distance to point- %lf cm", latitude, longitude, horizontalAccuracy, distance);
+
+  RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
+}
+
+void debug(const char* format, ...) {
+  char buffer[512];  // Buffer to store the formatted message
+  va_list args;
+
+  va_start(args, format);  // Initialize the variable argument list
+  vsprintf(buffer, format, args);  // Format the string with the variable arguments
+  va_end(args);  // Clean up the variable argument list
+  // Serial.println(buffer);
+
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[GNSS]: %s", buffer);
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
+
+  delay(50); 
 }
 
 //Connect to NTRIP Caster, receive RTCM, and push to ZED module over I2C
@@ -260,44 +300,18 @@ void beginClient() {
       
       // Check if GNSS fix is available
       if (myGNSS.getGnssFixOk()) {
-
+        updateGpsVar();
         navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_GBAS_FIX;
         navSatMsg.status.service = sensor_msgs__msg__NavSatStatus__SERVICE_GPS;
-        navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
-        navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
-
-        latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
-        longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
-        altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
-        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 10000.00;  // Convert to meters
-        vertical_accuracy = myGNSS.getVerticalAccuracy() / 10000.00;  // Convert to meters
-
+        rosidl_runtime_c__String__assign(&navSatMsg.header.frame_id, "gnss-fix");
+        publishMsg();
       } else {
-        
-        navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
-        navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
+        updateGpsVar();
         navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_NO_FIX;
-
-        latitude = myGNSS.getLatitude() / 10000000.00;    // Get latitude and convert to degrees
-        longitude = myGNSS.getLongitude() / 10000000.00;  // Get longitude and convert to degrees
-        altitude = myGNSS.getAltitude() / 1000.00;        // Get altitude in meters
-        horizontal_accuracy = myGNSS.getHorizontalAccuracy() / 10000.00;  // Convert to meters
-        vertical_accuracy = myGNSS.getVerticalAccuracy() / 10000.00;  // Convert to meters
-
+        rosidl_runtime_c__String__assign(&navSatMsg.header.frame_id, "gnss");
+        publishMsg();
       }
-
-      navSatMsg.latitude = latitude;
-      navSatMsg.longitude = longitude;
-      navSatMsg.altitude = altitude;
-      navSatMsg.position_covariance[0] = horizontal_accuracy * horizontal_accuracy;  // Horizontal accuracy
-      navSatMsg.position_covariance[4] = horizontal_accuracy * horizontal_accuracy;  // Same for covariance
-      navSatMsg.position_covariance[8] = vertical_accuracy * vertical_accuracy;    // Vertical accuracy
-      navSatMsg.position_covariance_type = sensor_msgs__msg__NavSatFix__COVARIANCE_TYPE_DIAGONAL_KNOWN;
-
-      distance = haversine_distance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
-      debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf m, distance to point- %lf cm", latitude, longitude, horizontal_accuracy, distance);
-
-      RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
+      
     }
 
     //Close socket if we don't have new data for 10s
@@ -312,18 +326,3 @@ void beginClient() {
   }
 }
 
-void debug(const char* format, ...) {
-  char buffer[512];  // Buffer to store the formatted message
-  va_list args;
-
-  va_start(args, format);  // Initialize the variable argument list
-  vsprintf(buffer, format, args);  // Format the string with the variable arguments
-  va_end(args);  // Clean up the variable argument list
-  // Serial.println(buffer);
-
-  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[GNSS]: %s", buffer);
-  debugMsg.data.size = strlen(debugMsg.data.data);
-  RCSOFTCHECK(rcl_publish(&debugMsgPublisher, &debugMsg, NULL));
-
-  delay(50); 
-}
