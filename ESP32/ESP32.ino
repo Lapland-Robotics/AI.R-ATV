@@ -43,7 +43,7 @@ extern "C"{
 #define Steering_Deadband 2       // Acceptable steering error (here named "deadband"), to avoid steering jerking (bad steering position measurement and poor stepper motor drive)
 #define Steering_Middlepoint 50   // Steering Command Middle point
 #define Steering_Speed 10000      // Change Steering Speed Fast (half pulse 500 => 2*500 = 1000) 1000us ~ 1000Hz
-#define Max_Half_Step_Count 100
+#define Max_Half_Step_Count 30
 #define ADC_Bits 4095
 #define Left 0
 #define Right 1
@@ -112,7 +112,6 @@ volatile float Previous_Odometry = 0.0;   // Previous Odometry value (volatile b
 const float Odometry_Coefficient = (Wheel_Circumference / Wheel_Pulse_Magnet_Count / 2);  // Odometry_Coefficient: Correlation between wheel pulse magnets and real tyre arc and divided by 2, because odometry is average from Left and Right wheels
 
 /* Variables for Driving */
-volatile boolean Driving_Enable = 0;  // Enabling or disabling Driving (volatile because use in interrupt)
 volatile boolean Driving_Direction;   // Driving Direction 0 = Reverse and 1 = Forward (volatile because use in interrupt)
 long Driving_SpeedPWM_DutyCycle;      // PWM Duty Cycle for Driving motor controlle, 0 stop
 
@@ -165,35 +164,18 @@ void error_debug(char error_cause[256]) {
 }
 
 
-// Steering subroutine
-void Steering() {
-  if (getSteeringRequest(driveRequest) < Steering_Potentiometer) {  // Steering more left?
-    Steering_Enable = 1;
-    Steering_Direction = Left;
-  } else if (getSteeringRequest(driveRequest) > Steering_Potentiometer) {  // Steering more right?
-    Steering_Enable = 1;
-    Steering_Direction = Right;
-  } else {  // Don't steer :)
-    Steering_Enable = 0;
-  }
-  digitalWrite(SteeringDirPin, Steering_Direction);
-}
-
-
 // Driving subroutine
 void Driving() {
-  if (Driving_Enable == 1) {
-    if (getDrivingSpeedRequest(driveRequest) > Driving_Speed_Middlepoint) {  // speedRequest >50 => Drive Forward
-      Driving_Direction = Forward;
-      Driving_SpeedPWM_DutyCycle = ((getDrivingSpeedRequest(driveRequest) - Driving_Speed_Middlepoint) * Driving_Speed_Duty_Coef);  // speedRequest 75 => Half Gas Forward => (75-50 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
-    } else if (getDrivingSpeedRequest(driveRequest) < Driving_Speed_Middlepoint) {                                                  // speedRequest <50 => Drive Reverse
-      Driving_Direction = Backward;
-      Driving_SpeedPWM_DutyCycle = ((Driving_Speed_Middlepoint - getDrivingSpeedRequest(driveRequest)) * Driving_Speed_Duty_Coef);  // speedRequest 25 => Half Gas Reverse => (50-25 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
-    } else {
-      Driving_SpeedPWM_DutyCycle = 0;
-    }
-    ledcWrite(Driving_PWMChannel, Driving_SpeedPWM_DutyCycle);
+  if (getDrivingSpeedRequest(driveRequest) > Driving_Speed_Middlepoint) {  // speedRequest >50 => Drive Forward
+    Driving_Direction = Forward;
+    Driving_SpeedPWM_DutyCycle = ((getDrivingSpeedRequest(driveRequest) - Driving_Speed_Middlepoint) * Driving_Speed_Duty_Coef);  // speedRequest 75 => Half Gas Forward => (75-50 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
+  } else if (getDrivingSpeedRequest(driveRequest) < Driving_Speed_Middlepoint) {                                                  // speedRequest <50 => Drive Reverse
+    Driving_Direction = Backward;
+    Driving_SpeedPWM_DutyCycle = ((Driving_Speed_Middlepoint - getDrivingSpeedRequest(driveRequest)) * Driving_Speed_Duty_Coef);  // speedRequest 25 => Half Gas Reverse => (50-25 = 25) 25*20 = DutyCyle 500 (1023 = MAX)
+  } else {
+    Driving_SpeedPWM_DutyCycle = 0;
   }
+  ledcWrite(Driving_PWMChannel, Driving_SpeedPWM_DutyCycle);
   digitalWrite(DrivingDirPin, Driving_Direction);
 }
 
@@ -241,6 +223,7 @@ void IRAM_ATTR Front_Left_Wheel_Pulse() {
 
 //Timer interrupt for Steering Pulse
 bool IRAM_ATTR Steering_Pulse_Interrupt(void* param) {
+
   if (Steering_Enable == 1) {
     
     if(((-1 * Half_Step_Count)<Max_Half_Step_Count && Steering_Direction == Left) || 
@@ -282,6 +265,21 @@ bool IRAM_ATTR Steering_Calculation_Interrupt(void* param) {
   // Read Steering Potentiometer scale it 0-100%, Scale RC value to 0-100%, Check Switches
   Steering_AD_Value = analogRead(SteeringPotPin);               // read the potentiometer input pin
   Steering_Potentiometer = Steering_AD_Value * 100 / ADC_Bits;  // and convert it to 0-100%
+
+  Steering_Difference = getSteeringRequest(driveRequest) - Steering_Potentiometer;
+  Steering_Difference = abs(Steering_Difference);
+
+  if ((Steering_Difference > Steering_Deadband) && (getSteeringRequest(driveRequest) < Steering_Potentiometer)) {  // Steering more left?
+    Steering_Enable = 1;
+    Steering_Direction = Left;
+  } else if ((Steering_Difference > Steering_Deadband) && (getSteeringRequest(driveRequest) > Steering_Potentiometer)) {  // Steering more right?
+    Steering_Enable = 1;
+    Steering_Direction = Right;
+  } else {  // Don't steer :)
+    Steering_Enable = 0;
+  }
+  digitalWrite(SteeringDirPin, Steering_Direction);
+
   return true;
 }
 
@@ -364,7 +362,7 @@ void setup() {
 
   Steering_Pulse_Timer.attachInterruptInterval(Steering_Speed, Steering_Pulse_Interrupt);
   Speed_Calculation_Timer.attachInterruptInterval(Speed_Calculation_Interval * 1000, Speed_Calculation_Interrupt);
-  Steering_Calculation_Timer.attachInterruptInterval(60000, Steering_Calculation_Interrupt);
+  Steering_Calculation_Timer.attachInterruptInterval(2*Steering_Speed, Steering_Calculation_Interrupt);
 
   pinMode(HWIsolatorEnablePin, OUTPUT);
   digitalWrite(HWIsolatorEnablePin, 1);
@@ -400,7 +398,7 @@ void setup() {
 
 void loop() {
   
-  delay(100); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
+  delay(50); // to avoid the memory address CORRUPTED error and SW_CPU_RESET & SPI_FAST_FLASH_BOOT
   
   mode_switch = digitalRead(ModeSwitchPin);    // read new state 
   generate_debug_data();
@@ -415,17 +413,6 @@ void loop() {
       ROS_Missing_Packet_Count = ++ROS_Missing_Packet_Count;
     }
     Previous_Time = Current_Time;
-/*
-#ifdef Simulation  // Compiler directives for simulation or not
-    ROS_ControlState.drive.steering_angle = ROS_Steering_Command;
-    ROS_ControlState.drive.speed = ROS_Speed_Command;
-#else  // Simulation
-    ROS_ControlState.drive.steering_angle = ROS_Steering_Measured;
-    ROS_ControlState.drive.speed = ROS_Speed_Measured;
-#endif
-    State.publish(&ROS_ControlState);
-    nh.spinOnce();
-*/
   } 
   
   if (mode_switch == 1) {
@@ -445,29 +432,10 @@ void loop() {
     
   }
 
-  Steering_Difference = getSteeringRequest(driveRequest) - Steering_Potentiometer;
-  Steering_Difference = abs(Steering_Difference);
-  ROS_Steering_Measured = (-ROS_Steering_Command_yIntercept + float(Steering_Potentiometer)) / ROS_Steering_Command_Slope;  // Wheel steering angle in radians
+  Driving();
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
 
-#ifdef Simulation                                            // Compiler directives for simulation or not
-#define State1 Safety_SW_State == 0 || Safety_SW_State == 1  // Safety Switch OK or not
-#else                                                        // Simulation
-#define State1 Safety_SW_State == 0                          // Safety Switch OK
-#endif
 
-  if (State1) {
-    if (Steering_Difference > Steering_Deadband) {
-      Steering();
-    } else {
-      Steering_Enable = 0;
-    }
-    Driving_Enable = 1;
-  } else {
-    Steering_Enable = 0;
-    Driving_Enable = 0;
-  }
-  Driving();
 }
