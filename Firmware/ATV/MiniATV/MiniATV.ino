@@ -430,7 +430,9 @@ void loop() {
     
   }
 
-  Driving();
+  if (Safety_SW_State == 0) {
+    Driving();
+  }
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
