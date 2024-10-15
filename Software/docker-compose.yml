@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  atv_service:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: atv_docker
+    container_name: atv_docker
+    tty: true
+    privileged: true
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
+    ports:
+    #  - "8888:8888/udp" # microros over wifi
+      - 11811:11811 # ROS2 DDS communication
+    stdin_open: true
