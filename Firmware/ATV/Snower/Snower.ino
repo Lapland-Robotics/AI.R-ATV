@@ -1,31 +1,115 @@
-//Pins
+#include <stdio.h>
+#include <ESP32TimerInterrupt.h>    // 2.3.0 version
+#include <micro_ros_arduino.h>
+#include <rcl/rcl.h>
+#include <rcl/error_handling.h>
+#include <rclc/rclc.h>
+#include <rclc/executor.h>
+#include <geometry_msgs/msg/twist.h>
+#include <std_msgs/msg/string.h>
+#include <std_msgs/msg/int32.h>
+extern "C"{
+  #include "ATV.h"
+}
+
+/* ESP32 pin definition */
 #define CH1RCPin 18 //Remote Control ch1
 #define CH2RCPin 19 //Remote Control ch2
 #define Motor1DirPin  22 //Motor1 Direction
 #define Motor2DirPin  23 //Motor2 Direction
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
+#define ModeSwitchPin 5 // switch between RC mode <-> autonomous mode
  
 //Constants
 #define FREQ  490  //AnalogWrite frequency
-#define MAX_T 2500 //Max signal threshold
+#define MAX_T 1000 //Max signal threshold
 #define MIN_T 500  //Min signal threshold
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
+#define Steering_Middlepoint 0   // Steering Command Middle point
+#define Driving_Speed_Middlepoint 0  // Dummy engineering constant for setting middlepoint of Speed Command
+#define ROS_Steering_Command_yIntercept 0
+#define ROS_Speed_Command_yIntercept 0
+#define ROS_Steering_Command_Slope 255
+#define ROS_Speed_Command_Slope 255
+
+/*ROS2 Constants*/
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
+#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+
+/* ROS topics related variables*/
+std_msgs__msg__String debugMsg;
+geometry_msgs__msg__Twist ctrlCmdMsg;
+rcl_publisher_t debugPublisher;
+rcl_subscription_t ctrlCmdSubscription;
+rclc_support_t support;
+rcl_allocator_t allocator;
+rcl_node_t node;
+rclc_executor_t ctrlCmdExecutor;
+struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use the getters and setters
 
 float turnFactor = 0.5; 
-//Variables
-int angle, speed;
 int motor1, motor2;
+int mode_switch;       // the current state of the button
+
+
+// error function
+void error_loop(){
+  while(1){
+    Serial.print("Micro ROS Error... \n");
+  }
+}
+
+/*Genarate debug String and push to the topic*/
+void generate_debug_data() {
+  int steering = getSteeringRequest(driveRequest);
+  int speed = getDrivingSpeedRequest(driveRequest);
+  const char *variable_names[] = { "Steering Request", "Speed Request"};    // names of the variables
+  int variable_values[] = {steering,speed};  // values of the variables
+
+  char final_string[256] = "";
+  char buffer[128];
+  
+  for (int i = 0; i < 2; i++) {
+    snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
+    strcat(final_string, buffer);
+  }
+
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, final_string);
+  debugMsg.data.size = strlen(debugMsg.data.data);
+  RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
+}
+
+// ROS Callbacks
+void ctrlCmdCallback(const void *msgin) {
+  if(mode_switch == 1){
+    const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
+
+    float ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
+    float ROS_Speed_Command = steering_input->linear.x; // Assuming linear.x is used for speed
+
+    // ROS Calculations
+    // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
+    // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
+    int tempSteeringRequest = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
+    setSteeringRequest(driveRequest, tempSteeringRequest);
+
+    // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
+    // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
+    int tempSpeedRequest = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
+    setDrivingSpeedRequest(driveRequest, tempSpeedRequest);
+  }
+}
 
 void setup() {
   Serial.begin(115200);
-  Serial.println("Initialising...");
  
   //pin initialising
   pinMode(CH1RCPin, INPUT);
   pinMode(CH2RCPin, INPUT);
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
+  pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
  
   //Initialising PWM on ESP32
   ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
@@ -33,30 +117,58 @@ void setup() {
   ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
   ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
 
+  driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
+
+  /* ROS Initialize */
+  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  set_microros_transports(); // microros over serial
+  allocator = rcl_get_default_allocator();
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/snower/debug")); // create debug publisher
+
+  // Initialize the String message
+  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.size = 0;
+  debugMsg.data.capacity = 100;
+
+  // Create subscription
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/snower/ctrl_cmd"));
+
+  // Initialize executor
+  RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+
 }
 
 void getRC(){
+  int angle, speed;
   int xRaw = pulseIn(CH1RCPin, HIGH);
   int yRaw = pulseIn(CH2RCPin, HIGH);
  
   //X-axis control
-  if(xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T)
-  {
+  if(xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T) {
     angle = map(xRaw,993,2016,-255,255);
     speed = map(yRaw,1027,2010,-255,255);
+    setSteeringRequest(driveRequest, angle);
+    setDrivingSpeedRequest(driveRequest, speed);
+  } else {
+    setSteeringRequest(driveRequest, 0);
+    setDrivingSpeedRequest(driveRequest, 0);
   }
-  
-  else {
-    angle = 0;
-    speed = 0;
-    digitalWrite(Motor2DirPin, HIGH);
-    ledcWrite(1, 0); // Stop PWM output on channel 1
-    digitalWrite(Motor2DirPin, HIGH);
-    ledcWrite(1, 0); // Stop PWM output on channel 1
-  }
+
+
 }
 
 void driving() {
+
+  int speed = getDrivingSpeedRequest(driveRequest);
+  int angle = getSteeringRequest(driveRequest);
+
+  Serial.print("speed : ");
+  Serial.print(speed);
+  Serial.print(", angle: ");
+  Serial.print(angle);
   
   int _x, _y;
   if(speed + (abs(angle) * turnFactor) > 255 || speed - (abs(angle) * turnFactor) < -255) {
@@ -73,10 +185,24 @@ void driving() {
   ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
   digitalWrite(Motor2DirPin, motor2 >= 0);
   ledcWrite(1, abs(motor2)); // Writing PWM to channel 1 (MotorSpeedPWM2)
+
+  Serial.print("motor1 : ");
+  Serial.print(motor1);
+  Serial.print(", motor2: ");
+  Serial.println(motor2);
+
 }
 
 void loop() {
-  getRC();
-  driving();
   delay(50);
+  mode_switch = digitalRead(ModeSwitchPin);    // read new state 
+  generate_debug_data();
+
+  if(mode_switch == 0){
+    getRC();
+  }
+  driving();
+  // Spin the executor to handle incoming messages
+  rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
+
 }

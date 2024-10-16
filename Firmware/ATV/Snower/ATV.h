@@ -4,10 +4,10 @@
 #define ATV_H
 
 #define RC_input_Count 2
-#define Steering_Left_Limit 30    // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 70   // Right direction limit value for Steering Pot
-#define Driving_Reverse_Limit 30  // Reverse Driving Speed limit (not actual speed m/s)
-#define Driving_Forward_Limit 75  // Forward Driving Speed limit (not actual speed m/s)
+#define Steering_Left_Limit -150    // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 150   // Right direction limit value for Steering Pot
+#define Driving_Reverse_Limit -150  // Reverse Driving Speed limit (not actual speed m/s)
+#define Driving_Forward_Limit 150  // Forward Driving Speed limit (not actual speed m/s)
 
 struct CtrlRequest;
 
