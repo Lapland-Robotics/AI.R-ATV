@@ -1,10 +1,10 @@
 //Pins
-#define CH1   18 //Throttle ch1
-#define CH2   19 //Throttle ch2
-#define DIG1  22 //Direction ch1
-#define DIG2  23 //Direction ch2
-#define AOUT1 25 //Output ch1
-#define AOUT2 26 //Output ch2
+#define CH1RCPin 18 //Remote Control ch1
+#define CH2RCPin 19 //Remote Control ch2
+#define Motor1DirPin  22 //Motor1 Direction
+#define Motor2DirPin  23 //Motor2 Direction
+#define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
+#define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
  
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -14,93 +14,69 @@
 
 float turnFactor = 0.5; 
 //Variables
-int xAxis, xRaw;
-int yAxis, yRaw;
+int angle, speed;
 int motor1, motor2;
 
 void setup() {
   Serial.begin(115200);
   Serial.println("Initialising...");
  
-  //Initialising digital outputs
-  pinMode(DIG1, OUTPUT);
-  pinMode(DIG2, OUTPUT);
+  //pin initialising
+  pinMode(CH1RCPin, INPUT);
+  pinMode(CH2RCPin, INPUT);
+  pinMode(Motor1DirPin, OUTPUT);
+  pinMode(Motor2DirPin, OUTPUT);
  
   //Initialising PWM on ESP32
-  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for AOUT1
-  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for AOUT2
-  
-  ledcAttachPin(AOUT1, 0); // Attach AOUT1 to channel 0
-  ledcAttachPin(AOUT2, 1); // Attach AOUT2 to channel 1
- 
-  //initialising digital inputs
-  pinMode(CH1, INPUT);
-  pinMode(CH2, INPUT);
+  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
+  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
+  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
+  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
+
 }
 
-void loop() {
-  xRaw = pulseIn(CH1, HIGH);
-  yRaw = pulseIn(CH2, HIGH);
+void getRC(){
+  int xRaw = pulseIn(CH1RCPin, HIGH);
+  int yRaw = pulseIn(CH2RCPin, HIGH);
  
   //X-axis control
   if(xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T)
-  { 
-
-    xAxis = map(xRaw,993,2016,-255,255);
-    yAxis = map(yRaw,1027,2010,-255,255);
-    
-    getMotorValues(xAxis, yAxis, &motor1, &motor2);
-
-    
-    digitalWrite(DIG1, motor1 >= 0);
-    ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
-    digitalWrite(DIG2, motor2 >= 0);
-    ledcWrite(1, abs(motor2)); // Writing PWM to channel 1 (AOUT2)
- 
-    Serial.print("xAxis: ");
-    Serial.print(xAxis);
-    Serial.print(", yAxis: ");
-    Serial.print(yAxis);
-    Serial.print(", Motor1: ");
-    Serial.print(motor1);
-    Serial.print(", Motor2: ");
-    Serial.println(motor2);
-    delay(50);
+  {
+    angle = map(xRaw,993,2016,-255,255);
+    speed = map(yRaw,1027,2010,-255,255);
   }
   
   else {
-    if (xRaw < MIN_T || xRaw > MAX_T)
-    {
-      Serial.println("CHANNEL X DEAD");
-      digitalWrite(DIG1, HIGH);
-      ledcWrite(0, 0); // Stop PWM output on channel 0
-    }
-    else {
-      Serial.println("AXIS CONTROL MAP ERROR");
-    }
-
-    if (yRaw < MIN_T || yRaw > MAX_T)
-    {
-    Serial.println("CHANNEL Y DEAD");
-    digitalWrite(DIG2, HIGH);
+    angle = 0;
+    speed = 0;
+    digitalWrite(Motor2DirPin, HIGH);
     ledcWrite(1, 0); // Stop PWM output on channel 1
-    }
-    else {
-      Serial.println("AXIS CONTROL MAP ERROR");
-    }
+    digitalWrite(Motor2DirPin, HIGH);
+    ledcWrite(1, 0); // Stop PWM output on channel 1
   }
 }
 
-void getMotorValues(int x, int y, int *m1, int *m2) {
+void driving() {
   
   int _x, _y;
-  if(y + (abs(x) * turnFactor) > 255 || y - (abs(x) * turnFactor) < -255) {
-    _x = x * (255 / (abs(y) + (abs(x) * turnFactor)));
-    _y = y * (255 / (abs(y) + (abs(x) * turnFactor)));
-    x=_x;
-    y=_y;
+  if(speed + (abs(angle) * turnFactor) > 255 || speed - (abs(angle) * turnFactor) < -255) {
+    _x = angle * (255 / (abs(speed) + (abs(angle) * turnFactor)));
+    _y = speed * (255 / (abs(speed) + (abs(angle) * turnFactor)));
+    angle=_x;
+    speed=_y;
   }
   
-  *m1 = y + (x*turnFactor);
-  *m2 = -y + (x*turnFactor);
+  motor1 = speed + (angle*turnFactor);
+  motor2 = -speed + (angle*turnFactor);
+
+  digitalWrite(Motor1DirPin, motor1 >= 0);
+  ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
+  digitalWrite(Motor2DirPin, motor2 >= 0);
+  ledcWrite(1, abs(motor2)); // Writing PWM to channel 1 (MotorSpeedPWM2)
+}
+
+void loop() {
+  getRC();
+  driving();
+  delay(50);
 }
