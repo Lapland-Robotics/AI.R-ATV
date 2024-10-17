@@ -23,7 +23,7 @@ extern "C"{
  
 //Constants
 #define FREQ  490  //AnalogWrite frequency
-#define MAX_T 1000 //Max signal threshold
+#define MAX_T 2500 //Max signal threshold
 #define MIN_T 500  //Min signal threshold
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
 #define Steering_Middlepoint 0   // Steering Command Middle point
@@ -32,6 +32,11 @@ extern "C"{
 #define ROS_Speed_Command_yIntercept 0
 #define ROS_Steering_Command_Slope 255
 #define ROS_Speed_Command_Slope 255
+
+/* Time variables */
+unsigned long CurrentTime = 0;   // Time now in milli seconds [ms]
+unsigned long PreviousTime = 0;  // Last iteration time in milli seconds [ms]
+unsigned long TimeOut = 400;
 
 /*ROS2 Constants*/
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
@@ -50,6 +55,7 @@ struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use
 
 float turnFactor = 0.5; 
 int motor1, motor2;
+int xRaw, yRaw;
 int mode_switch;       // the current state of the button
 
 
@@ -60,17 +66,23 @@ void error_loop(){
   }
 }
 
+boolean isRCActive(){
+  return (xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T);
+  // return false;
+}
+
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
   int steering = getSteeringRequest(driveRequest);
   int speed = getDrivingSpeedRequest(driveRequest);
-  const char *variable_names[] = { "Steering Request", "Speed Request"};    // names of the variables
-  int variable_values[] = {steering,speed};  // values of the variables
+  int rc= (int)isRCActive();
+  const char *variable_names[] = { "Steering Request", "Speed Request", "xRaw", "yRaw", "isRCActive()"};    // names of the variables
+  int variable_values[] = {steering, speed, (int)xRaw, (int)yRaw, rc};  // values of the variables
 
   char final_string[256] = "";
   char buffer[128];
   
-  for (int i = 0; i < 2; i++) {
+  for (int i = 0; i < 5; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
     strcat(final_string, buffer);
   }
@@ -82,7 +94,7 @@ void generate_debug_data() {
 
 // ROS Callbacks
 void ctrlCmdCallback(const void *msgin) {
-  if(mode_switch == 1){
+  if(!isRCActive()){
     const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
 
     float ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
@@ -98,7 +110,29 @@ void ctrlCmdCallback(const void *msgin) {
     // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
     int tempSpeedRequest = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
     setDrivingSpeedRequest(driveRequest, tempSpeedRequest);
+
+    PreviousTime = millis();
   }
+}
+
+void IRAM_ATTR CH1_interrupt() {
+    if (digitalRead(CH1RCPin) == HIGH) {
+        // Rising edge - start timing
+        xRaw = micros();
+    } else {
+        // Falling edge - calculate pulse width
+        xRaw = micros() - xRaw;
+    }
+}
+
+void IRAM_ATTR CH2_interrupt() {
+    if (digitalRead(CH2RCPin) == HIGH) {
+        // Rising edge - start timing
+        yRaw = micros();
+    } else {
+        // Falling edge - calculate pulse width
+        yRaw = micros() - yRaw;
+    }
 }
 
 void setup() {
@@ -110,6 +144,10 @@ void setup() {
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
   pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
+
+  // Attach interrupts to pins
+  attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(CH2RCPin), CH2_interrupt, CHANGE);
  
   //Initialising PWM on ESP32
   ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
@@ -142,21 +180,12 @@ void setup() {
 }
 
 void getRC(){
-  int angle, speed;
-  int xRaw = pulseIn(CH1RCPin, HIGH);
-  int yRaw = pulseIn(CH2RCPin, HIGH);
- 
   //X-axis control
-  if(xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T) {
-    angle = map(xRaw,993,2016,-255,255);
-    speed = map(yRaw,1027,2010,-255,255);
-    setSteeringRequest(driveRequest, angle);
-    setDrivingSpeedRequest(driveRequest, speed);
-  } else {
-    setSteeringRequest(driveRequest, 0);
-    setDrivingSpeedRequest(driveRequest, 0);
-  }
-
+  int angle = map(xRaw,993,2016,-255,255);
+  int speed = map(yRaw,1027,2010,-255,255);
+  setSteeringRequest(driveRequest, angle);
+  setDrivingSpeedRequest(driveRequest, speed);
+  PreviousTime = millis();
 
 }
 
@@ -194,13 +223,21 @@ void driving() {
 }
 
 void loop() {
-  delay(50);
+  delay(30);
   mode_switch = digitalRead(ModeSwitchPin);    // read new state 
   generate_debug_data();
 
-  if(mode_switch == 0){
+  if(isRCActive()){
     getRC();
   }
+
+  CurrentTime = millis();
+  if ((CurrentTime - PreviousTime) >= TimeOut) {
+    setSteeringRequest(driveRequest, 0);
+    setDrivingSpeedRequest(driveRequest, 0);
+  }
+
+
   driving();
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
