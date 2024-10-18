@@ -19,7 +19,6 @@ extern "C"{
 #define Motor2DirPin  23 //Motor2 Direction
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
-#define ModeSwitchPin 5 // switch between RC mode <-> autonomous mode
  
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -55,7 +54,12 @@ struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use
 
 float turnFactor = 0.5; 
 int motor1, motor2;
-int xRaw, yRaw;
+
+// RC
+unsigned long ch1_start_time = 0;
+unsigned long ch2_start_time = 0;
+int xRaw = 0;
+int yRaw = 0;
 int mode_switch;       // the current state of the button
 
 
@@ -118,20 +122,20 @@ void ctrlCmdCallback(const void *msgin) {
 void IRAM_ATTR CH1_interrupt() {
     if (digitalRead(CH1RCPin) == HIGH) {
         // Rising edge - start timing
-        xRaw = micros();
+        ch1_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        xRaw = micros() - xRaw;
+        xRaw = micros() - ch1_start_time;
     }
 }
 
 void IRAM_ATTR CH2_interrupt() {
     if (digitalRead(CH2RCPin) == HIGH) {
         // Rising edge - start timing
-        yRaw = micros();
+        ch2_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        yRaw = micros() - yRaw;
+        yRaw = micros() - ch2_start_time;
     }
 }
 
@@ -143,7 +147,12 @@ void setup() {
   pinMode(CH2RCPin, INPUT);
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
-  pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
+
+  // Initialize motor PWM channels to zero to prevent erratic motor startup
+  digitalWrite(Motor1SpeedPWMPin, LOW);
+  digitalWrite(Motor1SpeedPWMPin, LOW);
+  ledcWrite(0, 0);  // Stop Motor 1
+  ledcWrite(1, 0);  // Stop Motor 2
 
   // Attach interrupts to pins
   attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
@@ -193,11 +202,6 @@ void driving() {
 
   int speed = getDrivingSpeedRequest(driveRequest);
   int angle = getSteeringRequest(driveRequest);
-
-  Serial.print("speed : ");
-  Serial.print(speed);
-  Serial.print(", angle: ");
-  Serial.print(angle);
   
   int _x, _y;
   if(speed + (abs(angle) * turnFactor) > 255 || speed - (abs(angle) * turnFactor) < -255) {
@@ -210,21 +214,19 @@ void driving() {
   motor1 = speed + (angle*turnFactor);
   motor2 = -speed + (angle*turnFactor);
 
+  // Ensure motor PWM values are within limits
+  motor1 = constrain(motor1, -255, 255);
+  motor2 = constrain(motor2, -255, 255);
+
   digitalWrite(Motor1DirPin, motor1 >= 0);
   ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
   digitalWrite(Motor2DirPin, motor2 >= 0);
   ledcWrite(1, abs(motor2)); // Writing PWM to channel 1 (MotorSpeedPWM2)
 
-  Serial.print("motor1 : ");
-  Serial.print(motor1);
-  Serial.print(", motor2: ");
-  Serial.println(motor2);
-
 }
 
 void loop() {
   delay(30);
-  mode_switch = digitalRead(ModeSwitchPin);    // read new state 
   generate_debug_data();
 
   if(isRCActive()){
