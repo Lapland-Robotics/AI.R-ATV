@@ -1,4 +1,4 @@
-FROM microros/micro-ros-agent:foxy
+FROM ros:humble
 
 # install ros package
 RUN apt-get update

@@ -91,7 +91,7 @@ void generate_debug_data() {
     strcat(final_string, buffer);
   }
 
-  snprintf(debugMsg.data.data, debugMsg.data.capacity, final_string);
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[MICROROS]: %s", final_string);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
