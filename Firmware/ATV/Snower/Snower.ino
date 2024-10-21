@@ -38,7 +38,7 @@ unsigned long PreviousTime = 0;  // Last iteration time in milli seconds [ms]
 unsigned long TimeOut = 400;
 
 /*ROS2 Constants*/
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){error_loop();}}
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 /* ROS topics related variables*/
@@ -63,11 +63,9 @@ int yRaw = 0;
 int mode_switch;       // the current state of the button
 
 
-// error function
-void error_loop(){
-  while(1){
-    Serial.print("Micro ROS Error... \n");
-  }
+// microros error function
+void errorLoop() {
+  microrosInit();
 }
 
 boolean isRCActive(){
@@ -91,7 +89,7 @@ void generate_debug_data() {
     strcat(final_string, buffer);
   }
 
-  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[MICROROS]: %s", final_string);
+  snprintf(debugMsg.data.data, debugMsg.data.capacity, "[SNOWER]: %s", final_string);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
@@ -139,6 +137,27 @@ void IRAM_ATTR CH2_interrupt() {
     }
 }
 
+void microrosInit(){
+  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
+  set_microros_transports(); // microros over serial
+  allocator = rcl_get_default_allocator();
+  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
+  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/snower/debug")); // create debug publisher
+
+  // Initialize the String message
+  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.size = 0;
+  debugMsg.data.capacity = 100;
+
+  // Create subscription
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/snower/ctrl_cmd"));
+
+  // Initialize executor
+  RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+}
+
 void setup() {
   Serial.begin(115200);
  
@@ -166,25 +185,7 @@ void setup() {
 
   driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
 
-  /* ROS Initialize */
-  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
-  set_microros_transports(); // microros over serial
-  allocator = rcl_get_default_allocator();
-  RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
-  RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
-  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/snower/debug")); // create debug publisher
-
-  // Initialize the String message
-  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
-  debugMsg.data.size = 0;
-  debugMsg.data.capacity = 100;
-
-  // Create subscription
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/snower/ctrl_cmd"));
-
-  // Initialize executor
-  RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
-  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+  microrosInit(); // microros initialize
 
 }
 

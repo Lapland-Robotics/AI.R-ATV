@@ -20,7 +20,6 @@ services:
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
     command: serial --dev /dev/ttyUSB0
-    restart: always
 
   gnss:
     image: microros/micro-ros-agent:humble
@@ -30,4 +29,3 @@ services:
     devices:
       - "/dev/ttyUSB1:/dev/ttyUSB1"
     command: serial --dev /dev/ttyUSB1
-    restart: always
