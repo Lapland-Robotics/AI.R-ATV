@@ -60,11 +60,12 @@ unsigned long ch1_start_time = 0;
 unsigned long ch2_start_time = 0;
 int xRaw = 0;
 int yRaw = 0;
-int mode_switch;       // the current state of the button
+int mode_switch;
 
 
 // microros error function
 void errorLoop() {
+  delay(1000);
   microrosInit();
 }
 
@@ -159,6 +160,7 @@ void microrosInit(){
 }
 
 void setup() {
+  delay(30000); // wait for Jetson to start the services
   Serial.begin(115200);
  
   //pin initialising

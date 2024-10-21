@@ -43,7 +43,7 @@ std_msgs__msg__String debugMsg;
 SFE_UBLOX_GNSS myGNSS;
 
 #define EARTH_RADIUS_CM 637100000.0
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 // GPS test points coordinates in lapinAMK
@@ -53,6 +53,12 @@ double gpsTestPoint[3][2] = {
   { 66.480765600, 25.720936400 }  // IOT lab
 };
 
+
+// microros error function
+void errorLoop() {
+  delay(1000);
+  microrosInit();
+}
 
 // Convert degrees to radians
 double degToRad(double deg) {
@@ -74,7 +80,6 @@ double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
   double c = 2 * atan2(sqrt(a), sqrt(1 - a));
   // Distance in centimeters
   double distance = EARTH_RADIUS_CM * c;
-
   return distance;
 }
 
@@ -126,11 +131,10 @@ void nTripInit(){
     debug(".");
   }
   debug("WiFi connected with IP: %s", WiFi.localIP().toString().c_str());
-
 }
 
 void setup() {
-  // Serial.begin(115200);
+  delay(31000); // wait for Jetson to start the services
   microrosInit();
   nTripInit();
 }
