@@ -31,7 +31,7 @@ services:
 
   ouster_lidar:
     build:
-      context: /home/<username>/ouster_lider_ros2_ws/src/ouster-ros/
+      context: /path/to/ouster-ros/
       dockerfile: Dockerfile
     image: snower-ouster-ros-image
     container_name: snower-ouster-ros-container
