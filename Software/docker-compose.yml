@@ -11,7 +11,6 @@ services:
       - 11811:11811 # ROS2 DDS communication
     stdin_open: true
 
-
   microros:
     image: microros/micro-ros-agent:humble
     container_name: snower-microros-container
@@ -29,3 +28,14 @@ services:
     devices:
       - "/dev/ttyUSB1:/dev/ttyUSB1"
     command: serial --dev /dev/ttyUSB1
+
+  ouster_lidar:
+    build:
+      context: /home/<username>/ouster_lider_ros2_ws/src/ouster-ros/
+      dockerfile: Dockerfile
+    image: snower-ouster-ros-image
+    container_name: snower-ouster-ros-container
+    privileged: true
+    network_mode: "host"
+    command: sensor_hostname:=169.254.58.82 viz:=false ouster_ns:=snower/ouster
+
