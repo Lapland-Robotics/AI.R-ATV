@@ -91,7 +91,7 @@ void microrosInit(){
   RCCHECK(rclc_node_init_default(&node, "micro_ros_gnss_node", "", &support));
 
   // publisher for /snower/gps
-  RCCHECK(rclc_publisher_init_best_effort(&gpsMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gps"));
+  RCCHECK(rclc_publisher_init_best_effort(&gpsMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gnss"));
   // publisher for /snower/debug
   RCCHECK(rclc_publisher_init_best_effort(&debugMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String), "/snower/debug"));
 
