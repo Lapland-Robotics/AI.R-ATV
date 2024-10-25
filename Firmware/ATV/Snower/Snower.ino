@@ -19,7 +19,8 @@ extern "C"{
 #define Motor2DirPin  23 //Motor2 Direction
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
- 
+#define McEnablePin 16 //Motor2 Speed PWM
+
 //Constants
 #define FREQ  490  //AnalogWrite frequency
 #define MAX_T 2500 //Max signal threshold
@@ -33,9 +34,11 @@ extern "C"{
 #define ROS_Speed_Command_Slope 255
 
 /* Time variables */
-unsigned long CurrentTime = 0;   // Time now in milli seconds [ms]
-unsigned long PreviousTime = 0;  // Last iteration time in milli seconds [ms]
-unsigned long TimeOut = 400;
+unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
+unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
+unsigned long LastMCEnable = 0; // last enable motor controller time
+unsigned long TimeOut = 400;  // control command time out
+unsigned long MCTimeout = 60000;  // motor controller time out
 
 /*ROS2 Constants*/
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
@@ -168,10 +171,12 @@ void setup() {
   pinMode(CH2RCPin, INPUT);
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
+  pinMode(McEnablePin, OUTPUT);
 
   // Initialize motor PWM channels to zero to prevent erratic motor startup
   digitalWrite(Motor1SpeedPWMPin, LOW);
   digitalWrite(Motor1SpeedPWMPin, LOW);
+  digitalWrite(McEnablePin, LOW);
   ledcWrite(0, 0);  // Stop Motor 1
   ledcWrite(1, 0);  // Stop Motor 2
 
@@ -199,6 +204,13 @@ void getRC(){
   setDrivingSpeedRequest(driveRequest, speed);
   PreviousTime = millis();
 
+}
+
+void enableMC(){
+  if(digitalRead(McEnablePin) == LOW){
+    digitalWrite(McEnablePin, HIGH);
+  }
+  LastMCEnable = millis();
 }
 
 void driving() {
@@ -240,6 +252,9 @@ void loop() {
   if ((CurrentTime - PreviousTime) >= TimeOut) {
     setSteeringRequest(driveRequest, 0);
     setDrivingSpeedRequest(driveRequest, 0);
+  }
+  if ((CurrentTime - LastMCEnable) >= MCTimeout) {
+    digitalWrite(McEnablePin, LOW);
   }
 
 

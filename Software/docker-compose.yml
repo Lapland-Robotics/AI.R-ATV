@@ -10,6 +10,7 @@ services:
     ports:
       - 11811:11811 # ROS2 DDS communication
     stdin_open: true
+    mem_limit: 1g
 
   microros:
     image: microros/micro-ros-agent:humble
@@ -19,6 +20,7 @@ services:
     devices:
       - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
     command: serial --dev /dev/ttyUSB0
+    mem_limit: 512m
 
   gnss:
     image: microros/micro-ros-agent:humble
@@ -28,6 +30,7 @@ services:
     devices:
       - "/dev/ttyUSB1:/dev/ttyUSB1"
     command: serial --dev /dev/ttyUSB1
+    mem_limit: 512m
 
   ouster_lidar:
     build:
@@ -38,4 +41,5 @@ services:
     privileged: true
     network_mode: "host"
     command: sensor_hostname:=169.254.58.82 viz:=false ouster_ns:=snower/ouster
+    mem_limit: 1g
 
