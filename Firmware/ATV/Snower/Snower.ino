@@ -74,7 +74,6 @@ void errorLoop() {
 
 boolean isRCActive(){
   return (xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T);
-  // return false;
 }
 
 /*Genarate debug String and push to the topic*/

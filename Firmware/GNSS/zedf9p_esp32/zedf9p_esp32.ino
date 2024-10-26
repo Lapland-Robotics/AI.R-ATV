@@ -134,7 +134,7 @@ void nTripInit(){
 }
 
 void setup() {
-  // delay(31000); // wait for Jetson to start the services
+  delay(31000); // wait for Jetson to start the services
   microrosInit();
   nTripInit();
 }
