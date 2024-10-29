@@ -33,7 +33,7 @@ double altitude;        // Get altitude in meters
 double horizontalAccuracy;
 double verticalAccuracy;
 double distance;
-rcl_publisher_t gpsMsgPublisher;
+rcl_publisher_t gnssMsgPublisher;
 rcl_publisher_t debugMsgPublisher; // Define the new publisher
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -90,8 +90,8 @@ void microrosInit(){
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
   RCCHECK(rclc_node_init_default(&node, "micro_ros_gnss_node", "", &support));
 
-  // publisher for /snower/gps
-  RCCHECK(rclc_publisher_init_best_effort(&gpsMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gps"));
+  // publisher for /snower/gnss
+  RCCHECK(rclc_publisher_init_best_effort(&gnssMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(sensor_msgs, msg, NavSatFix), "/snower/gnss"));
   // publisher for /snower/debug
   RCCHECK(rclc_publisher_init_best_effort(&debugMsgPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String), "/snower/debug"));
 
@@ -144,7 +144,7 @@ void loop() {
   delay(500);
 }
 
-void updateGpsVar(){
+void updateGnssVar(){
   navSatMsg.header.stamp.sec = myGNSS.getUnixEpoch(); // Get epoch time in seconds
   navSatMsg.header.stamp.nanosec = (myGNSS.getMillisecond() * 1000000) + myGNSS.getNanosecond(); // Convert to nanoseconds
 
@@ -168,7 +168,7 @@ void publishMsg(){
   distance = haversineDistance(latitude, longitude, gpsTestPoint[2][0], gpsTestPoint[2][1]);
   debug("latitude- %lf, longitude- %lf, horizontal_accuracy- %lf m, distance to point- %lf cm", latitude, longitude, horizontalAccuracy, distance);
 
-  RCSOFTCHECK(rcl_publish(&gpsMsgPublisher, &navSatMsg, NULL));
+  RCSOFTCHECK(rcl_publish(&gnssMsgPublisher, &navSatMsg, NULL));
 }
 
 void debug(const char* format, ...) {
@@ -304,13 +304,13 @@ void beginClient() {
       
       // Check if GNSS fix is available
       if (myGNSS.getGnssFixOk()) {
-        updateGpsVar();
+        updateGnssVar();
         navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_GBAS_FIX;
         navSatMsg.status.service = sensor_msgs__msg__NavSatStatus__SERVICE_GPS;
         rosidl_runtime_c__String__assign(&navSatMsg.header.frame_id, "gnss-fix");
         publishMsg();
       } else {
-        updateGpsVar();
+        updateGnssVar();
         navSatMsg.status.status = sensor_msgs__msg__NavSatStatus__STATUS_NO_FIX;
         rosidl_runtime_c__String__assign(&navSatMsg.header.frame_id, "gnss");
         publishMsg();

@@ -19,7 +19,7 @@ extern "C"{
 #define Motor2DirPin  23 //Motor2 Direction
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
-#define McEnablePin 16 //Motor2 Speed PWM
+#define McEnablePin 21 //Motor2 Speed PWM
 
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -38,7 +38,7 @@ unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
 unsigned long TimeOut = 400;  // control command time out
-unsigned long MCTimeout = 60000;  // motor controller time out
+unsigned long MCTimeout = 10000;  // motor controller time out
 
 /*ROS2 Constants*/
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
@@ -68,7 +68,8 @@ int mode_switch;
 
 // microros error function
 void errorLoop() {
-  delay(1000);
+  delay(2000);
+  digitalWrite(McEnablePin, LOW);
   microrosInit();
 }
 
@@ -81,8 +82,9 @@ void generate_debug_data() {
   int steering = getSteeringRequest(driveRequest);
   int speed = getDrivingSpeedRequest(driveRequest);
   int rc= (int)isRCActive();
-  const char *variable_names[] = { "Steering Request", "Speed Request", "xRaw", "yRaw", "isRCActive()"};    // names of the variables
-  int variable_values[] = {steering, speed, (int)xRaw, (int)yRaw, rc};  // values of the variables
+  int mc= (int)digitalRead(McEnablePin);
+  const char *variable_names[] = { "Steering", "Speed", "xRaw", "yRaw", "mc"};    // names of the variables
+  int variable_values[] = {steering, speed, (int)xRaw, (int)yRaw, mc};  // values of the variables
 
   char final_string[256] = "";
   char buffer[128];
@@ -199,8 +201,18 @@ void getRC(){
   //X-axis control
   int angle = map(xRaw,993,2016,-255,255);
   int speed = map(yRaw,1027,2010,-255,255);
-  setSteeringRequest(driveRequest, angle);
-  setDrivingSpeedRequest(driveRequest, speed);
+
+  if(angle > 9 || angle < -9){
+    setSteeringRequest(driveRequest, angle);
+  } else {
+    setSteeringRequest(driveRequest, 0);
+  }
+  if(speed > 9 || speed < -9){
+    setDrivingSpeedRequest(driveRequest, speed);
+  } else {
+    setDrivingSpeedRequest(driveRequest, 0);
+  }
+
   PreviousTime = millis();
 
 }
@@ -213,9 +225,12 @@ void enableMC(){
 }
 
 void driving() {
-
   int speed = getDrivingSpeedRequest(driveRequest);
   int angle = getSteeringRequest(driveRequest);
+  if(!speed==0 || !angle==0){
+    enableMC();
+  }
+
   
   int _x, _y;
   if(speed + (abs(angle) * turnFactor) > 255 || speed - (abs(angle) * turnFactor) < -255) {
@@ -231,7 +246,7 @@ void driving() {
   // Ensure motor PWM values are within limits
   motor1 = constrain(motor1, -255, 255);
   motor2 = constrain(motor2, -255, 255);
-
+  
   digitalWrite(Motor1DirPin, motor1 >= 0);
   ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
   digitalWrite(Motor2DirPin, motor2 >= 0);
@@ -256,8 +271,8 @@ void loop() {
     digitalWrite(McEnablePin, LOW);
   }
 
-
   driving();
+
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
 
