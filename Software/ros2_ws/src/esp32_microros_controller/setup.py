@@ -26,7 +26,7 @@ setup(
     entry_points={
         'console_scripts': [
             "esp32_controller_node = esp32_microros_controller.esp32_microros_controller:main",
-            "image_saver = esp32_microros_controller.image_saver:main"
+            "data_collector = esp32_microros_controller.data_collector:main"
         ],
     },
 )

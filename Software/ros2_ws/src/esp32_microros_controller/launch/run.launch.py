@@ -12,8 +12,8 @@ def generate_launch_description():
         ),
         Node(
             package='esp32_microros_controller',
-            executable='image_saver',
-            name='image_saver',
+            executable='data_collector',
+            name='data_collector',
             output='screen'
         )
     ])
