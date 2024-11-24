@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import os
 
-package_name = 'esp32_microros_controller'
+package_name = 'atv'
 launch_file_path = os.path.join(os.path.dirname(__file__), 'launch', 'run.launch.py')
 
 
@@ -25,8 +25,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "esp32_controller_node = esp32_microros_controller.esp32_microros_controller:main",
-            "data_collector = esp32_microros_controller.data_collector:main"
+            "atv = atv.atv:main",
+            "data_collector = atv.data_collector:main"
         ],
     },
 )

@@ -1,9 +1,9 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>esp32_microros_controller</name>
+  <name>atv</name>
   <version>0.0.1</version> <!-- Päivitetty versio -->
-  <description>ROS2 package for controlling ESP32 and processing ZED2 data.</description> <!-- Lisää kuvaus -->
+  <description>ROS2 package for controlling atv</description> <!-- Lisää kuvaus -->
   <maintainer email="sohanjanaka101@gmail.com">sohan-lapinamk</maintainer>
   <license>TODO: License declaration</license>
 
