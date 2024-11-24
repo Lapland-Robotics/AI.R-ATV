@@ -1,29 +1,31 @@
 version: '3'
 
 services:
-  ros2:
+  atv:
     build:
       context: .
       dockerfile: Dockerfile
-    image: snower-ros2-image
-    container_name: snower-ros2-container
+    image: atv-ros2-image
+    container_name: atv-ros2-container
     ports:
       - 11811:11811 # ROS2 DDS communication
+    volumes:
+      - /srv/ATV/:/app/Data/
     stdin_open: true
 
   ouster_lidar:
     build:
       context: .
       dockerfile: ouster-ros.Dockerfile
-    image: snower-ouster-ros-image
-    container_name: snower-ouster-ros-container
+    image: atv-ouster-ros-image
+    container_name: atv-ouster-ros-container
     privileged: true
     network_mode: "host"
-    command: sensor_hostname:=169.254.58.82 viz:=false ouster_ns:=snower/ouster
+    command: sensor_hostname:=169.254.58.82 viz:=false ouster_ns:=atv/ouster
 
   microros:
     image: microros/micro-ros-agent:humble
-    container_name: snower-microros-container
+    container_name: atv-microros-container
     tty: true
     privileged: true
     devices:
@@ -32,7 +34,7 @@ services:
 
   gnss:
     image: microros/micro-ros-agent:humble
-    container_name: snower-gnss-container
+    container_name: atv-gnss-container
     tty: true
     privileged: true
     devices:

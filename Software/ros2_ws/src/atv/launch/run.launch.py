@@ -5,13 +5,13 @@ from launch_ros.actions import Node
 def generate_launch_description():
     return LaunchDescription([
         Node(
-            package='esp32_microros_controller',
-            executable='esp32_controller_node',
-            name='esp32_controller_node',
+            package='atv',
+            executable='atv',
+            name='atv',
             output='screen'
         ),
         Node(
-            package='esp32_microros_controller',
+            package='atv',
             executable='data_collector',
             name='data_collector',
             output='screen'
