@@ -9,6 +9,24 @@ or follow:
 or:
 [https://ubuntu.com/tutorials/install-the-arduino-ide#1-overview](https://ubuntu.com/tutorials/install-the-arduino-ide#1-overview)
 
+## Arduino IDE for ESP32 setup
+You can ignore this if you can upload code to ESP32 using Arduino IDE without any issue. 
+1. File -> Preferences
+2. Edit "Additional Board Manager URLs"
+```
+https://raw.githubusercontent.com/espressif/arduino-esp32/gh-pages/package_esp32_index.json, http://arduino.esp8266.com/stable/package_esp8266com_index.json
+```
+3. Tools -> Board -> Boards Manager. Install ESP32 (by Espressif Systems)
+4. Tools -> Board -> esp32 -> Select ESP32 Dev Module
+5. Install pip
+``` bash
+sudo apt install python3-pip
+```
+6. Install pyserial
+``` bash
+pip install pyserial
+```
+7. Now try to upload simple code to the ESP32 and test.
 
 ## Arduino IDE configuration 
 You have to make following changes in Arduino IDE to make code work:

@@ -1,9 +1,7 @@
-FROM microros/micro-ros-agent:foxy
+FROM ros:humble
 
 # install ros package
 RUN apt-get update
-RUN apt-get install -y ros-${ROS_DISTRO}-demo-nodes-cpp 
-RUN apt-get install -y ros-${ROS_DISTRO}-demo-nodes-py
 RUN apt-get install -y ros-${ROS_DISTRO}-rqt
 RUN rm -rf /var/lib/apt/lists/*
 
@@ -23,6 +21,3 @@ ADD ros_entrypoint.sh /
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
 CMD ["ros2", "run", "esp32_microros_controller", "esp32_controller_node"]
-
-# launch ros package
-# CMD ["sleep", "infinity"]
