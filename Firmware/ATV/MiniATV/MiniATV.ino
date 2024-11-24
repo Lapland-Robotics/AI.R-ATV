@@ -183,7 +183,9 @@ void Driving() {
 // Safety Switch subroutine (interrupted)
 void Safety_Switch() {
   Safety_SW_State = digitalRead(SafetySWPin);
-  ledcWrite(Driving_PWMChannel, 0);
+  if(Safety_SW_State == 1){
+    ledcWrite(Driving_PWMChannel, 0);
+  }
 }
 
 
@@ -330,7 +332,7 @@ void setup() {
   pinMode(ModeSwitchPin, INPUT_PULLUP);                   // set ESP32 pin to input pull-up mode
   pinMode(SafetySWPin, INPUT);
   Safety_SW_State = digitalRead(SafetySWPin);
-  attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, RISING);
+  attachInterrupt(digitalPinToInterrupt(SafetySWPin), Safety_Switch, CHANGE);
   pinMode(SteeringEnablePin, OUTPUT);
   digitalWrite(SteeringEnablePin, 0);
   pinMode(SteeringPulsePin, OUTPUT);

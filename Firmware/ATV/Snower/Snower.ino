@@ -202,12 +202,12 @@ void getRC(){
   int angle = map(xRaw,993,2016,-255,255);
   int speed = map(yRaw,1027,2010,-255,255);
 
-  if(angle > 9 || angle < -9){
+  if(angle > 15 || angle < -15){
     setSteeringRequest(driveRequest, angle);
   } else {
     setSteeringRequest(driveRequest, 0);
   }
-  if(speed > 9 || speed < -9){
+  if(speed > 15 || speed < -15){
     setDrivingSpeedRequest(driveRequest, speed);
   } else {
     setDrivingSpeedRequest(driveRequest, 0);
