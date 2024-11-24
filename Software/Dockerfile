@@ -1,10 +1,9 @@
-FROM microros/micro-ros-agent:foxy
+FROM ros:humble
 
 # install ros package
 RUN apt-get update
-RUN apt-get install -y ros-${ROS_DISTRO}-demo-nodes-cpp 
-RUN apt-get install -y ros-${ROS_DISTRO}-demo-nodes-py
-RUN apt-get install -y ros-${ROS_DISTRO}-rqt
+RUN apt-get install -y python3-opencv
+RUN apt-get install -y ros-humble-cv-bridge
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
@@ -22,7 +21,4 @@ ADD ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
-CMD ["ros2", "run", "esp32_microros_controller", "esp32_controller_node"]
-
-# launch ros package
-# CMD ["sleep", "infinity"]
+CMD ["ros2", "launch", "atv", "run.launch.py"]

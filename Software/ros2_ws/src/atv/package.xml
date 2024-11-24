@@ -1,14 +1,20 @@
 <?xml version="1.0"?>
 <?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
 <package format="3">
-  <name>esp32_microros_controller</name>
-  <version>0.0.0</version>
-  <description>TODO: Package description</description>
+  <name>atv</name>
+  <version>0.0.1</version> <!-- Päivitetty versio -->
+  <description>ROS2 package for controlling atv</description> <!-- Lisää kuvaus -->
   <maintainer email="sohanjanaka101@gmail.com">sohan-lapinamk</maintainer>
   <license>TODO: License declaration</license>
 
+  
   <depend>rclpy</depend>
+  <depend>std_msgs</depend> <!-- Jos käytät tätä, lisää se -->
+  <depend>geometry_msgs</depend> <!-- Jos käytät tätä, lisää se -->
+  <depend>sensor_msgs</depend> <!-- Jos käytät ZED2:n kuvia, lisää se -->
+  <depend>cv_bridge</depend> <!-- Jos käytät OpenCV:tä ja ROS-kuvia -->
 
+ 
   <test_depend>ament_copyright</test_depend>
   <test_depend>ament_flake8</test_depend>
   <test_depend>ament_pep257</test_depend>

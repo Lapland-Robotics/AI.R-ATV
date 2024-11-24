@@ -1,0 +1,15 @@
+[Unit]
+Description=ZED Camera Launch Service
+After=network.target
+
+[Service]
+Type=simple
+User=robotics
+WorkingDirectory=/home/robotics/zed2_ros2_ws
+ExecStart=/bin/bash /home/robotics/zed2_ros2_ws/zed.sh
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
