@@ -10,7 +10,7 @@ services:
     ports:
       - 11811:11811 # ROS2 DDS communication
     volumes:
-      - /srv/ATV/:/app/Data/
+      - /srv/ATV/:/srv/ATV/
     stdin_open: true
 
   ouster_lidar:
