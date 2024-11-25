@@ -66,8 +66,8 @@ class DataCollector(Node):
             self.destroy_subscription(subscription)
 
     def gen_folder(self):
-        app = os.path.join("/", "app")
-        dataset_path = os.path.join(app, "Data/Dataset")
+        srv = os.path.join("/", "srv")
+        dataset_path = os.path.join(srv, "/ATV/Dataset")
         os.makedirs(dataset_path, exist_ok=True)
         
         now = datetime.now()
