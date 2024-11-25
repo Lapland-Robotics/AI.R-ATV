@@ -67,7 +67,7 @@ class DataCollector(Node):
 
     def gen_folder(self):
         srv = os.path.join("/", "srv")
-        dataset_path = os.path.join(srv, "/ATV/Dataset")
+        dataset_path = os.path.join(srv, "ATV/Dataset")
         os.makedirs(dataset_path, exist_ok=True)
         
         now = datetime.now()
