@@ -34,12 +34,14 @@ class DataCollector(Node):
                 time.sleep(10)
                 self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', Image)
                 self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', Image)
+                self.seek_thermal = self.retrieve_message_by_topic('/seek/seek_node/image_thermal', Image)
                 
                 if self.zed2_left_rgb and self.zed2_right_rgb:
                     self.save_dir = self.gen_folder()
                     self.save_rgb(self.zed2_left_rgb, "left_rgb.png")
                     self.save_rgb(self.zed2_right_rgb, "right_rgb.png")
-                    # todo morrti save the thermal camara image using self.seek_thermal
+                    # todo: morrti check whether save_rgb() can be reuse or write a different function like save_rgb to save the thermal image
+                    # self.save_rgb(self.self.seek_thermal, "thermal.png") 
                 else:
                     self.get_logger().info("Could not fetch images from both topics (possibly no messages published yet).")
 
