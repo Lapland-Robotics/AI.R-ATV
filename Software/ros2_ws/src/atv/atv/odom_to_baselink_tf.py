@@ -4,7 +4,7 @@ from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
 
-class OdomToBaseLinkTF(Node):
+class OdomToBaseLinkBroadcaster(Node):
     def __init__(self):
         super().__init__('odom_to_base_link_broadcaster')
 
@@ -12,7 +12,7 @@ class OdomToBaseLinkTF(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
         # Subscribe to the /odom topic
-        self.subscription = self.create_subscription(Odometry, '/odom', self.handle_odom, 10)
+        self.subscription = self.create_subscription(Odometry, '/snower/odom', self.handle_odom, 10)
     
     def handle_odom(self, msg: Odometry):
         
@@ -30,7 +30,7 @@ class OdomToBaseLinkTF(Node):
 
 def main(args=None):
     rclpy.init(args=args)
-    node = OdomToBaseLinkTF()
+    node = OdomToBaseLinkBroadcaster()
     rclpy.spin(node)
     node.destroy_node()
     rclpy.shutdown()

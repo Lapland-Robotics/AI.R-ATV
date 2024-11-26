@@ -28,6 +28,7 @@ setup(
             "data_collector = atv.data_collector:main",
             "odom_to_baselink_tf = atv.odom_to_baselink_tf:main",
             "map_to_odom_tf = atv.map_to_odom_tf:main",
+            "odom_publisher = atv.odom_publisher:main"
         ],
     },
 )

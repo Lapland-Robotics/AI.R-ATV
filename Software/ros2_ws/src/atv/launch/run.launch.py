@@ -29,6 +29,16 @@ def generate_launch_description():
         ),
         Node(
             package='atv',
+            executable='odom_publisher',
+            name='odom_publisher',
+            output='screen',
+            parameters=[
+                {'odom_frame': 'odom'},
+                {'base_frame': 'base_link'}
+            ]
+        ),
+        Node(
+            package='atv',
             executable='odom_to_baselink_tf',
             name='odom_to_baselink_tf',
             output='screen'
@@ -36,7 +46,7 @@ def generate_launch_description():
         Node(
             package='atv',
             executable='map_to_odom_tf',
-            name='odom_to_baselink_tf',
+            name='map_to_odom_tf',
             output='screen'
         ),
     ])

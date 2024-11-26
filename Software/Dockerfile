@@ -4,6 +4,7 @@ FROM ros:humble
 RUN apt-get update
 RUN apt-get install -y python3-opencv
 RUN apt-get install -y ros-humble-cv-bridge
+RUN apt-get install -y ros-humble-tf-transformations
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
