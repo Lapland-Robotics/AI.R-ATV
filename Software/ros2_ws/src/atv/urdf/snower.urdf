@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<robot name="robot_description">
+  <!-- Base Link -->
+  <link name="base_link"/>
+
+  <!-- ZED2 Camera -->
+  <link name="zed_camera_link"/>
+  <joint name="base_to_zed2" type="fixed">
+    <parent link="base_link"/>
+    <child link="zed_camera_link"/>
+    <origin xyz="0.75 0 0.5" rpy="0 0 0"/>
+  </joint>
+
+  <!-- Ouster LiDAR -->
+  <link name="os_sensor"/>
+  <joint name="base_to_os_sensor" type="fixed">
+    <parent link="base_link"/>
+    <child link="os_sensor"/>
+    <origin xyz="0 0 0.5" rpy="0 0 0"/>
+  </joint>
+</robot>
