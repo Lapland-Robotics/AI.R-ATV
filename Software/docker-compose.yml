@@ -9,6 +9,7 @@ services:
     container_name: atv-ros2-container
     ports:
       - 11811:11811 # ROS2 DDS communication
+      - 7400-7600:7400-7600 # multicat and unicast
     volumes:
       - /srv/ATV/:/srv/ATV/
     stdin_open: true
