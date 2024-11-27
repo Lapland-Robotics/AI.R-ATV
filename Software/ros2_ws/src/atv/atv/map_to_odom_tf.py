@@ -2,6 +2,7 @@ import rclpy
 from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped, PoseStamped
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 class MapToOdomBroadcaster(Node):
     def __init__(self):
@@ -11,7 +12,8 @@ class MapToOdomBroadcaster(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
         # Subscribe to the /current_pose topic
-        self.subscription = self.create_subscription(PoseStamped, '/current_pose', self.handle_current_pose, 10 )
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.subscription = self.create_subscription(PoseStamped, '/current_pose', self.handle_current_pose, qos_profile)
 
         # Store the latest transform
         self.latest_transform = TransformStamped()

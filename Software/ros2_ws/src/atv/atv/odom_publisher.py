@@ -5,6 +5,7 @@ from nav_msgs.msg import Odometry
 from geometry_msgs.msg import Quaternion, Twist, Pose
 import numpy as np
 from tf_transformations import quaternion_from_euler
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 class OdomPublisher(Node):
     def __init__(self):
@@ -18,7 +19,8 @@ class OdomPublisher(Node):
         self.base_frame = self.get_parameter('base_frame').value
 
         # Subscribers and Publishers
-        self.imu_sub = self.create_subscription(Imu, '/snower/ouster/imu', self.handle_imu, 10)
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.imu_sub = self.create_subscription(Imu, '/snower/ouster/imu', self.handle_imu, qos_profile)
         self.odom_pub = self.create_publisher(Odometry, '/snower/odom', 10)
         
         # Integration Variables

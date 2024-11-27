@@ -3,6 +3,7 @@ from rclpy.node import Node
 from tf2_ros import TransformBroadcaster
 from geometry_msgs.msg import TransformStamped
 from nav_msgs.msg import Odometry
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 class OdomToBaseLinkBroadcaster(Node):
     def __init__(self):
@@ -12,7 +13,8 @@ class OdomToBaseLinkBroadcaster(Node):
         self.tf_broadcaster = TransformBroadcaster(self)
 
         # Subscribe to the /odom topic
-        self.subscription = self.create_subscription(Odometry, '/snower/odom', self.handle_odom, 10)
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.subscription = self.create_subscription(Odometry, '/snower/odom', self.handle_odom, qos_profile)
     
     def handle_odom(self, msg: Odometry):
         
