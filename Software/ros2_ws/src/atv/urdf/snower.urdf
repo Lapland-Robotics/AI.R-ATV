@@ -18,4 +18,12 @@
     <child link="os_sensor"/>
     <origin xyz="0 0 0" rpy="0 0 0"/>
   </joint>
+
+  <!-- Ouster LiDAR -->
+  <link name="snower/gnss_link"/>
+  <joint name="base_gnss" type="fixed">
+    <parent link="base_link"/>
+    <child link="snower/gnss_link"/>
+    <origin xyz="0 0 0" rpy="0 0 0"/>
+  </joint>
 </robot>

@@ -59,7 +59,7 @@ class OdomPublisher(Node):
         
         # Update orientation using gyroscope data
         self.orientation += angular_velocity * dt
-        q = quaternion_from_euler(self.orientation[0], self.orientation[1], self.orientation[2])
+        q = quaternion_from_euler(0.0, 0.0, self.orientation[2])   # Flat surface
 
         # Update velocity and position using accelerometer data
         self.velocity += linear_acceleration * dt
@@ -74,15 +74,15 @@ class OdomPublisher(Node):
         # Set pose
         odom_msg.pose.pose.position.x = self.position[0]
         odom_msg.pose.pose.position.y = self.position[1]
-        odom_msg.pose.pose.position.z = self.position[2]
+        odom_msg.pose.pose.position.z = 0.0  # Flat surface
         odom_msg.pose.pose.orientation = Quaternion(x=q[0], y=q[1], z=q[2], w=q[3])
 
         # Set velocity
         odom_msg.twist.twist.linear.x = self.velocity[0]
         odom_msg.twist.twist.linear.y = self.velocity[1]
-        odom_msg.twist.twist.linear.z = self.velocity[2]
-        odom_msg.twist.twist.angular.x = angular_velocity[0]
-        odom_msg.twist.twist.angular.y = angular_velocity[1]
+        odom_msg.twist.twist.linear.z = 0.0  # Flat surface
+        odom_msg.twist.twist.angular.x = 0.0  # Flat surface
+        odom_msg.twist.twist.angular.y = 0.0  # Flat surface
         odom_msg.twist.twist.angular.z = angular_velocity[2]
 
         # Publish Odometry

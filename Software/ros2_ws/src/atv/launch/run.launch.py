@@ -8,12 +8,12 @@ def generate_launch_description():
         robot_description = urdf_file.read()
         
     return LaunchDescription([
-        # Node(
-        #     package='atv',
-        #     executable='atv',
-        #     name='atv',
-        #     output='screen'
-        # ),
+        Node(
+            package='atv',
+            executable='atv',
+            name='atv',
+            output='screen'
+        ),
         # Node(
         #     package='atv',
         #     executable='data_collector',
