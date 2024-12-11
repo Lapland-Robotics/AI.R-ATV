@@ -26,7 +26,8 @@ setup(
     entry_points={
         'console_scripts': [
             "atv = atv.atv:main",
-            "data_collector = atv.data_collector:main"
+            "data_collector = atv.data_collector:main",
+            "thermal_camera_publisher = atv.thermal_camera_publisher:main"
         ],
     },
 )
