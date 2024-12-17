@@ -9,12 +9,21 @@ from sensor_msgs.msg import Image
 from cv_bridge import CvBridge
 from datetime import datetime
 from concurrent.futures import Future
+import Jetson.GPIO as GPIO
+
+
 
 
 class DataCollector(Node):
 
     def __init__(self):
         super().__init__('DataCollector')
+
+
+        # GPIO setup
+        self.BUTTON_PIN = 18
+        GPIO.setmode(GPIO.BCM)
+        GPIO.setup(self.BUTTON_PIN, GPIO.IN)
         
         self.zed2_left_rgb = None
         self.zed2_right_rgb = None
@@ -31,6 +40,7 @@ class DataCollector(Node):
     def input_handler(self):
         while True:
             if self.snapshot_trigger():
+                self.get_logger().info("Button Pressed! Taking snapshot soon...")
                 time.sleep(10)
                 self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', Image)
                 self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', Image)
@@ -46,9 +56,11 @@ class DataCollector(Node):
                     self.get_logger().info("Could not fetch images from both topics (possibly no messages published yet).")
 
     def snapshot_trigger(self):
-        # need to implement
-        # temp impl as True for testing
-        return True
+        # If the button is pressed, GPIO input is HIGH
+        if GPIO.input(self.BUTTON_PIN) == GPIO.HIGH:
+            return True
+        else:
+            return False
 
     def retrieve_message_by_topic(self, topic_name, msg_type):
         future = Future()
