@@ -29,7 +29,7 @@ class Renderer:
 class ThermalCameraPublisher(Node):
     def __init__(self):
         super().__init__('thermal_camera_publisher')
-        self.publisher_ = self.create_publisher(Image, 'thermal/image_raw', 10)
+        self.publisher_ = self.create_publisher(Image, '/seek/seek_node/image_thermal', 10)
         self.renderer = Renderer()
 
         self.manager = SeekCameraManager(SeekCameraIOType.USB)

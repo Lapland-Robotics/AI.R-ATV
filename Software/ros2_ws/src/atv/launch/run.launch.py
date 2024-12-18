@@ -10,12 +10,12 @@ def generate_launch_description():
         #     name='atv',
         #     output='screen'
         # ),
-        # Node(
-        #     package='atv',
-        #     executable='data_collector',
-        #     name='data_collector',
-        #     output='screen'
-        # ), 
+        Node(
+            package='atv',
+            executable='data_collector',
+            name='data_collector',
+            output='screen'
+        ), 
         Node(
             package='atv',
             executable='thermal_camera_publisher',
