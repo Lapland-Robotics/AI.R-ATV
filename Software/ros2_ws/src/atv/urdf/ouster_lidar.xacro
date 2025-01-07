@@ -21,6 +21,20 @@
         </geometry>
         <material name="orange"/>
       </visual>
+      <collision>
+      <origin xyz="0 0 0"/>
+         <geometry>
+           <cylinder length="0.074" radius="0.04" />
+         </geometry>
+         <material name="orange"/>
+      </collision>
+      <collision>
+        <origin xyz="0 0 -0.045"/>
+        <geometry>
+          <box size="0.112 0.112 0.016" />
+        </geometry>
+        <material name="orange"/>
+      </collision>
   </link>
 
 

@@ -15,6 +15,13 @@
           </geometry>
           <material name="orange"/>
       </visual>
+      <collision>
+          <origin xyz="0 0 0"/>
+          <geometry>
+              <box size="0.030 0.175 0.033"/>
+          </geometry>
+          <material name="orange"/>
+      </collision>
   </link>
 
 
