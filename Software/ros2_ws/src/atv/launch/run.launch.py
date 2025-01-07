@@ -25,12 +25,12 @@ def generate_launch_description():
     )
 
     return LaunchDescription([
-        # Node(
-        #     package='atv',
-        #     executable='atv',
-        #     name='atv',
-        #     output='screen'
-        # ),
+        Node(
+            package='atv',
+            executable='atv',
+            name='atv',
+            output='screen'
+        ),
         # Node(
         #     package='atv',
         #     executable='data_collector',
