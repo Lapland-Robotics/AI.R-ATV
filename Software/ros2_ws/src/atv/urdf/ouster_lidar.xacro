@@ -1,0 +1,27 @@
+<?xml version="1.0"?>
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+
+  <joint name="base_to_lidar" type="fixed">
+      <parent link="base_link"/>
+      <child link="os_sensor"/>
+      <origin xyz="0.3 0 0.753"/>
+  </joint>
+  <link name="os_sensor">
+      <visual>
+      <origin xyz="0 0 0"/>
+         <geometry>
+           <cylinder length="0.074" radius="0.04" />
+         </geometry>
+         <material name="orange"/>
+      </visual>
+      <visual>
+        <origin xyz="0 0 -0.045"/>
+        <geometry>
+          <box size="0.112 0.112 0.016" />
+        </geometry>
+        <material name="orange"/>
+      </visual>
+  </link>
+
+
+</robot>
