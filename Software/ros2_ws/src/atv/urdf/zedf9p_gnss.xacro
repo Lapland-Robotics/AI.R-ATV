@@ -1,27 +1,27 @@
 <?xml version="1.0"?>
-<robot xmlns:xacro="http://www.ros.org/wiki/xacro" >
+<robot xmlns:xacro="http://www.ros.org/wiki/xacro">
 
-  <joint name="base_to_gnss" type="fixed">
-      <parent link="base_link"/>
-      <child link="gnss_link"/>
-      <origin xyz="-0.41 0.2 0.413"/>
-  </joint>
-  <link name="gnss_link">
-      <visual>
-          <origin xyz="0 0 0"/>
-          <geometry>
-              <box size="0.063 0.067 0.026"/>
-          </geometry>
-          <material name="orange"/>
-      </visual>
-      <collision>
-          <origin xyz="0 0 0"/>
-          <geometry>
-              <box size="0.063 0.067 0.026"/>
-          </geometry>
-          <material name="orange"/>
-      </collision>
-  </link>
+    <joint name="base_to_gnss" type="fixed">
+        <parent link="base_link" />
+        <child link="gnss_link" />
+        <origin xyz="-0.41 0.2 0.413" />
+    </joint>
+    <link name="gnss_link">
+        <visual>
+            <origin xyz="0 0 0" />
+            <geometry>
+                <box size="0.063 0.067 0.026" />
+            </geometry>
+            <material name="orange" />
+        </visual>
+        <collision>
+            <origin xyz="0 0 0" />
+            <geometry>
+                <box size="0.063 0.067 0.026" />
+            </geometry>
+            <material name="orange" />
+        </collision>
+    </link>
 
 
 </robot>
