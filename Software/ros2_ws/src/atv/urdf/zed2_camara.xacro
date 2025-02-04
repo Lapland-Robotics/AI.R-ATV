@@ -4,10 +4,10 @@
 
     <joint name="base_to_zed2" type="fixed">
         <parent link="base_link" />
-        <child link="zed2_camera_link" />
+        <child link="zed_camera_link" />
         <origin xyz="0.445 0 0.4165" />
     </joint>
-    <link name="zed2_camera_link">
+    <link name="zed_camera_link">
         <visual>
             <origin xyz="0 0 0" />
             <geometry>
