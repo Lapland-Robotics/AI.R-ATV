@@ -38,30 +38,19 @@ def generate_launch_description():
         #     output='screen'
         # ),
 
-        # Node(
-        #     package='atv',
-        #     executable='odom_publisher',
-        #     name='odom_publisher',
-        #     output='screen',
-        #     parameters=[
-        #         {'odom_frame': 'odom'},
-        #         {'base_frame': 'base_link'}
-        #     ]
-        # ),
-
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
             description='Use sim time if true'
         ),
         node_robot_state_publisher,
-
-        # Node(
-        #     package='atv',
-        #     executable='odom_to_baselink_tf',
-        #     name='odom_to_baselink_tf',
-        #     output='screen'
-        # ),
+        Node(
+            package='robot_localization',
+            executable='ekf_node',
+            name='ekf_filter_node',
+            output='screen',
+            parameters=['ros2_ws/src/atv/config/robot_localization.yaml']
+        ),
         # Node(
         #     package='atv',
         #     executable='map_to_odom_tf',
