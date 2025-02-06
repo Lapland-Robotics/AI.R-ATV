@@ -6,6 +6,7 @@ RUN apt-get install -y python3-opencv
 RUN apt-get install -y ros-humble-cv-bridge
 RUN apt-get install -y ros-humble-tf-transformations
 RUN apt-get install -y ros-humble-xacro
+RUN apt-get install -y ros-humble-robot-localization
 RUN rm -rf /var/lib/apt/lists/*
 
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
