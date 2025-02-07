@@ -6,27 +6,18 @@ ekf_filter_node:
     sensor_timeout: 0.1
     publish_tf: true
     publish_acceleration: true
+    debug: true
     map_frame: "map"
     odom_frame: "odom"
     base_link_frame: "base_link"
     world_frame: "odom"
 
-    # Use only the ZED IMU for localization
     imu0: "/zed/zed_node/imu/data"
-    imu0_config: [false, false, false,   # position (x, y, z) not provided by the IMU
-                  true,  true,  true,    # use absolute orientation (roll, pitch, yaw)
-                  false, false, false,   # linear velocity (not available in sensor_msgs/Imu)
-                  true,  true,  true,    # use angular velocity (roll rate, pitch rate, yaw rate)
-                  true,  true,  true]    # use linear acceleration (ax, ay, az)
-    imu0_differential: false  # Do not differentiate (we have absolute measurements)
-    imu0_relative: false      # Treat orientation as absolute
-
-    # Ouster IMU – used for angular velocity
-    # imu0: "/snower/ouster/imu"
-    # imu0_config: [false, false, false,   # position (not used)
-    #               false, false, false,   # orientation (not provided)
-    #               true, true, true,      # velocity (x,y,z) are used
-    #               true, true, true,      # angular velocity (roll, pitch, yaw) are used
-    #               false, false, false]   # acceleration (not used)
-    # imu0_differential: false
-    # imu0_relative: true
+    imu0_remove_gravitational_acceleration: true
+    imu0_config: [false, false, false,   # position (x, y, z) 
+                  true,  true,  true,    # orientation (roll, pitch, yaw)
+                  false, false, false,   # linear velocity (x, y, z)
+                  false, false, false,    # angular velocity (roll rate, pitch rate, yaw rate)
+                  false, false, false]    # linear acceleration (ax, ay, az)
+    imu0_differential: false
+    imu0_relative: false
