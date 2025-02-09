@@ -9,10 +9,36 @@ services:
     container_name: atv-ros2-container
     ports:
       - 11811:11811 # ROS2 DDS communication
-      - 7400-7600:7400-7600 # multicat and unicast
+      - 7400-7500:7400-7500  # Cyclone DDS discovery (multicast & unicast)
+      - 7600-7700:7600-7700  # Cyclone DDS user data exchange
     volumes:
       - /srv/ATV/:/srv/ATV/
     stdin_open: true
+    network_mode: "host"
+
+  microros:
+    build:
+      context: .
+      dockerfile: microros.Dockerfile
+    container_name: atv-microros-container
+    tty: true
+    privileged: true
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
+    command: serial --dev /dev/ttyUSB0
+    network_mode: "host"
+
+  gnss:
+    build:
+      context: .
+      dockerfile: microros.Dockerfile
+    container_name: atv-gnss-container
+    tty: true
+    privileged: true
+    devices:
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    command: serial --dev /dev/ttyUSB1
+    network_mode: "host"
 
   # ouster_lidar:
   #   build:
@@ -23,22 +49,3 @@ services:
   #   privileged: true
   #   network_mode: "host"
   #   command: sensor_hostname:=169.254.58.82 viz:=false
-
-  microros:
-    image: microros/micro-ros-agent:humble
-    container_name: atv-microros-container
-    tty: true
-    privileged: true
-    devices:
-      - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
-    command: serial --dev /dev/ttyUSB0
-
-  gnss:
-    image: microros/micro-ros-agent:humble
-    container_name: atv-gnss-container
-    tty: true
-    privileged: true
-    devices:
-      - "/dev/ttyUSB1:/dev/ttyUSB1"
-    command: serial --dev /dev/ttyUSB1
-

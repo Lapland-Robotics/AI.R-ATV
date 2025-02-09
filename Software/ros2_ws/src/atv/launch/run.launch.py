@@ -31,13 +31,6 @@ def generate_launch_description():
             name='atv',
             output='screen'
         ),
-        # Node(
-        #     package='atv',
-        #     executable='data_collector',
-        #     name='data_collector',
-        #     output='screen'
-        # ),
-
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
@@ -51,10 +44,4 @@ def generate_launch_description():
             output='screen',
             parameters=['ros2_ws/src/atv/config/robot_localization.yaml']
         ),
-        # Node(
-        #     package='atv',
-        #     executable='map_to_odom_tf',
-        #     name='map_to_odom_tf',
-        #     output='screen'
-        # ),
     ])
