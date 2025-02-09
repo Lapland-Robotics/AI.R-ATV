@@ -3,10 +3,16 @@ FROM ros:humble
 # install ros package
 RUN apt-get update
 RUN apt-get install -y python3-opencv
-RUN apt-get install -y ros-humble-cv-bridge
-RUN rm -rf /var/lib/apt/lists/*
+RUN apt-get install -y ros-$ROS_DISTRO-cv-bridge
+RUN apt-get install -y ros-$ROS_DISTRO-tf-transformations
+RUN apt-get install -y ros-$ROS_DISTRO-xacro
+RUN apt-get install -y ros-$ROS_DISTRO-robot-localization
+RUN apt-get install -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
+RUN rm -rf /var/lib/apt/lists/*
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
+
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 SHELL ["/bin/bash", "-c"]
 
