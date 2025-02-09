@@ -4,7 +4,6 @@ import os
 package_name = 'atv'
 launch_file_path = os.path.join(os.path.dirname(__file__), 'launch', 'run.launch.py')
 
-
 setup(
     name=package_name,
     version='0.0.0',
@@ -26,7 +25,10 @@ setup(
     entry_points={
         'console_scripts': [
             "atv = atv.atv:main",
-            "data_collector = atv.data_collector:main"
+            "data_collector = atv.data_collector:main",
+            "odom_to_baselink_tf = atv.odom_to_baselink_tf:main",
+            "map_to_odom_tf = atv.map_to_odom_tf:main",
+            "odom_publisher = atv.odom_publisher:main"
         ],
     },
 )
