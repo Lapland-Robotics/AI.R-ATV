@@ -7,37 +7,41 @@ services:
       dockerfile: Dockerfile
     image: atv-ros2-image
     container_name: atv-ros2-container
-    ports:
-      - 11811:11811 # ROS2 DDS communication
     volumes:
       - /srv/ATV/:/srv/ATV/
     stdin_open: true
+    network_mode: "host"
+
+  microros:
+    build:
+      context: .
+      dockerfile: microros.Dockerfile
+    container_name: atv-microros-container
+    tty: true
+    privileged: true
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
+    command: serial --dev /dev/ttyUSB0
+    network_mode: "host"
+
+  gnss:
+    build:
+      context: .
+      dockerfile: microros.Dockerfile
+    container_name: atv-gnss-container
+    tty: true
+    privileged: true
+    devices:
+      - "/dev/ttyUSB1:/dev/ttyUSB1"
+    command: serial --dev /dev/ttyUSB1
+    network_mode: "host"
 
   # ouster_lidar:
   #   build:
-  #     context: .
-  #     dockerfile: ouster-ros.Dockerfile
+  #     context: /path/to/ouster_lider_ros2_ws/src/ouster-ros
+  #     dockerfile: Dockerfile
   #   image: atv-ouster-ros-image
   #   container_name: atv-ouster-ros-container
   #   privileged: true
   #   network_mode: "host"
-  #   command: sensor_hostname:=169.254.58.82 viz:=false ouster_ns:=atv/ouster
-
-  # microros:
-  #   image: microros/micro-ros-agent:humble
-  #   container_name: atv-microros-container
-  #   tty: true
-  #   privileged: true
-  #   devices:
-  #     - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
-  #   command: serial --dev /dev/ttyUSB0
-
-  # gnss:
-  #   image: microros/micro-ros-agent:humble
-  #   container_name: atv-gnss-container
-  #   tty: true
-  #   privileged: true
-  #   devices:
-  #     - "/dev/ttyUSB1:/dev/ttyUSB1"
-  #   command: serial --dev /dev/ttyUSB1
-
+  #   command: sensor_hostname:=169.254.58.82 viz:=false
