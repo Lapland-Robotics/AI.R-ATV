@@ -1,5 +1,5 @@
 # AI.R-ATV
-This is a ROS2 platform based program designed to control and Monitor ATVs!
+This is a ROS2 platform based program designed to control and Monitor ATVs.
 
 ## Tree view
 
