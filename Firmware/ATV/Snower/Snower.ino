@@ -164,7 +164,7 @@ void microrosInit(){
 }
 
 void setup() {
-  delay(30000); // wait for Jetson to start the services
+  delay(3000); // wait for Jetson to start the services
   Serial.begin(115200);
  
   //pin initialising
