@@ -11,7 +11,7 @@ from datetime import datetime
 from concurrent.futures import Future
 
 # Seek Thermal imports
-import numpy
+import numpy as np
 from PIL import Image as PILImage
 from seekcamera import (
     SeekCameraIOType,
