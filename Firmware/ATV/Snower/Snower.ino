@@ -20,6 +20,8 @@ extern "C"{
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
 #define McEnablePin 21 //Motor2 Speed PWM
+#define SpeedSensorL 32 //Left speed sensor
+#define SpeedSensorR 33 //Left speed sensor
 
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -46,8 +48,12 @@ unsigned long MCTimeout = 10000;  // motor controller time out
 
 /* ROS topics related variables*/
 std_msgs__msg__String debugMsg;
+std_msgs__msg__String speedLeft;
+std_msgs__msg__String speedRight;
 geometry_msgs__msg__Twist ctrlCmdMsg;
 rcl_publisher_t debugPublisher;
+rcl_publisher_t speedLeftPublisher;
+rcl_publisher_t speedRightPublisher;
 rcl_subscription_t ctrlCmdSubscription;
 rclc_support_t support;
 rcl_allocator_t allocator;
@@ -64,7 +70,27 @@ unsigned long ch2_start_time = 0;
 int xRaw = 0;
 int yRaw = 0;
 int mode_switch;
+int speedLeftIttr;
+int speedRightIttr;
 
+// Speed sensors
+/* Left speed sensor*/
+volatile unsigned long leftToothCount = 0;
+volatile unsigned long lastLeftCount = 0;
+volatile unsigned long leftLastEdgeTime = 0;
+volatile unsigned long leftLastPublishTime = 0;
+volatile int leftLastState = LOW;
+
+/* Right speed sensor*/
+volatile unsigned long rightToothCount = 0;
+volatile unsigned long lastRightCount = 0;
+volatile unsigned long rightLastEdgeTime = 0;
+volatile unsigned long rightLastPublishTime = 0;
+volatile int rightLastState = LOW;
+
+/* Speed timing Constants*/
+const unsigned long DEBOUNCE_THRESHOLD_US = 2000;       // 2ms debounce, if there are dips visible then we should decrease this.
+const unsigned long PUBLISH_INTERVAL_US   = 100000;     // Publish every 100ms
 
 // microros error function
 void errorLoop() {
@@ -76,6 +102,7 @@ void errorLoop() {
 boolean isRCActive(){
   return (xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T);
 }
+
 
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
@@ -122,6 +149,34 @@ void ctrlCmdCallback(const void *msgin) {
   }
 }
 
+// left wheel speed 
+void IRAM_ATTR speedLeft_interrupt(){
+  int currentState = digitalRead(SpeedSensorL);
+  
+  if(currentState == HIGH && leftLastState == LOW) {
+    unsigned long now = micros();
+    if((now - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
+      leftToothCount++;
+      leftLastEdgeTime = now;
+    }
+  }
+  leftLastState = currentState;
+}
+
+// right wheel speed 
+void IRAM_ATTR speedRight_interrupt(){
+  int currentState = digitalRead(SpeedSensorR);
+  
+  if(currentState == HIGH && rightLastState == LOW) {
+    unsigned long now = micros();
+    if((now - rightLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
+      rightToothCount++;
+      rightLastEdgeTime = now;
+    }
+  }
+  rightLastState = currentState;
+}
+
 void IRAM_ATTR CH1_interrupt() {
     if (digitalRead(CH1RCPin) == HIGH) {
         // Rising edge - start timing
@@ -140,6 +195,38 @@ void IRAM_ATTR CH2_interrupt() {
         // Falling edge - calculate pulse width
         yRaw = micros() - ch2_start_time;
     }
+}
+
+void publishSpeedData() {
+  unsigned long now = micros();
+  
+  // Publish for left wheel every 100ms
+  if(now - leftLastPublishTime >= PUBLISH_INTERVAL_US) {
+    noInterrupts();
+    unsigned long pulsesLeft = leftToothCount - lastLeftCount;
+    lastLeftCount = leftToothCount;
+    interrupts();
+    
+    uint32_t pulsesPerSecLeft = pulsesLeft * (1000000 / PUBLISH_INTERVAL_US);
+    std_msgs__msg__Int32 speedMsg;
+    speedMsg.data = pulsesPerSecLeft;
+    RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedMsg, NULL));
+    leftLastPublishTime = now;
+  }
+  
+  // Publish for right wheel every 100ms
+  if(now - rightLastPublishTime >= PUBLISH_INTERVAL_US) {
+    noInterrupts();
+    unsigned long pulsesRight = rightToothCount - lastRightCount;
+    lastRightCount = rightToothCount;
+    interrupts();
+    
+    uint32_t pulsesPerSecRight = pulsesRight * (1000000 / PUBLISH_INTERVAL_US);
+    std_msgs__msg__Int32 speedMsg;
+    speedMsg.data = pulsesPerSecRight;
+    RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedMsg, NULL));
+    rightLastPublishTime = now;
+  }
 }
 
 void microrosInit(){
@@ -173,7 +260,9 @@ void setup() {
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
   pinMode(McEnablePin, OUTPUT);
-
+  pinMode(SpeedSensorL, INPUT);
+  pinMode(SpeedSensorR, INPUT);
+  
   // Initialize motor PWM channels to zero to prevent erratic motor startup
   digitalWrite(Motor1SpeedPWMPin, LOW);
   digitalWrite(Motor1SpeedPWMPin, LOW);
@@ -184,7 +273,9 @@ void setup() {
   // Attach interrupts to pins
   attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(CH2RCPin), CH2_interrupt, CHANGE);
- 
+  attachInterrupt(digitalPinToInterrupt(SpeedSensorL), speedLeft_interrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SpeedSensorR), speedRight_interrupt, CHANGE);
+
   //Initialising PWM on ESP32
   ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
   ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
@@ -194,6 +285,9 @@ void setup() {
   driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
 
   microrosInit(); // microros initialize
+
+  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/left")); // create left speed publisher
+  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/right")); // create right speed publisher
 
 }
 
@@ -272,6 +366,8 @@ void loop() {
   }
 
   driving();
+
+  publishSpeedData();
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
