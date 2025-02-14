@@ -65,10 +65,10 @@ float turnFactor = 0.5;
 int motor1, motor2;
 
 // RC
-unsigned long ch1_start_time = 0;
-unsigned long ch2_start_time = 0;
-int xRaw = 0;
-int yRaw = 0;
+volatile unsigned long ch1_start_time = 0;
+volatile unsigned long ch2_start_time = 0;
+volatile int x_pwm = 0;
+volatile int y_pwm = 0;
 int mode_switch;
 int speedLeftIttr;
 int speedRightIttr;
@@ -97,10 +97,33 @@ void errorLoop() {
   delay(2000);
   digitalWrite(McEnablePin, LOW);
   microrosInit();
+
+  // It might be interesting to add some more logic here like resetting the ESP if too many retries have been made
+  // for instance:
+  /*
+
+  void errorLoop() {
+    static int retryCount = 0;
+    retryCount++;
+
+    // Disable motors as a safety measure
+    digitalWrite(McEnablePin, LOW);
+    delay(2000);
+
+    if (retryCount > 3) {
+      Serial.println("[ERROR LOOP] Too many retries, halting or resetting system...");
+      // force a system reset and try again
+      ESP.restart(); 
+    } 
+    else {
+      microrosInit();
+    }
+  }
+  */
 }
 
 boolean isRCActive(){
-  return (xRaw > MIN_T && xRaw < MAX_T && yRaw > MIN_T && yRaw < MAX_T);
+  return (x_pwm > MIN_T && x_pwm < MAX_T && y_pwm > MIN_T && y_pwm < MAX_T);
 }
 
 
@@ -110,8 +133,8 @@ void generate_debug_data() {
   int speed = getDrivingSpeedRequest(driveRequest);
   int rc= (int)isRCActive();
   int mc= (int)digitalRead(McEnablePin);
-  const char *variable_names[] = { "Steering", "Speed", "xRaw", "yRaw", "mc"};    // names of the variables
-  int variable_values[] = {steering, speed, (int)xRaw, (int)yRaw, mc};  // values of the variables
+  const char *variable_names[] = { "Steering", "Speed", "x_pwm", "y_pwm", "mc"};    // names of the variables
+  int variable_values[] = {steering, speed, (int)x_pwm, (int)y_pwm, mc};  // values of the variables
 
   char final_string[256] = "";
   char buffer[128];
@@ -149,6 +172,8 @@ void ctrlCmdCallback(const void *msgin) {
   }
 }
 
+// TO DO: check if there is a better way than a "DigitalRead" in order to read the datapins.
+//        Something like direct regiser access, or PCNT or RMT peripherals to handle pulse measurements in hardware
 // left wheel speed 
 void IRAM_ATTR speedLeft_interrupt(){
   int currentState = digitalRead(SpeedSensorL);
@@ -183,7 +208,7 @@ void IRAM_ATTR CH1_interrupt() {
         ch1_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        xRaw = micros() - ch1_start_time;
+        x_pwm = micros() - ch1_start_time;
     }
 }
 
@@ -193,7 +218,7 @@ void IRAM_ATTR CH2_interrupt() {
         ch2_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        yRaw = micros() - ch2_start_time;
+        y_pwm = micros() - ch2_start_time;
     }
 }
 
@@ -265,7 +290,7 @@ void setup() {
   
   // Initialize motor PWM channels to zero to prevent erratic motor startup
   digitalWrite(Motor1SpeedPWMPin, LOW);
-  digitalWrite(Motor1SpeedPWMPin, LOW);
+  digitalWrite(Motor2SpeedPWMPin, LOW);
   digitalWrite(McEnablePin, LOW);
   ledcWrite(0, 0);  // Stop Motor 1
   ledcWrite(1, 0);  // Stop Motor 2
@@ -293,8 +318,9 @@ void setup() {
 
 void getRC(){
   //X-axis control
-  int angle = map(xRaw,993,2016,-255,255);
-  int speed = map(yRaw,1027,2010,-255,255);
+  //To do: Test out the rc controller for actual x and y values (min and max)
+  int angle = map(x_pwm,993,2016,-255,255);
+  int speed = map(y_pwm,1027,2010,-255,255);
 
   if(angle > 15 || angle < -15){
     setSteeringRequest(driveRequest, angle);
@@ -321,6 +347,7 @@ void enableMC(){
 void driving() {
   int speed = getDrivingSpeedRequest(driveRequest);
   int angle = getSteeringRequest(driveRequest);
+  // for better readable code "if(speed != 0)" 
   if(!speed==0 || !angle==0){
     enableMC();
   }
