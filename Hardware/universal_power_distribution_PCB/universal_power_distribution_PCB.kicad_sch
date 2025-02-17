@@ -1,5 +1,60 @@
-(kicad_sch (version 20231120) (generator "eeschema") (generator_version "8.0")
-  (paper "A4")
-  (lib_symbols)
-  (symbol_instances)
+(kicad_sch
+	(version 20231120)
+	(generator "eeschema")
+	(generator_version "8.0")
+	(uuid "7b61ee4e-2c0c-4866-8343-5ee759f84d1a")
+	(paper "A4")
+	(lib_symbols)
+	(sheet
+		(at 33.02 35.56)
+		(size 43.18 13.97)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "9097c388-5538-42a6-a79e-2e0d6431f811")
+		(property "Sheetname" "power_distribution"
+			(at 33.02 34.8484 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "power_distribution_file.kicad_sch"
+			(at 33.02 50.1146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(property "Field2" ""
+			(at 33.02 35.56 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "universal_power_distribution_PCB"
+				(path "/7b61ee4e-2c0c-4866-8343-5ee759f84d1a"
+					(page "2")
+				)
+			)
+		)
+	)
+	(sheet_instances
+		(path "/"
+			(page "1")
+		)
+	)
 )
