@@ -72,6 +72,8 @@ volatile int y_pwm = 0;
 int mode_switch;
 int speedLeftIttr;
 int speedRightIttr;
+int motor_pwm1 = 0;
+int motor_pwm2 = 0;
 
 // Speed sensors
 /* Left speed sensor*/
@@ -123,8 +125,8 @@ void generate_debug_data() {
   int speed = getDrivingSpeedRequest(driveRequest);
   int rc= (int)isRCActive();
   int mc= (int)digitalRead(McEnablePin);
-  const char *variable_names[] = { "Steering", "Speed", "x_pwm", "y_pwm", "mc"};    // names of the variables
-  int variable_values[] = {steering, speed, (int)x_pwm, (int)y_pwm, mc};  // values of the variables
+  const char *variable_names[] = { "Steering", "Speed", "x_pwm", "y_pwm", "motor_pwm1", "motor_pwm2"};    // names of the variables
+  int variable_values[] = {steering, speed, (int)x_pwm, (int)y_pwm, motor_pwm1, motor_pwm2};  // values of the variables
 
   char final_string[256] = "";
   char buffer[128];
@@ -361,9 +363,12 @@ void driving() {
   motor2 = constrain(motor2, -255, 255);
   
   digitalWrite(Motor1DirPin, motor1 >= 0);
-  ledcWrite(0, abs(motor1)); // Writing PWM to channel 0 (AOUT1)
+  motor_pwm1 = abs(motor1);
+  ledcWrite(0, motor_pwm1); // Writing PWM to channel 0 (AOUT1)
+
   digitalWrite(Motor2DirPin, motor2 >= 0);
-  ledcWrite(1, abs(motor2)); // Writing PWM to channel 1 (MotorSpeedPWM2)
+  motor_pwm2 = abs(motor2);
+  ledcWrite(1, motor_pwm2); // Writing PWM to channel 1 (MotorSpeedPWM2)
 
 }
 
