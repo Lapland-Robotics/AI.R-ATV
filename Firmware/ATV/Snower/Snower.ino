@@ -92,17 +92,9 @@ volatile int rightLastState = LOW;
 const unsigned long DEBOUNCE_THRESHOLD_US = 2000;       // 2ms debounce, if there are dips visible then we should decrease this.
 const unsigned long PUBLISH_INTERVAL_US   = 100000;     // Publish every 100ms
 
-// microros error function
+
+
 void errorLoop() {
-  delay(2000);
-  digitalWrite(McEnablePin, LOW);
-  microrosInit();
-
-  // It might be interesting to add some more logic here like resetting the ESP if too many retries have been made
-  // for instance:
-  /*
-
-  void errorLoop() {
     static int retryCount = 0;
     retryCount++;
 
@@ -110,7 +102,7 @@ void errorLoop() {
     digitalWrite(McEnablePin, LOW);
     delay(2000);
 
-    if (retryCount > 3) {
+    if (retryCount > 5) {
       Serial.println("[ERROR LOOP] Too many retries, halting or resetting system...");
       // force a system reset and try again
       ESP.restart(); 
@@ -118,9 +110,7 @@ void errorLoop() {
     else {
       microrosInit();
     }
-  }
-  */
-}
+  }  
 
 boolean isRCActive(){
   return (x_pwm > MIN_T && x_pwm < MAX_T && y_pwm > MIN_T && y_pwm < MAX_T);
