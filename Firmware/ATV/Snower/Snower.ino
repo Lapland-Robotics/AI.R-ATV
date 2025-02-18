@@ -260,6 +260,10 @@ void microrosInit(){
   // Create subscription
   RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/snower/ctrl_cmd"));
 
+  // Speed publish
+  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/left")); // create left speed publisher
+  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/right")); // create right speed publisher
+
   // Initialize executor
   RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
   RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
@@ -301,8 +305,6 @@ void setup() {
 
   microrosInit(); // microros initialize
 
-  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/left")); // create left speed publisher
-  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Int32),"/snower/speed/right")); // create right speed publisher
 
 }
 
