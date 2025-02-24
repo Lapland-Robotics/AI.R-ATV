@@ -6,12 +6,12 @@ import time
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
 from rclpy.node import Node
+from std_msgs.msg import Bool
 from sensor_msgs.msg import Image as ImageMsg
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from datetime import datetime
 from concurrent.futures import Future
-import Jetson.GPIO as GPIO
 import numpy as np
 from PIL import Image
 import pcl
@@ -21,59 +21,32 @@ class DataCollector(Node):
     def __init__(self):
         super().__init__('DataCollector')
 
-        # GPIO setup
-        self.BUTTON_PIN = 12
-        GPIO.setmode(GPIO.BCM)
-        GPIO.setup(self.BUTTON_PIN, GPIO.IN)
-        #GPIO.setup(self.BUTTON_PIN, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-        
-        # self.zed2_left_rgb = None
-        # self.zed2_right_rgb = None
-        # self.seek_thermal = None
-        self.ouster_lidar = None
-        
+        topic = "/trigger"
+        qos_profile = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.BEST_EFFORT)
+        self.sub = self.create_subscription(Bool, topic, self.trigger_callback, qos_profile)
+
+        self.zed2_left_rgb = None
+        self.zed2_right_rgb = None
+        self.seek_thermal = None
+        self.ouster_lidar = None        
         self.save_dir = ""
-        self.get_logger().info('Data Collector node is initialized.')
 
-        self.input_thread = threading.Thread(target=self.input_handler)
-        self.input_thread.daemon = True
-        self.input_thread.start()
 
-    def input_handler(self):
-        while True:
-            if self.snapshot_trigger():
-                self.get_logger().info("Button Pressed! Taking snapshot soon...")
-                time.sleep(10)
-                # self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', Image)
-                # self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', Image)
-                # self.seek_thermal = self.retrieve_message_by_topic('/seek/seek_node/image_thermal', ImageMsg)
-                self.ouster_lidar = self.retrieve_message_by_topic('/ouster/points', PointCloud2)
-
-                """ if self.zed2_left_rgb and self.zed2_right_rgb:
-                    self.save_dir = self.gen_folder()
-                    # self.save_image(self.zed2_left_rgb, "left_rgb.png")
-                    # self.save_image(self.zed2_right_rgb, "right_rgb.png")
-                    # self.save_image(self.seek_thermal, "thermal.png") 
-                    self.save_point_cloud(self.ouster_lidar, "lidar.pcl")"""
-                
-                if self.ouster_lidar:
-                    self.save_dir = self.gen_folder()
-                    self.save_point_cloud(self.ouster_lidar, 'lidar.pcd')
-                else:
-                    self.get_logger().info("Could not fetch images from both topics (possibly no messages published yet).")
-                time.sleep(0.5)
-                while GPIO.input(self.BUTTON_PIN) == GPIO.LOW:
-                  time.sleep(0.1)
-            time.sleep(0.1)
-
-    def snapshot_trigger(self):
+    def trigger_callback(self, msg: Bool):
+        self.get_logger().info("Button Pressed! Taking snapshot...")
+        self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', Image)
+        self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', Image)
+        self.seek_thermal = self.retrieve_message_by_topic('/seek/seek_node/image_thermal', ImageMsg)
+        self.ouster_lidar = self.retrieve_message_by_topic('/ouster/points', PointCloud2)
         
-        if GPIO.input(self.BUTTON_PIN) == GPIO.LOW:
-           time.sleep(0.05)
-         # Check again to ensure the button state is stable
-           if GPIO.input(self.BUTTON_PIN) == GPIO.LOW:
-              return True
-        return False
+        self.save_dir = self.gen_folder()
+
+        self.save_image(self.zed2_left_rgb, "left_rgb.png") if self.zed2_left_rgb else None
+        self.save_image(self.zed2_right_rgb, "right_rgb.png") if self.zed2_right_rgb else None
+        self.save_image(self.seek_thermal, "thermal.png") if self.seek_thermal else None
+        self.save_point_cloud(self.ouster_lidar, "lidar.pcd") if self.ouster_lidar else None
+
+
     def retrieve_message_by_topic(self, topic_name, msg_type):
         future = Future()
 
@@ -179,7 +152,6 @@ def main(args=None):
         pass
     finally:
         node.destroy_node()
-        GPIO.cleanup()
         rclpy.shutdown()
 
 if __name__ == '__main__':
