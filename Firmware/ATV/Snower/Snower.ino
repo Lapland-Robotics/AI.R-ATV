@@ -119,8 +119,8 @@ boolean isRCActive(){
 
 /*Genarate debug String and push to the topic*/
 void generate_debug_data() {
-  int steering = getSteeringRequest(driveRequest);
-  int speed = getDrivingSpeedRequest(driveRequest);
+  int steering = getAngularZ(driveRequest);
+  int speed = getLinearX(driveRequest);
   int rc= (int)isRCActive();
   int mc= (int)digitalRead(McEnablePin);
   const char *variable_names[] = { "Steering", "Speed", "x_pwm", "y_pwm", "mc"};    // names of the variables
@@ -129,7 +129,7 @@ void generate_debug_data() {
   char final_string[256] = "";
   char buffer[128];
   
-  for (int i = 0; i < 5; i++) {
+  for (int i = 0; i < 6; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
     strcat(final_string, buffer);
   }
@@ -143,20 +143,11 @@ void generate_debug_data() {
 void ctrlCmdCallback(const void *msgin) {
   if(!isRCActive()){
     const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
+    float ROS_Z = steering_input->angular.z; // Assuming angular.z is used for steering angle
+    float ROS_X = steering_input->linear.x; // Assuming linear.x is used for speed
 
-    float ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
-    float ROS_Speed_Command = steering_input->linear.x; // Assuming linear.x is used for speed
-
-    // ROS Calculations
-    // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
-    // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    int tempSteeringRequest = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
-    setSteeringRequest(driveRequest, tempSteeringRequest);
-
-    // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
-    // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
-    int tempSpeedRequest = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
-    setDrivingSpeedRequest(driveRequest, tempSpeedRequest);
+    setAngularZ(driveRequest, tempAngularZ);
+    setLinearX(driveRequest, tempLinearX);
 
     PreviousTime = millis();
   }
@@ -315,14 +306,14 @@ void getRC(){
   int speed = map(y_pwm,1027,2010,-255,255);
 
   if(angle > 15 || angle < -15){
-    setSteeringRequest(driveRequest, angle);
+    setAngularZ(driveRequest, angle);
   } else {
-    setSteeringRequest(driveRequest, 0);
+    setAngularZ(driveRequest, 0);
   }
   if(speed > 15 || speed < -15){
-    setDrivingSpeedRequest(driveRequest, speed);
+    setLinearX(driveRequest, speed);
   } else {
-    setDrivingSpeedRequest(driveRequest, 0);
+    setLinearX(driveRequest, 0);
   }
 
   PreviousTime = millis();
@@ -337,8 +328,8 @@ void enableMC(){
 }
 
 void driving() {
-  int speed = getDrivingSpeedRequest(driveRequest);
-  int angle = getSteeringRequest(driveRequest);
+  int speed = getLinearX(driveRequest);
+  int angle = getAngularZ(driveRequest);
   // for better readable code "if(speed != 0)" 
   if(!speed==0 || !angle==0){
     enableMC();
@@ -377,8 +368,8 @@ void loop() {
 
   CurrentTime = millis();
   if ((CurrentTime - PreviousTime) >= TimeOut) {
-    setSteeringRequest(driveRequest, 0);
-    setDrivingSpeedRequest(driveRequest, 0);
+    setAngularZ(driveRequest, 0);
+    setLinearX(driveRequest, 0);
   }
   if ((CurrentTime - LastMCEnable) >= MCTimeout) {
     digitalWrite(McEnablePin, LOW);

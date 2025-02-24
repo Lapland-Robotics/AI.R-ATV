@@ -12,11 +12,14 @@
 struct CtrlRequest;
 
 // Function prototypes
-int getSteeringRequest(struct CtrlRequest *request);
-void setSteeringRequest(struct CtrlRequest *request, int value);
+int getAngularZ(struct CtrlRequest *request);
+void setAngularZ(struct CtrlRequest *request, int value);
 
-int getDrivingSpeedRequest(struct CtrlRequest *request);
-void setDrivingSpeedRequest(struct CtrlRequest *request, int value);
+int getLinearX(struct CtrlRequest *request);
+void setLinearX(struct CtrlRequest *request, int value);
+
+int getLinearY(struct CtrlRequest *request);
+void setLinearY(struct CtrlRequest *request, int value);
 
 // Function to create and destroy CtrlRequest objects
 struct CtrlRequest* createCtrlRequest(int defaultSteering, int defaultSpeed);
