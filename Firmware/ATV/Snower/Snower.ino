@@ -22,6 +22,8 @@ extern "C"{
 #define McEnablePin 21 //Motor2 Speed PWM
 #define SpeedSensorL 32 //Left speed sensor
 #define SpeedSensorR 33 //Left speed sensor
+#define PullUpSpeedLPin 34 //Left speed sensor
+#define PullUpSpeedRPin 27 //Left speed sensor
 
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -34,6 +36,7 @@ extern "C"{
 #define ROS_Speed_Command_yIntercept 0
 #define ROS_Steering_Command_Slope 255
 #define ROS_Speed_Command_Slope 255
+#define GENERAL_BLOCK_FREQUENCY 40  // Odometry publish rate in Hz
 
 /* Time variables */
 unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
@@ -41,6 +44,7 @@ unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
 unsigned long TimeOut = 400;  // control command time out
 unsigned long MCTimeout = 10000;  // motor controller time out
+unsigned long General_block_LET = 0; // General block last executed time
 
 /*ROS2 Constants*/
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
@@ -373,25 +377,27 @@ void driving() {
 }
 
 void loop() {
-  delay(30);
-  generate_debug_data();
+  unsigned long now = millis();
+  if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
+    General_block_LET = now;
 
-  if(isRCActive()){
-    getRC();
+    if(isRCActive()){
+      getRC();
+    }
+  
+    now = millis();
+    if ((now - PreviousTime) >= TimeOut) {
+      setSteeringRequest(driveRequest, 0);
+      setDrivingSpeedRequest(driveRequest, 0);
+    }
+    if ((now - LastMCEnable) >= MCTimeout) {
+      digitalWrite(McEnablePin, LOW);
+    }
+  
+    driving();
+    generate_debug_data();
+    publishSpeedData();
   }
-
-  CurrentTime = millis();
-  if ((CurrentTime - PreviousTime) >= TimeOut) {
-    setSteeringRequest(driveRequest, 0);
-    setDrivingSpeedRequest(driveRequest, 0);
-  }
-  if ((CurrentTime - LastMCEnable) >= MCTimeout) {
-    digitalWrite(McEnablePin, LOW);
-  }
-
-  driving();
-
-  publishSpeedData();
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
