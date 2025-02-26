@@ -36,7 +36,9 @@ extern "C"{
 #define ROS_Speed_Command_yIntercept 0
 #define ROS_Steering_Command_Slope 255
 #define ROS_Speed_Command_Slope 255
-#define GENERAL_BLOCK_FREQUENCY 40  // Odometry publish rate in Hz
+#define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
+#define DEBUG_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
+#define SPEED_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
 
 /* Time variables */
 unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
@@ -45,6 +47,8 @@ unsigned long LastMCEnable = 0; // last enable motor controller time
 unsigned long TimeOut = 400;  // control command time out
 unsigned long MCTimeout = 10000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
+unsigned long debug_publisher_LET = 0; // General block last executed time
+unsigned long speed_publisher_LET = 0; // General block last executed time
 
 /*ROS2 Constants*/
 #define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
@@ -379,7 +383,7 @@ void driving() {
 void loop() {
   unsigned long now = millis();
   if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
-    General_block_LET = now;
+    General_block_LET = millis();;
 
     if(isRCActive()){
       getRC();
@@ -395,7 +399,17 @@ void loop() {
     }
   
     driving();
+  }
+  
+  now = millis();
+  if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
+    debug_publisher_LET = millis();
     generate_debug_data();
+  }
+
+  now = millis();
+  if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
+    speed_publisher_LET = millis();
     publishSpeedData();
   }
 
