@@ -8,10 +8,10 @@
 #include <geometry_msgs/msg/twist.h>
 #include <std_msgs/msg/string.h>
 #include <std_msgs/msg/float32.h>
+#include "wifi_secrets.h"
 extern "C"{
   #include "ATV.h"
 }
-#include "wifi_secrets.h"
 
 /* ESP32 pin definition */
 #define CH1RCPin 18 //Remote Control ch1
@@ -68,12 +68,13 @@ rclc_support_t support;
 rcl_allocator_t allocator;
 rcl_node_t node;
 rclc_executor_t ctrlCmdExecutor;
-struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use the getters and setters
 
+// Driving related variables
+struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use the getters and setters
 float turnFactor = 0.5; 
 int motor1, motor2;
 
-// RC
+// RC related variables
 volatile unsigned long ch1_start_time = 0;
 volatile unsigned long ch2_start_time = 0;
 volatile int x_pwm = 0;
@@ -226,12 +227,12 @@ void publishSpeedData() {
   unsigned long pulsesRight = 0;
   unsigned long timeDuration = 0;
   
-    noInterrupts();
+  noInterrupts();
   timeDuration = millis() - leftLastPublishTime;
   pulsesLeft = leftToothCount;
   leftToothCount = 0;
   leftLastPublishTime = now;
-    interrupts();
+  interrupts();
     
   // float pulsesPerSecLeft = (pulsesLeft / (timeDuration/1000.00));
   speedLeft.data = pulsesLeft;
@@ -240,13 +241,12 @@ void publishSpeedData() {
   Serial.print("Left: ");
   Serial.print(pulsesLeft);
   
-  // Publish for right wheel every 100ms
-    noInterrupts();
+  noInterrupts();
   timeDuration = millis() - rightLastPublishTime;
   pulsesRight = rightToothCount;
   rightToothCount = 0;
   rightLastPublishTime = now;
-    interrupts();
+  interrupts();
     
   // float pulsesPerSecRight = (pulsesRight / (timeDuration/1000.00));
   speedRight.data = pulsesRight;
@@ -254,8 +254,6 @@ void publishSpeedData() {
 
   Serial.print(", Right: ");
   Serial.println(pulsesRight);
-    
-
 }
 
 void microrosInit(){
@@ -322,8 +320,6 @@ void setup() {
   driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
 
   microrosInit(); // microros initialize
-
-
 }
 
 void getRC(){
