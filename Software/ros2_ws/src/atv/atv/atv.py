@@ -2,7 +2,7 @@
 import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
-from std_msgs.msg import String
+from std_msgs.msg import Int32
 from geometry_msgs.msg import Twist
 from rclpy.qos import QoSProfile, ReliabilityPolicy
 
@@ -10,21 +10,21 @@ class Esp32ControllerNode(Node):
 
     def __init__(self):
         super().__init__('atv')
-        topic = "/snower/debug"
+        topic = "/snower/speed/left"
         self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
-        self.sub = self.create_subscription(String, topic, self.chatter_callback, qos_profile)
+        self.sub = self.create_subscription(Int32, topic, self.chatter_callback, qos_profile)
         
         # Create a publisher for the Twist message
         self.twist_pub = self.create_publisher(Twist, '/snower/ctrl_cmd', 10)
         
         # Create a timer to publish the Twist message
-        timer_period = 4.0  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        #timer_period = 4.0  # seconds
+        #self.timer = self.create_timer(timer_period, self.timer_callback)
         
         self.iteration = 0
 
-    def chatter_callback(self, msg: String):
+    def chatter_callback(self, msg: Int32):
         self.get_logger().info(str(msg))
 
     def publish_twist(self, speed, angle):
