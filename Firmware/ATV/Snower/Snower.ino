@@ -23,8 +23,8 @@ extern "C"{
 #define McEnablePin 21 //Motor2 Speed PWM
 #define SpeedSensorL 32 //Left speed sensor
 #define SpeedSensorR 33 //Left speed sensor
-#define PullUpSpeedLPin 34 //Left speed sensor
-#define PullUpSpeedRPin 27 //Left speed sensor
+#define PullUpSpeedLPin 12 //Left speed sensor
+#define PullUpSpeedRPin 14 //Left speed sensor
 
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -39,14 +39,14 @@ extern "C"{
 #define ROS_Speed_Command_Slope 255
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
-#define SPEED_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
+#define SPEED_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 
 /* Time variables */
 unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
 unsigned long TimeOut = 400;  // control command time out
-unsigned long MCTimeout = 10000;  // motor controller time out
+unsigned long MCTimeout = 600000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
 unsigned long speed_publisher_LET = 0; // General block last executed time
@@ -101,7 +101,7 @@ volatile unsigned long rightLastPublishTime = 0;
 volatile int rightLastState = LOW;
 
 /* Speed timing Constants*/
-const unsigned long DEBOUNCE_THRESHOLD_US = 20;
+const unsigned long DEBOUNCE_THRESHOLD_US = 10;
 
 
 
@@ -304,6 +304,8 @@ void setup() {
   digitalWrite(McEnablePin, LOW);
   ledcWrite(0, 0);  // Stop Motor 1
   ledcWrite(1, 0);  // Stop Motor 2
+  digitalWrite(PullUpSpeedLPin, HIGH);
+  digitalWrite(PullUpSpeedRPin, HIGH);
 
   // Attach interrupts to pins
   attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
