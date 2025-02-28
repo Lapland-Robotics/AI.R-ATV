@@ -390,6 +390,14 @@
     [
       "9097c388-5538-42a6-a79e-2e0d6431f811",
       "power_distribution"
+    ],
+    [
+      "c31fc1d2-1d54-4485-b47d-061d9ffeaef5",
+      "current_sensing"
+    ],
+    [
+      "f031f5e3-8391-4e73-8e3e-6c3037a45855",
+      "connectors"
     ]
   ],
   "text_variables": {}

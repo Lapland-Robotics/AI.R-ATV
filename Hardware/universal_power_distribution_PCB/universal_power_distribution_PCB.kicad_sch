@@ -454,6 +454,83 @@
 			)
 		)
 	)
+	(sheet
+		(at 33.02 63.5)
+		(size 43.18 13.97)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "c31fc1d2-1d54-4485-b47d-061d9ffeaef5")
+		(property "Sheetname" "current_sensing"
+			(at 33.02 62.7884 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "current_sensing.kicad_sch"
+			(at 33.02 78.0546 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+				(hide yes)
+			)
+		)
+		(instances
+			(project "universal_power_distribution_PCB"
+				(path "/7b61ee4e-2c0c-4866-8343-5ee759f84d1a"
+					(page "3")
+				)
+			)
+		)
+	)
+	(sheet
+		(at 33.02 87.63)
+		(size 43.18 12.7)
+		(fields_autoplaced yes)
+		(stroke
+			(width 0.1524)
+			(type solid)
+		)
+		(fill
+			(color 0 0 0 0.0000)
+		)
+		(uuid "f031f5e3-8391-4e73-8e3e-6c3037a45855")
+		(property "Sheetname" "connectors"
+			(at 33.02 86.9184 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left bottom)
+			)
+		)
+		(property "Sheetfile" "connectors.kicad_sch"
+			(at 33.02 100.9146 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left top)
+			)
+		)
+		(instances
+			(project "universal_power_distribution_PCB"
+				(path "/7b61ee4e-2c0c-4866-8343-5ee759f84d1a"
+					(page "4")
+				)
+			)
+		)
+	)
 	(sheet_instances
 		(path "/"
 			(page "1")
