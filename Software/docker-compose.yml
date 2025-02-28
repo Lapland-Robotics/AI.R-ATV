@@ -24,17 +24,17 @@ services:
     command: serial --dev /dev/ttyUSB0
     network_mode: "host"
 
-  gnss:
-    build:
-      context: .
-      dockerfile: microros.Dockerfile
-    container_name: atv-gnss-container
-    tty: true
-    privileged: true
-    devices:
-      - "/dev/ttyUSB1:/dev/ttyUSB1"
-    command: serial --dev /dev/ttyUSB1
-    network_mode: "host"
+  # gnss:
+  #   build:
+  #     context: .
+  #     dockerfile: microros.Dockerfile
+  #   container_name: atv-gnss-container
+  #   tty: true
+  #   privileged: true
+  #   devices:
+  #     - "/dev/ttyUSB1:/dev/ttyUSB1"
+  #   command: serial --dev /dev/ttyUSB1
+  #   network_mode: "host"
 
   # ouster_lidar:
   #   build:
