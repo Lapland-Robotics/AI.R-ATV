@@ -34,7 +34,7 @@ extern "C"{
 #define LINEAR_X_DEFAULT 0   // Middle point of speed
 #define ANGULAR_Z_DEFAULT 0  // middlepoint of angle
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
-#define DEBUG_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
+#define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 #define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
 
 /* Time variables */
@@ -126,13 +126,13 @@ void generate_debug_data() {
   double rightSpeed = getRightSpeed(driveRequest);
   double rc= (double)isRCActive();
   double mc= (double)digitalRead(McEnablePin);
-  const char *variable_names[] = { "lX", "aZ", "rc_x_pwm", "rc_z_pwm", "leftSpeed", "rightSpeed", "leftPWM", "rightPWM"};    // names of the variables
-  double variable_values[] = {lX, aZ, (double)rc_x_pwm, (double)rc_z_pwm, leftSpeed, rightSpeed, (double)leftMotorPWM, (double)rightMotorPWM};  // values of the variables
+  const char *variable_names[] = { "lX", "aZ","leftSpeed", "rightSpeed", "leftPWM", "rightPWM"};    // names of the variables
+  double variable_values[] = {lX, aZ, rightSpeed, rightSpeed, (double)leftMotorPWM, (double)rightMotorPWM};  // values of the variables
 
   char final_string[256] = "";
   char buffer[128];
   
-  for (int i = 0; i < 6; i++) {
+  for (int i = 0; i < 5; i++) {
     snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
     strcat(final_string, buffer);
   }
@@ -297,7 +297,7 @@ void setup() {
   ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
   ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
 
-  driveRequest = createCommandVelocity(LINEAR_X_DEFAULT, ANGULAR_Z_DEFAULT);
+  driveRequest = createCommandVelocity();
 
   microrosInit(); // microros initialize
 }
@@ -332,7 +332,7 @@ void activateMotorController(){
 
 // Get PWM value by Speed (Linearization)
 int getPWMbySpeed(double speed){
-  int pwm = (int) ((1.0 * speed) + 1.0);
+  int pwm = (int) ((293.65 * speed) + 16.43);
   if(pwm > 255) {
       pwm = 255;
   } else if (pwm < 0) {
@@ -344,11 +344,7 @@ int getPWMbySpeed(double speed){
 
 void driving() {
 
-  // get linearX and angularZ to validate the driving function.
-  int speed = getLinearX(driveRequest);
-  int angle = getAngularZ(driveRequest);
-  if(speed!=0 || angle!=0){
-    
+  if(getLinearX(driveRequest)!=0.0 || getAngularZ(driveRequest)!=0.0){
     // activate motor controller using the relay switch
     activateMotorController();
 
@@ -367,9 +363,7 @@ void driving() {
     // Output PWM values to the motor controller
     ledcWrite(0, leftMotorPWM);
     ledcWrite(1, rightMotorPWM); 
-  
   }
-
 }
 
 void loop() {
@@ -377,7 +371,7 @@ void loop() {
   // General block of the loop
   unsigned long now = millis();
   if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
-    General_block_LET = millis();;
+    General_block_LET = millis();
 
     // is Remote Controller active
     if(isRCActive()){
@@ -397,6 +391,7 @@ void loop() {
     }
     // main driving function
     driving();
+
   }
   
   // publish debug data

@@ -12,12 +12,16 @@ struct CommandVelocity {
 };
 
 // Function to create a new CommandVelocity object
-struct CommandVelocity* createCommandVelocity(double linearX, double angularZ) {
+struct CommandVelocity* createCommandVelocity() {
     struct CommandVelocity *newRequest = (struct CommandVelocity*)malloc(sizeof(struct CommandVelocity));
-    if (newRequest) {
-        setLinearX(newRequest, linearX);
-        setAngularZ(newRequest, angularZ);
+    if (!newRequest) {
+        return NULL; // Avoid using an uninitialized pointer
     }
+    
+    newRequest->linearX = 0.0;
+    newRequest->angularZ = 0.0;
+    newRequest->leftSpeed = 0.0;
+    newRequest->rightSpeed = 0.0;
     return newRequest;
 }
 
@@ -42,23 +46,29 @@ double getRightSpeed(struct CommandVelocity *request) {
 }
 
 void setCmdVel(struct CommandVelocity *request, double linearX, double angularZ) {
+    if (!request) return;
     setAngularZ(request, angularZ);
     setLinearX(request, linearX);
+    setLeftSpeed(request, linearX, angularZ);
+    setRightSpeed(request, linearX, angularZ);
 }
 // Setter for LeftSpeed
 void setLeftSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
+    if (!request) return;
     double leftSpeed = linearX + (angularZ * WheelBase / 2.0);
     request->leftSpeed = leftSpeed;
 }
 
 // Setter for rightSpeed
 void setRightSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
+    if (!request) return;
     double rightSpeed = linearX - (angularZ * WheelBase / 2.0);
     request->rightSpeed = rightSpeed;
 }
 
 // Setter for angularZ
 void setAngularZ(struct CommandVelocity *request, double value) {
+    if (!request) return;
     if(value > Steering_Right_Limit) {
         value = Steering_Right_Limit;
     } else if (value < Steering_Left_Limit) {
@@ -69,6 +79,7 @@ void setAngularZ(struct CommandVelocity *request, double value) {
 
 // Setter for linearX
 void setLinearX(struct CommandVelocity *request, double value) {
+    if (!request) return;
     if(value > Driving_Forward_Limit) {
         value = Driving_Forward_Limit;
     } else if (value < Driving_Reverse_Limit) {
@@ -79,5 +90,7 @@ void setLinearX(struct CommandVelocity *request, double value) {
 
 // Function to destroy a CommandVelocity object
 void destroyCommandVelocity(struct CommandVelocity *request) {
-    free(request);
+    if (request) {
+        free(request);
+    }
 }
