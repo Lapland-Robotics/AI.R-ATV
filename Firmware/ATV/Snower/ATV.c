@@ -4,36 +4,61 @@
 #include <stdlib.h>
 
 // Structure definition is private to this file
-struct CtrlRequest {
-    float angularZ;
-    float linearX;
-    float linearY;
-    float leftMotorSpeed;
-    float rightMotorSpeed;
+struct CommandVelocity {
+    double linearX;
+    double angularZ;
+    double leftSpeed;
+    double rightSpeed;
 };
 
-// Function to create a new CtrlRequest object
-struct CtrlRequest* createCtrlRequest(int defaultSteering, int defaultSpeed) {
-    struct CtrlRequest *newRequest = (struct CtrlRequest*)malloc(sizeof(struct CtrlRequest));
+// Function to create a new CommandVelocity object
+struct CommandVelocity* createCommandVelocity(double linearX, double angularZ) {
+    struct CommandVelocity *newRequest = (struct CommandVelocity*)malloc(sizeof(struct CommandVelocity));
     if (newRequest) {
-        newRequest->angularZ = defaultSteering;
-        newRequest->linearX = defaultSpeed;
+        setLinearX(newRequest, linearX);
+        setAngularZ(newRequest, angularZ);
     }
     return newRequest;
 }
 
-// Function to destroy a CtrlRequest object
-void destroyCtrlRequest(struct CtrlRequest *request) {
-    free(request);
-}
-
 // Getter for angularZ
-int getAngularZ(struct CtrlRequest *request) {
+double getAngularZ(struct CommandVelocity *request) {
     return request->angularZ;
 }
 
+// Getter for linearX
+double getLinearX(struct CommandVelocity *request) {
+    return request->linearX;
+}
+
+// Getter for leftSpeed
+double getLeftSpeed(struct CommandVelocity *request) {
+    return request->leftSpeed;
+}
+
+// Getter for rightSpeed
+double getRightSpeed(struct CommandVelocity *request) {
+    return request->rightSpeed;
+}
+
+void setCmdVel(struct CommandVelocity *request, double linearX, double angularZ) {
+    setAngularZ(request, angularZ);
+    setLinearX(request, linearX);
+}
+// Setter for LeftSpeed
+void setLeftSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
+    double leftSpeed = linearX + (angularZ * WheelBase / 2.0);
+    request->leftSpeed = leftSpeed;
+}
+
+// Setter for rightSpeed
+void setRightSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
+    double rightSpeed = linearX - (angularZ * WheelBase / 2.0);
+    request->rightSpeed = rightSpeed;
+}
+
 // Setter for angularZ
-void setAngularZ(struct CtrlRequest *request, int value) {
+void setAngularZ(struct CommandVelocity *request, double value) {
     if(value > Steering_Right_Limit) {
         value = Steering_Right_Limit;
     } else if (value < Steering_Left_Limit) {
@@ -42,17 +67,17 @@ void setAngularZ(struct CtrlRequest *request, int value) {
     request->angularZ = value;
 }
 
-// Getter for linearX
-int getLinearX(struct CtrlRequest *request) {
-    return request->linearX;
-}
-
 // Setter for linearX
-void setLinearX(struct CtrlRequest *request, int value) {
+void setLinearX(struct CommandVelocity *request, double value) {
     if(value > Driving_Forward_Limit) {
         value = Driving_Forward_Limit;
     } else if (value < Driving_Reverse_Limit) {
         value = Driving_Reverse_Limit;
     }
     request->linearX = value;
+}
+
+// Function to destroy a CommandVelocity object
+void destroyCommandVelocity(struct CommandVelocity *request) {
+    free(request);
 }

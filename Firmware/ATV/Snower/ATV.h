@@ -4,25 +4,27 @@
 #define ATV_H
 
 #define RC_input_Count 2
-#define Steering_Left_Limit -255    // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 255   // Right direction limit value for Steering Pot
-#define Driving_Reverse_Limit -255  // Reverse Driving Speed limit (not actual speed m/s)
-#define Driving_Forward_Limit 255  // Forward Driving Speed limit (not actual speed m/s)
+#define Steering_Left_Limit -0.9    // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 0.9   // Right direction limit value for Steering Pot
+#define Driving_Reverse_Limit -0.9  // Reverse Driving Speed limit (not actual speed m/s)
+#define Driving_Forward_Limit 0.9  // Forward Driving Speed limit (not actual speed m/s)
+#define WheelBase 58.5 // Distance between front wheels(center)
 
-struct CtrlRequest;
+struct CommandVelocity;
 
-// Function prototypes
-int getAngularZ(struct CtrlRequest *request);
-void setAngularZ(struct CtrlRequest *request, int value);
+// getter prototypes
+double getAngularZ(struct CommandVelocity *request);
+double getLinearX(struct CommandVelocity *request);
+double getLeftSpeed(struct CommandVelocity *request);
+double getRightSpeed(struct CommandVelocity *request);
 
-int getLinearX(struct CtrlRequest *request);
-void setLinearX(struct CtrlRequest *request, int value);
+// setter prototypes
+void setCmdVel(struct CommandVelocity *request, double linearX, double angularZ);
+void setAngularZ(struct CommandVelocity *request, double value);
+void setLinearX(struct CommandVelocity *request, double value);
 
-int getLinearY(struct CtrlRequest *request);
-void setLinearY(struct CtrlRequest *request, int value);
-
-// Function to create and destroy CtrlRequest objects
-struct CtrlRequest* createCtrlRequest(int defaultSteering, int defaultSpeed);
-void destroyCtrlRequest(struct CtrlRequest *request);
+// Function to create and destroy CommandVelocity objects
+struct CommandVelocity* createCommandVelocity(double linearX, double angularZ);
+void destroyCommandVelocity(struct CommandVelocity *request);
 
 #endif // ATV_CONTROL_H
