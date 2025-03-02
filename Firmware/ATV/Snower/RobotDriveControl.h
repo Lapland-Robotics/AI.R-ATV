@@ -1,7 +1,7 @@
-// ATV Header file
+// RobotDriveControl Header file
 
-#ifndef ATV_H
-#define ATV_H
+#ifndef RobotDriveControl_H
+#define RobotDriveControl_H
 
 #define RC_input_Count 2
 #define Steering_Left_Limit -0.9    // Left direction limit value for Steering Pot
@@ -19,7 +19,7 @@ double getLeftSpeed(struct CommandVelocity *request);
 double getRightSpeed(struct CommandVelocity *request);
 
 // setter prototypes
-void setCmdVel(struct CommandVelocity *request, double linearX, double angularZ);
+void setCmdVelDiffDrive(struct CommandVelocity *request, double linearX, double angularZ);
 void setAngularZ(struct CommandVelocity *request, double value);
 void setLinearX(struct CommandVelocity *request, double value);
 
@@ -27,4 +27,4 @@ void setLinearX(struct CommandVelocity *request, double value);
 struct CommandVelocity* createCommandVelocity();
 void destroyCommandVelocity(struct CommandVelocity *request);
 
-#endif // ATV_CONTROL_H
+#endif // RobotDriveControl_H

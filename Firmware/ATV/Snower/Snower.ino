@@ -10,7 +10,7 @@
 #include <std_msgs/msg/float32.h>
 #include "wifi_secrets.h"
 extern "C"{
-  #include "ATV.h"
+  #include "RobotDriveControl.h"
 }
 
 /* ESP32 pin definition */
@@ -65,7 +65,7 @@ rcl_node_t node;
 rclc_executor_t ctrlCmdExecutor;
 
 // Driving related variables
-struct CommandVelocity* driveRequest; // DON'T use this variable dirctly, always use the getters and setters
+struct CommandVelocity* cmdVelDiffDrive; // DON'T use this variable dirctly, always use the getters and setters
 
 // RC related variables
 volatile unsigned long ch1_start_time = 0;
@@ -125,7 +125,7 @@ void debugDataPublisher(char final_string[256]) {
 void cmdVelCallback(const void *msgin) {
   if(!isRCActive()){
     const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
-    setCmdVel(driveRequest, steering_input->linear.x, steering_input->angular.z);
+    setCmdVelDiffDrive(cmdVelDiffDrive, steering_input->linear.x, steering_input->angular.z);
     PreviousTime = millis();
   }
 }
@@ -276,7 +276,7 @@ void setup() {
   ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
   ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
 
-  driveRequest = createCommandVelocity();
+  cmdVelDiffDrive = createCommandVelocity();
 
   microrosInit(); // microros initialize
 }
@@ -288,14 +288,14 @@ void getRC(){
   double linearX = map(rc_z_pwm,1027,2010,-1,1);
 
   if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
-    setAngularZ(driveRequest, angularZ);
+    setAngularZ(cmdVelDiffDrive, angularZ);
   } else {
-    setAngularZ(driveRequest, 0);
+    setAngularZ(cmdVelDiffDrive, 0);
   }
   if(rc_x_pwm > 1600 || rc_x_pwm < 1400){
-    setLinearX(driveRequest, linearX);
+    setLinearX(cmdVelDiffDrive, linearX);
   } else {
-    setLinearX(driveRequest, 0);
+    setLinearX(cmdVelDiffDrive, 0);
   }
 
   PreviousTime = millis();
@@ -323,13 +323,13 @@ int getPWMbySpeed(double speed){
 
 void driving() {
 
-  if(getLinearX(driveRequest)!=0.0 || getAngularZ(driveRequest)!=0.0){
+  if(getLinearX(cmdVelDiffDrive)!=0.0 || getAngularZ(cmdVelDiffDrive)!=0.0){
     // activate motor controller using the relay switch
     activateMotorController();
 
     // get differential speed values for the left and right motors
-    double leftSpeed = getLeftSpeed(driveRequest);
-    double rightSpeed = getRightSpeed(driveRequest);
+    double leftSpeed = getLeftSpeed(cmdVelDiffDrive);
+    double rightSpeed = getRightSpeed(cmdVelDiffDrive);
     
     // get the PWM values for the motors
     int leftMotorPWM = getPWMbySpeed(abs(leftSpeed));
@@ -364,7 +364,7 @@ void loop() {
     // cmd_vel timeout
     now = millis();
     if ((now - PreviousTime) >= TimeOut) {
-      setCmdVel(driveRequest, 0.0, 0.0);
+      setCmdVelDiffDrive(cmdVelDiffDrive, 0.0, 0.0);
     }
 
     // Motor Control idle mode

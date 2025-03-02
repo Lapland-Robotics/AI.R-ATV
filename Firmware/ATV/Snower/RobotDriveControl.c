@@ -1,6 +1,6 @@
-// ATV Source file
+// RobotDriveControl Source file
 
-#include "ATV.h"
+#include "RobotDriveControl.h"
 #include <stdlib.h>
 
 // Structure definition is private to this file
@@ -45,7 +45,7 @@ double getRightSpeed(struct CommandVelocity *request) {
     return request->rightSpeed;
 }
 
-void setCmdVel(struct CommandVelocity *request, double linearX, double angularZ) {
+void setCmdVelDiffDrive(struct CommandVelocity *request, double linearX, double angularZ) {
     if (!request) return;
     setAngularZ(request, angularZ);
     setLinearX(request, linearX);
