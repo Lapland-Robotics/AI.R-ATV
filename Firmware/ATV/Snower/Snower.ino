@@ -90,10 +90,6 @@ volatile int rightLastState = LOW;
 /* Speed timing Constants*/
 const unsigned long DEBOUNCE_THRESHOLD_US = 10;
 
-/* Motor Controller related values */
-int leftMotorPWM;
-int rightMotorPWM;
-
 
 void errorLoop() {
     static int retryCount = 0;
@@ -119,31 +115,14 @@ boolean isRCActive(){
 
 
 /*Genarate debug String and push to the topic*/
-void generate_debug_data() {
-  double lX = getLinearX(driveRequest);
-  double aZ = getAngularZ(driveRequest);
-  double leftSpeed = getLeftSpeed(driveRequest);
-  double rightSpeed = getRightSpeed(driveRequest);
-  double rc= (double)isRCActive();
-  double mc= (double)digitalRead(McEnablePin);
-  const char *variable_names[] = { "lX", "aZ","leftSpeed", "rightSpeed", "leftPWM", "rightPWM"};    // names of the variables
-  double variable_values[] = {lX, aZ, rightSpeed, rightSpeed, (double)leftMotorPWM, (double)rightMotorPWM};  // values of the variables
-
-  char final_string[256] = "";
-  char buffer[128];
-  
-  for (int i = 0; i < 5; i++) {
-    snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
-    strcat(final_string, buffer);
-  }
-
+void debugDataPublisher(char final_string[256]) {
   snprintf(debugMsg.data.data, debugMsg.data.capacity, "[SNOWER]: %s", final_string);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
 
 // ROS Callbacks
-void ctrlCmdCallback(const void *msgin) {
+void cmdVelCallback(const void *msgin) {
   if(!isRCActive()){
     const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
     setCmdVel(driveRequest, steering_input->linear.x, steering_input->angular.z);
@@ -260,7 +239,7 @@ void microrosInit(){
 
   // Initialize executor
   RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
-  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &cmdVelCallback, ON_NEW_DATA));
 }
 
 void setup() {
@@ -353,8 +332,8 @@ void driving() {
     double rightSpeed = getRightSpeed(driveRequest);
     
     // get the PWM values for the motors
-    leftMotorPWM = getPWMbySpeed(abs(leftSpeed));
-    rightMotorPWM = getPWMbySpeed(abs(rightSpeed));
+    int leftMotorPWM = getPWMbySpeed(abs(leftSpeed));
+    int rightMotorPWM = getPWMbySpeed(abs(rightSpeed));
     
     // Set motor direction based on speed values
     digitalWrite(Motor1DirPin, leftSpeed >= 0);
@@ -363,6 +342,10 @@ void driving() {
     // Output PWM values to the motor controller
     ledcWrite(0, leftMotorPWM);
     ledcWrite(1, rightMotorPWM); 
+
+    char final_string[256] = "";
+    snprintf(final_string, 256, "leftSpeed: %f, rightSpeed :%f, leftMotorPWM: %d , rightMotorPWM: %d", leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
+    debugDataPublisher(final_string);
   }
 }
 
@@ -392,13 +375,6 @@ void loop() {
     // main driving function
     driving();
 
-  }
-  
-  // publish debug data
-  now = millis();
-  if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
-    debug_publisher_LET = millis();
-    generate_debug_data();
   }
 
   // publish speed sensor data
