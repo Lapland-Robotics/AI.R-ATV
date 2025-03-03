@@ -45,13 +45,6 @@ double getRightSpeed(struct CommandVelocity *request) {
     return request->rightSpeed;
 }
 
-void setCmdVelDiffDrive(struct CommandVelocity *request, double linearX, double angularZ) {
-    if (!request) return;
-    setAngularZ(request, angularZ);
-    setLinearX(request, linearX);
-    setLeftSpeed(request, linearX, angularZ);
-    setRightSpeed(request, linearX, angularZ);
-}
 // Setter for LeftSpeed
 void setLeftSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
     if (!request) return;
@@ -86,6 +79,14 @@ void setLinearX(struct CommandVelocity *request, double value) {
         value = Driving_Reverse_Limit;
     }
     request->linearX = value;
+}
+
+void setCmdVelDiffDrive(struct CommandVelocity *request, double linearX, double angularZ) {
+    if (!request) return;
+    setAngularZ(request, angularZ);
+    setLinearX(request, linearX);
+    setLeftSpeed(request, linearX, angularZ);
+    setRightSpeed(request, linearX, angularZ);
 }
 
 // Function to destroy a CommandVelocity object

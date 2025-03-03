@@ -70,8 +70,8 @@ struct CommandVelocity* cmdVelDiffDrive; // DON'T use this variable dirctly, alw
 // RC related variables
 volatile unsigned long ch1_start_time = 0;
 volatile unsigned long ch2_start_time = 0;
-volatile int rc_x_pwm = 0;
 volatile int rc_z_pwm = 0;
+volatile int rc_x_pwm = 0;
 
 // Speed sensors
 /* Left speed sensor*/
@@ -110,7 +110,7 @@ void errorLoop() {
   }  
 
 boolean isRCActive(){
-  return (rc_x_pwm > MIN_T && rc_x_pwm < MAX_T && rc_z_pwm > MIN_T && rc_z_pwm < MAX_T);
+  return (rc_z_pwm > MIN_T && rc_z_pwm < MAX_T && rc_x_pwm > MIN_T && rc_x_pwm < MAX_T);
 }
 
 
@@ -164,7 +164,7 @@ void IRAM_ATTR CH1_interrupt() {
         ch1_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        rc_x_pwm = micros() - ch1_start_time;
+        rc_z_pwm = micros() - ch1_start_time;
     }
 }
 
@@ -174,7 +174,7 @@ void IRAM_ATTR CH2_interrupt() {
         ch2_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        rc_z_pwm = micros() - ch2_start_time;
+        rc_x_pwm = micros() - ch2_start_time;
     }
 }
 
@@ -195,8 +195,8 @@ void publishSpeedData() {
   speedLeft.data = pulsesLeft;
   RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
   
-  Serial.print("Left: ");
-  Serial.print(pulsesLeft);
+  // Serial.print("Left: ");
+  // Serial.print(pulsesLeft);
   
   noInterrupts();
   timeDuration = millis() - rightLastPublishTime;
@@ -209,13 +209,13 @@ void publishSpeedData() {
   speedRight.data = pulsesRight;
   RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
-  Serial.print(", Right: ");
-  Serial.println(pulsesRight);
+  // Serial.print(", Right: ");
+  // Serial.println(pulsesRight);
 }
 
 void microrosInit(){
-  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
-  // set_microros_transports(); // microros over serial
+  //set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
+  set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
@@ -254,6 +254,12 @@ void setup() {
   pinMode(McEnablePin, OUTPUT);
   pinMode(SpeedSensorLeftPin, INPUT);
   pinMode(SpeedSensorRightPin, INPUT);
+
+  //Initialising PWM on ESP32
+  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
+  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
+  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
+  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
   
   // Initialize motor PWM channels to zero to prevent erratic motor startup
   digitalWrite(Motor1SpeedPWMPin, LOW);
@@ -270,33 +276,31 @@ void setup() {
   attachInterrupt(digitalPinToInterrupt(SpeedSensorLeftPin), speedLeft_interrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(SpeedSensorRightPin), speedRight_interrupt, CHANGE);
 
-  //Initialising PWM on ESP32
-  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
-  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
-  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
-  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
-
   cmdVelDiffDrive = createCommandVelocity();
 
   microrosInit(); // microros initialize
 }
-
+double mapFloat(int x, double in_min, double in_max, double out_min, double out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 void getRC(){
   //X-axis control
   //To do: Test out the rc controller for actual x and y values (min and max)
-  double angularZ = map(rc_x_pwm,993,2016,-1,1);
-  double linearX = map(rc_z_pwm,1027,2010,-1,1);
+  
+  double X = 0.0;
+  double Z = 0.0;
 
-  if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
-    setAngularZ(cmdVelDiffDrive, angularZ);
-  } else {
-    setAngularZ(cmdVelDiffDrive, 0);
-  }
   if(rc_x_pwm > 1600 || rc_x_pwm < 1400){
-    setLinearX(cmdVelDiffDrive, linearX);
-  } else {
-    setLinearX(cmdVelDiffDrive, 0);
+    X = mapFloat(rc_x_pwm,1000,2000,-1,1);
   }
+  if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
+    Z = mapFloat(rc_z_pwm,1000,2000,-1,1);
+  }
+  setCmdVelDiffDrive(cmdVelDiffDrive, X, Z);
+
+  // char final_string[256] = "";
+  // snprintf(final_string, 256, "X: %f, getLinearX: %f", X, getLinearX(cmdVelDiffDrive));
+  // debugDataPublisher(final_string);
 
   PreviousTime = millis();
 
