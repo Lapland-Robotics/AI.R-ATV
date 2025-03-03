@@ -33,7 +33,7 @@ extern "C"{
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
 #define LINEAR_X_DEFAULT 0   // Middle point of speed
 #define ANGULAR_Z_DEFAULT 0  // middlepoint of angle
-#define GENERAL_BLOCK_FREQUENCY 1000   // Odometry publish rate in Hz
+#define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 #define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
 
@@ -41,7 +41,7 @@ extern "C"{
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
 unsigned long TimeOut = 200;  // control command time out
-unsigned long MCTimeout = 10000;  // motor controller time out
+unsigned long MCTimeout = 60000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
 unsigned long speed_publisher_LET = 0; // General block last executed time
