@@ -1,8 +1,5 @@
 import os
 import rclpy
-import cv2
-import threading
-import time
 from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
 from rclpy.node import Node
@@ -10,7 +7,6 @@ from std_msgs.msg import Bool
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from datetime import datetime
-from concurrent.futures import Future
 import numpy as np
 from PIL import Image
 import pcl
@@ -24,50 +20,35 @@ class DataCollector(Node):
         qos_profile = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.BEST_EFFORT)
         self.sub = self.create_subscription(Bool, topic, self.trigger_callback, qos_profile)
 
-        self.zed2_left_rgb = None
-        self.zed2_right_rgb = None
-        self.seek_thermal = None
-        self.ouster_lidar = None        
+        self.latest_messages = {}  # Store the latest messages from topics
+
+        # Create persistent subscriptions
+        self.create_subscription(ImageMsg, '/zed/zed_node/left_raw/image_raw_color',
+                                 lambda msg: self.store_latest_message('/zed/zed_node/left_raw/image_raw_color', msg), qos_profile)
+        self.create_subscription(ImageMsg, '/zed/zed_node/right_raw/image_raw_color',
+                                 lambda msg: self.store_latest_message('/zed/zed_node/right_raw/image_raw_color', msg), qos_profile)
+        self.create_subscription(ImageMsg, '/seek/seek_node/image_thermal',
+                                 lambda msg: self.store_latest_message('/seek/seek_node/image_thermal', msg), qos_profile)
+        self.create_subscription(PointCloud2, '/ouster/points',
+                                 lambda msg: self.store_latest_message('/ouster/points', msg), qos_profile)
+     
         self.save_dir = ""
 
+    def store_latest_message(self, topic_name, msg):
+        self.latest_messages[topic_name] = msg
 
     def trigger_callback(self, msg: Bool):
         self.get_logger().info("Button Pressed! Taking snapshot...")
-        self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', ImageMsg)
-        self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', ImageMsg)
-        self.seek_thermal = self.retrieve_message_by_topic('/seek/seek_node/image_thermal', ImageMsg)
-        self.ouster_lidar = self.retrieve_message_by_topic('/ouster/points', PointCloud2)
-        
         self.save_dir = self.gen_folder()
 
-        self.save_image(self.zed2_left_rgb, "left_rgb.png") if self.zed2_left_rgb else None
-        self.save_image(self.zed2_right_rgb, "right_rgb.png") if self.zed2_right_rgb else None
-        self.save_image(self.seek_thermal, "thermal.png") if self.seek_thermal else None
-        self.save_point_cloud(self.ouster_lidar, "lidar.pcd") if self.ouster_lidar else None
-
-
-    def retrieve_message_by_topic(self, topic_name, msg_type):
-        future = Future()
-
-        def once_callback(msg):
-            future.set_result(msg)
-
-        qos_profile = QoSProfile(depth=10)
-        qos_profile.reliability = QoSReliabilityPolicy.BEST_EFFORT
-
-        subscription = self.create_subscription(msg_type, topic_name, once_callback,qos_profile)
-
-        try:
-            msg = future.result(timeout=2.0)
-            return msg
-        except Exception:
-            self.get_logger().warn(f"Timeout while waiting for message on {topic_name}")
-            return None
-        finally:
-            self.destroy_subscription(subscription)
+        # Use stored messages instead of waiting for new ones
+        self.save_image(self.latest_messages.get('/zed/zed_node/left_raw/image_raw_color'), "left_rgb.png")
+        self.save_image(self.latest_messages.get('/zed/zed_node/right_raw/image_raw_color'), "right_rgb.png")
+        self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
+        self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
 
     def gen_folder(self):
-        srv = os.path.join("/", "home/robotics")
+        srv = os.path.join("/", "home/sohan-lapinamk")
         dataset_path = os.path.join(srv, "ATV/Dataset")
         os.makedirs(dataset_path, exist_ok=True)
         
