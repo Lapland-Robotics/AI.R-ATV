@@ -48,7 +48,7 @@ class DataCollector(Node):
         self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
 
     def gen_folder(self):
-        srv = os.path.join("/", "home/sohan-lapinamk")
+        srv = os.path.join("/", "home/robotics")
         dataset_path = os.path.join(srv, "ATV/Dataset")
         os.makedirs(dataset_path, exist_ok=True)
         
