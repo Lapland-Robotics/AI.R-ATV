@@ -7,7 +7,6 @@ from rclpy.qos import QoSProfile, QoSReliabilityPolicy
 
 from rclpy.node import Node
 from std_msgs.msg import Bool
-from sensor_msgs.msg import Image as ImageMsg
 from sensor_msgs.msg import Image as ImageMsg, PointCloud2
 import sensor_msgs_py.point_cloud2 as pc2
 from datetime import datetime
@@ -34,8 +33,8 @@ class DataCollector(Node):
 
     def trigger_callback(self, msg: Bool):
         self.get_logger().info("Button Pressed! Taking snapshot...")
-        self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', Image)
-        self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', Image)
+        self.zed2_left_rgb = self.retrieve_message_by_topic('/zed/zed_node/left_raw/image_raw_color', ImageMsg)
+        self.zed2_right_rgb = self.retrieve_message_by_topic('/zed/zed_node/right_raw/image_raw_color', ImageMsg)
         self.seek_thermal = self.retrieve_message_by_topic('/seek/seek_node/image_thermal', ImageMsg)
         self.ouster_lidar = self.retrieve_message_by_topic('/ouster/points', PointCloud2)
         
