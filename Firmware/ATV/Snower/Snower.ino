@@ -33,15 +33,15 @@ extern "C"{
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
 #define LINEAR_X_DEFAULT 0   // Middle point of speed
 #define ANGULAR_Z_DEFAULT 0  // middlepoint of angle
-#define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
+#define GENERAL_BLOCK_FREQUENCY 1000   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 #define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
 
 /* Time variables */
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
-unsigned long TimeOut = 400;  // control command time out
-unsigned long MCTimeout = 600000;  // motor controller time out
+unsigned long TimeOut = 200;  // control command time out
+unsigned long MCTimeout = 10000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
 unsigned long speed_publisher_LET = 0; // General block last executed time
@@ -327,10 +327,10 @@ int getPWMbySpeed(double speed){
 
 void driving() {
 
+  // activate motor controller using the relay switch
   if(getLinearX(cmdVelDiffDrive)!=0.0 || getAngularZ(cmdVelDiffDrive)!=0.0){
-    // activate motor controller using the relay switch
     activateMotorController();
-
+  }
     // get differential speed values for the left and right motors
     double leftSpeed = getLeftSpeed(cmdVelDiffDrive);
     double rightSpeed = getRightSpeed(cmdVelDiffDrive);
@@ -340,17 +340,17 @@ void driving() {
     int rightMotorPWM = getPWMbySpeed(abs(rightSpeed));
     
     // Set motor direction based on speed values
-    digitalWrite(Motor1DirPin, leftSpeed >= 0);
-    digitalWrite(Motor2DirPin, rightSpeed <= 0); // The right motor is mounted in reverse, so its direction logic is inverted
+    digitalWrite(Motor1DirPin, leftSpeed >= 0.0);
+    digitalWrite(Motor2DirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
 
     // Output PWM values to the motor controller
-    ledcWrite(0, leftMotorPWM);
-    ledcWrite(1, rightMotorPWM); 
+    ledcWrite(0, abs(leftMotorPWM));
+    ledcWrite(1, abs(rightMotorPWM)); 
 
     char final_string[256] = "";
     snprintf(final_string, 256, "leftSpeed: %f, rightSpeed :%f, leftMotorPWM: %d , rightMotorPWM: %d", leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
     debugDataPublisher(final_string);
-  }
+
 }
 
 void loop() {
