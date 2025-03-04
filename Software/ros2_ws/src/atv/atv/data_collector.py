@@ -44,8 +44,8 @@ class DataCollector(Node):
         # Use stored messages instead of waiting for new ones
         self.save_image(self.latest_messages.get('/zed/zed_node/left/image_rect_color'), "left_rgb.png")
         self.save_image(self.latest_messages.get('/zed/zed_node/right/image_rect_color'), "right_rgb.png")
-        # self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
-        # self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
+        self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
+        self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
 
     def gen_folder(self):
         srv = os.path.join("/", "home/robotics")
