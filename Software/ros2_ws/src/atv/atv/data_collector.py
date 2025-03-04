@@ -44,11 +44,11 @@ class DataCollector(Node):
         # Use stored messages instead of waiting for new ones
         self.save_image(self.latest_messages.get('/zed/zed_node/left/image_rect_color'), "left_rgb.png")
         self.save_image(self.latest_messages.get('/zed/zed_node/right/image_rect_color'), "right_rgb.png")
-        self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
-        self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
+        # self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
+        # self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
 
     def gen_folder(self):
-        srv = os.path.join("/", "home/robotics")
+        srv = os.path.join("/", "home/sohan-lapinamk")
         dataset_path = os.path.join(srv, "ATV/Dataset")
         os.makedirs(dataset_path, exist_ok=True)
         
@@ -96,6 +96,8 @@ class DataCollector(Node):
                 mode = "RGB"
             elif encoding == "bgr8":
                 mode = "BGR"
+            elif encoding == "bgra8":
+                mode = "BGRA"
             elif encoding == "mono8":
                 mode = "L"
             else:
@@ -105,17 +107,21 @@ class DataCollector(Node):
             img_data = np.frombuffer(msg.data, dtype=np.uint8)
 
             # Handle image shape based on encoding
-            if mode in ["RGB", "BGR"]:
-                img_data = img_data.reshape((height, width, 3))
+            if mode in ["RGB", "BGR", "BGRA"]:
+                img_data = img_data.reshape((height, width, -1))  # Auto-detect channels
             elif mode == "L":
                 img_data = img_data.reshape((height, width))
 
             # Convert BGR to RGB if needed (PIL uses RGB format)
             if mode == "BGR":
                 img_data = img_data[:, :, ::-1]
+            elif mode == "BGRA":
+                img_data = img_data[:, :, :3]  # Drop alpha channel
+                img_data = img_data[:, :, ::-1]  # Convert to RGB
+                mode = "RGB"
 
             # Create a PIL Image and save it
-            image = Image.fromarray(img_data, mode="RGB" if mode in ["RGB", "BGR"] else mode)
+            image = Image.fromarray(img_data, mode)
             filename = os.path.join(self.save_dir, fname)
             image.save(filename)
             self.get_logger().info(f"Image saved to {fname}")
