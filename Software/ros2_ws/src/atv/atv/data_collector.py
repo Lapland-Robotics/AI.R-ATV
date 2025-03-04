@@ -42,8 +42,8 @@ class DataCollector(Node):
         self.save_dir = self.gen_folder()
 
         # Use stored messages instead of waiting for new ones
-        self.save_image(self.latest_messages.get('/zed/zed_node/left_raw/image_raw_color'), "left_rgb.png")
-        self.save_image(self.latest_messages.get('/zed/zed_node/right_raw/image_raw_color'), "right_rgb.png")
+        self.save_image(self.latest_messages.get('/zed/zed_node/left/image_rect_color'), "left_rgb.png")
+        self.save_image(self.latest_messages.get('/zed/zed_node/right/image_rect_color'), "right_rgb.png")
         self.save_image(self.latest_messages.get('/seek/seek_node/image_thermal'), "thermal.png")
         self.save_point_cloud(self.latest_messages.get('/ouster/points'), "lidar.pcd")
 
