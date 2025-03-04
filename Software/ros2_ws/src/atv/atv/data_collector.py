@@ -23,10 +23,10 @@ class DataCollector(Node):
         self.latest_messages = {}  # Store the latest messages from topics
 
         # Create persistent subscriptions
-        self.create_subscription(ImageMsg, '/zed/zed_node/left_raw/image_raw_color',
-                                 lambda msg: self.store_latest_message('/zed/zed_node/left_raw/image_raw_color', msg), qos_profile)
-        self.create_subscription(ImageMsg, '/zed/zed_node/right_raw/image_raw_color',
-                                 lambda msg: self.store_latest_message('/zed/zed_node/right_raw/image_raw_color', msg), qos_profile)
+        self.create_subscription(ImageMsg, '/zed/zed_node/left/image_rect_color',
+                                 lambda msg: self.store_latest_message('/zed/zed_node/left/image_rect_color', msg), qos_profile)
+        self.create_subscription(ImageMsg, '/zed/zed_node/right/image_rect_color',
+                                 lambda msg: self.store_latest_message('/zed/zed_node/right/image_rect_color', msg), qos_profile)
         self.create_subscription(ImageMsg, '/seek/seek_node/image_thermal',
                                  lambda msg: self.store_latest_message('/seek/seek_node/image_thermal', msg), qos_profile)
         self.create_subscription(PointCloud2, '/ouster/points',
