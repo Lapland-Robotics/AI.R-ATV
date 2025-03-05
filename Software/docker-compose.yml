@@ -12,17 +12,17 @@ services:
     stdin_open: true
     network_mode: "host"
 
-  # microros:
-  #   build:
-  #     context: .
-  #     dockerfile: microros.Dockerfile
-  #   container_name: atv-microros-container
-  #   tty: true
-  #   privileged: true
-  #   devices:
-  #     - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
-  #   command: serial --dev /dev/ttyUSB0
-  #   network_mode: "host"
+  microros:
+    build:
+      context: .
+      dockerfile: microros.Dockerfile
+    container_name: atv-microros-container
+    tty: true
+    privileged: true
+    devices:
+      - /dev/ttyUSB0:/dev/ttyUSB0 # microros over serial
+    command: serial --dev /dev/ttyUSB0
+    network_mode: "host"
   
   microros-udp:
     build:

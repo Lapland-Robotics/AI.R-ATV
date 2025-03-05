@@ -88,7 +88,7 @@ volatile unsigned long rightLastPublishTime = 0;
 volatile int rightLastState = LOW;
 
 /* Speed timing Constants*/
-const unsigned long DEBOUNCE_THRESHOLD_US = 10;
+const unsigned long DEBOUNCE_THRESHOLD_US = 5;
 
 
 void errorLoop() {
@@ -136,13 +136,12 @@ void cmdVelCallback(const void *msgin) {
 void IRAM_ATTR speedLeft_interrupt(){
   int currentState = digitalRead(SpeedSensorLeftPin);
   
-  if(currentState == HIGH && leftLastState == LOW) {
+  if(currentState == HIGH) {
     if((millis() - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
       leftToothCount++;
       leftLastEdgeTime = millis();
     }
   }
-  leftLastState = currentState;
 }
 
 // right wheel speed 
@@ -191,12 +190,9 @@ void publishSpeedData() {
   leftLastPublishTime = now;
   interrupts();
     
-  // float pulsesPerSecLeft = (pulsesLeft / (timeDuration/1000.00));
-  speedLeft.data = pulsesLeft;
+  float pulsesPerSecLeft = (pulsesLeft / (timeDuration/1000.00));
+  speedLeft.data = pulsesPerSecLeft;
   RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
-  
-  // Serial.print("Left: ");
-  // Serial.print(pulsesLeft);
   
   noInterrupts();
   timeDuration = millis() - rightLastPublishTime;
@@ -205,12 +201,13 @@ void publishSpeedData() {
   rightLastPublishTime = now;
   interrupts();
     
-  // float pulsesPerSecRight = (pulsesRight / (timeDuration/1000.00));
-  speedRight.data = pulsesRight;
+  float pulsesPerSecRight = (pulsesRight / (timeDuration/1000.00));
+  speedRight.data = pulsesPerSecRight;
   RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
-  // Serial.print(", Right: ");
-  // Serial.println(pulsesRight);
+  char final_string[128] = "";
+  snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
+  debugDataPublisher(final_string);
 }
 
 void microrosInit(){
@@ -222,9 +219,9 @@ void microrosInit(){
 
 
   // Initialize the /debug String message
-  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  debugMsg.data.data = (char *)malloc(128 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
-  debugMsg.data.capacity = 100;
+  debugMsg.data.capacity = 128;
   // Initialize the speed sensor msgs
   speedLeft.data = 0.00;
   speedRight.data = 0.00;
@@ -294,12 +291,12 @@ void getRC(){
     X = mapFloat(rc_x_pwm,1000,2000,-1,1);
   }
   if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
-    Z = mapFloat(rc_z_pwm,1000,2000,-1,1);
+    Z = mapFloat(rc_z_pwm,1000,2000,-3,3);
   }
   setCmdVelDiffDrive(cmdVelDiffDrive, X, Z);
 
-  // char final_string[256] = "";
-  // snprintf(final_string, 256, "X: %f, getLinearX: %f", X, getLinearX(cmdVelDiffDrive));
+  // char final_string[128] = "";
+  // snprintf(final_string, 128, "rc_x_pwm: %d, rc_z_pwm: %d, X: %f, Z: %f", rc_x_pwm, rc_z_pwm, X, Z);
   // debugDataPublisher(final_string);
 
   PreviousTime = millis();
@@ -318,7 +315,7 @@ int getPWMbySpeed(double speed){
   int pwm = (int) ((293.65 * speed) + 16.43);
   if(pwm > 255) {
       pwm = 255;
-  } else if (pwm < 0) {
+  } else if (pwm < 30) {
       pwm = 0;
   }
   return pwm;
@@ -347,8 +344,8 @@ void driving() {
     ledcWrite(0, abs(leftMotorPWM));
     ledcWrite(1, abs(rightMotorPWM)); 
 
-    char final_string[256] = "";
-    snprintf(final_string, 256, "leftSpeed: %f, rightSpeed :%f, leftMotorPWM: %d , rightMotorPWM: %d", leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
+    char final_string[128] = "";
+    snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
     debugDataPublisher(final_string);
 
 }
