@@ -668,14 +668,14 @@
     ]
   ],
   "text_variables": {
-    "BOARD_NAME": "Board Name",
-    "COMPANY": "Company Name",
-    "DESIGNER": "Designer Name",
+    "BOARD_NAME": "Universal power distributor",
+    "COMPANY": "Lapin AMK",
+    "DESIGNER": "Dries Nuttin",
     "DOC_TYPE": "Fabrication",
-    "PROJECT_NAME": "Project Name",
-    "RELEASE_DATE": "Release Date",
-    "REVIEWER": "Reviewer Name",
-    "REVISION": "Revision Number",
-    "VARIANT": "Variant Name"
+    "PROJECT_NAME": "UPD",
+    "RELEASE_DATE": "2025",
+    "REVIEWER": "",
+    "REVISION": "V 1.0",
+    "VARIANT": ""
   }
 }
