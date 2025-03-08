@@ -20,6 +20,7 @@ int currentState;
 #define BUTTON_PIN 21 
 
 void microrosInit(){
+  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
   set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
