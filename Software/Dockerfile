@@ -7,12 +7,12 @@ RUN apt-get install -y ros-$ROS_DISTRO-cv-bridge
 RUN apt-get install -y ros-$ROS_DISTRO-tf-transformations
 RUN apt-get install -y ros-$ROS_DISTRO-xacro
 RUN apt-get install -y ros-$ROS_DISTRO-robot-localization
-# RUN apt-get install -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp
+RUN apt-get install -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
 
-# ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 
 SHELL ["/bin/bash", "-c"]
 
