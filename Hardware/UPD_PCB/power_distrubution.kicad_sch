@@ -2536,7 +2536,7 @@
 		)
 		(uuid "2a7660d8-a1ec-4d1d-b753-6a91dd712382")
 	)
-	(label "+12V_out"
+	(label "+12V"
 		(at 190.5 62.23 180)
 		(fields_autoplaced yes)
 		(effects
@@ -2558,7 +2558,7 @@
 		)
 		(uuid "32da75ae-47ba-43f8-90d5-463836d1004a")
 	)
-	(label "+16V_out"
+	(label "+16V"
 		(at 271.78 62.23 180)
 		(fields_autoplaced yes)
 		(effects
@@ -2569,7 +2569,7 @@
 		)
 		(uuid "38677253-e296-4e0a-a03f-e5aeb06eff4a")
 	)
-	(label "+5V_out"
+	(label "+5V"
 		(at 189.23 107.95 180)
 		(fields_autoplaced yes)
 		(effects
