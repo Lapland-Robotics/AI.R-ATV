@@ -2,7 +2,7 @@ from setuptools import find_packages, setup
 import os
 
 package_name = 'atv'
-launch_file_path = os.path.join(os.path.dirname(__file__), 'launch', 'run.launch.py')
+launch_file_path = os.path.join(os.path.dirname(__file__), 'launch')
 
 setup(
     name=package_name,
@@ -13,7 +13,8 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', 
-            [launch_file_path]),  
+            [os.path.join(launch_file_path, 'run.launch.py'),
+             os.path.join(launch_file_path, 'data_collector.launch.py')]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,9 +27,7 @@ setup(
         'console_scripts': [
             "atv = atv.atv:main",
             "data_collector = atv.data_collector:main",
-            "odom_to_baselink_tf = atv.odom_to_baselink_tf:main",
-            "map_to_odom_tf = atv.map_to_odom_tf:main",
-            "odom_publisher = atv.odom_publisher:main"
+            "thermal_camera_publisher = atv.thermal_camera_publisher:main"
         ],
     },
 )
