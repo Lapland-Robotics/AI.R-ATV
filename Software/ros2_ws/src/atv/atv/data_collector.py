@@ -53,7 +53,7 @@ class DataCollector(Node):
         os.makedirs(dataset_path, exist_ok=True)
         
         now = datetime.now()
-        timestamp_folder = now.strftime("%f-%S-%M-%H_%d-%m-%Y")
+        timestamp_folder = now.strftime("%Y-%m-%d_%H-%M-%S-%f")
         image_folder = os.path.join(dataset_path, timestamp_folder)
         os.makedirs(image_folder, exist_ok=True)
         
