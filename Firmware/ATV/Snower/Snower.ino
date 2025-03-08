@@ -10,7 +10,7 @@
 #include <std_msgs/msg/float32.h>
 #include "wifi_secrets.h"
 extern "C"{
-  #include "ATV.h"
+  #include "RobotDriveControl.h"
 }
 
 /* ESP32 pin definition */
@@ -21,8 +21,8 @@ extern "C"{
 #define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
 #define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
 #define McEnablePin 21 //Motor2 Speed PWM
-#define SpeedSensorL 32 //Left speed sensor
-#define SpeedSensorR 33 //Left speed sensor
+#define SpeedSensorLeftPin 32 //Left speed sensor
+#define SpeedSensorRightPin 33 //Left speed sensor
 #define PullUpSpeedLPin 12 //Left speed sensor
 #define PullUpSpeedRPin 14 //Left speed sensor
 
@@ -31,22 +31,17 @@ extern "C"{
 #define MAX_T 2500 //Max signal threshold
 #define MIN_T 500  //Min signal threshold
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
-#define Steering_Middlepoint 0   // Steering Command Middle point
-#define Driving_Speed_Middlepoint 0  // Dummy engineering constant for setting middlepoint of Speed Command
-#define ROS_Steering_Command_yIntercept 0
-#define ROS_Speed_Command_yIntercept 0
-#define ROS_Steering_Command_Slope 255
-#define ROS_Speed_Command_Slope 255
+#define LINEAR_X_DEFAULT 0   // Middle point of speed
+#define ANGULAR_Z_DEFAULT 0  // middlepoint of angle
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
-#define DEBUG_PUBLISHER_FREQUENCY 1  // Odometry publish rate in Hz
-#define SPEED_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
+#define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
+#define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
 
 /* Time variables */
-unsigned long CurrentTime = 0;  // Time now in milli seconds [ms]
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
-unsigned long TimeOut = 400;  // control command time out
-unsigned long MCTimeout = 600000;  // motor controller time out
+unsigned long TimeOut = 200;  // control command time out
+unsigned long MCTimeout = 60000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
 unsigned long speed_publisher_LET = 0; // General block last executed time
@@ -70,25 +65,17 @@ rcl_node_t node;
 rclc_executor_t ctrlCmdExecutor;
 
 // Driving related variables
-struct CtrlRequest* driveRequest; // DON'T use this variable dirctly, always use the getters and setters
-float turnFactor = 0.5; 
-int motor1, motor2;
+struct CommandVelocity* cmdVelDiffDrive; // DON'T use this variable dirctly, always use the getters and setters
 
 // RC related variables
 volatile unsigned long ch1_start_time = 0;
 volatile unsigned long ch2_start_time = 0;
-volatile int x_pwm = 0;
-volatile int y_pwm = 0;
-int mode_switch;
-int speedLeftIttr;
-int speedRightIttr;
-int motor_pwm1 = 0;
-int motor_pwm2 = 0;
+volatile int rc_z_pwm = 0;
+volatile int rc_x_pwm = 0;
 
 // Speed sensors
 /* Left speed sensor*/
 volatile unsigned long leftToothCount = 0;
-volatile unsigned long lastLeftCount = 0;
 volatile unsigned long leftLastEdgeTime = 0;
 volatile unsigned long leftLastPublishTime = 0;
 volatile int leftLastState = LOW;
@@ -101,8 +88,7 @@ volatile unsigned long rightLastPublishTime = 0;
 volatile int rightLastState = LOW;
 
 /* Speed timing Constants*/
-const unsigned long DEBOUNCE_THRESHOLD_US = 10;
-
+const unsigned long DEBOUNCE_THRESHOLD_US = 5;
 
 
 void errorLoop() {
@@ -124,51 +110,22 @@ void errorLoop() {
   }  
 
 boolean isRCActive(){
-  return (x_pwm > MIN_T && x_pwm < MAX_T && y_pwm > MIN_T && y_pwm < MAX_T);
+  return (rc_z_pwm > MIN_T && rc_z_pwm < MAX_T && rc_x_pwm > MIN_T && rc_x_pwm < MAX_T);
 }
 
 
 /*Genarate debug String and push to the topic*/
-void generate_debug_data() {
-  int steering = getSteeringRequest(driveRequest);
-  int speed = getDrivingSpeedRequest(driveRequest);
-  int rc= (int)isRCActive();
-  int mc= (int)digitalRead(McEnablePin);
-  const char *variable_names[] = { "Steering", "Speed", "x_pwm", "y_pwm", "motor_pwm1", "motor_pwm2"};    // names of the variables
-  int variable_values[] = {steering, speed, (int)x_pwm, (int)y_pwm, motor_pwm1, motor_pwm2};  // values of the variables
-
-  char final_string[256] = "";
-  char buffer[128];
-  
-  for (int i = 0; i < 5; i++) {
-    snprintf(buffer, sizeof(buffer), "%s: %d | ", variable_names[i], variable_values[i]);
-    strcat(final_string, buffer);
-  }
-
+void debugDataPublisher(char final_string[256]) {
   snprintf(debugMsg.data.data, debugMsg.data.capacity, "[SNOWER]: %s", final_string);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
 }
 
 // ROS Callbacks
-void ctrlCmdCallback(const void *msgin) {
+void cmdVelCallback(const void *msgin) {
   if(!isRCActive()){
     const geometry_msgs__msg__Twist *steering_input = (const geometry_msgs__msg__Twist *)msgin;
-
-    float ROS_Steering_Command = steering_input->angular.z; // Assuming angular.z is used for steering angle
-    float ROS_Speed_Command = steering_input->linear.x; // Assuming linear.x is used for speed
-
-    // ROS Calculations
-    // Slope and y-intercept for scale ROS steering angle command +0.45 - 0 - -0.45 [rad] to 0(left) - 50(middlepoint) - 100(right)
-    // => ROS_Steering_Command*ROS_Steering_Command_Slope+ROS_Steering_Command_yIntercept => -0.45*-111+50 = 99.95 (-0.45 rad => Full Right ~= 100)
-    int tempSteeringRequest = (ROS_Steering_Command * ROS_Steering_Command_Slope) + ROS_Steering_Command_yIntercept;
-    setSteeringRequest(driveRequest, tempSteeringRequest);
-
-    // Slope and y-intercept for scale ROS speed command -60 - 0 - +60 [m/s] to 0(full reverse) - 50(stop) - 100(full forward)
-    // ROS_Speed_Command*ROS_Speed_Command_Slope+Speed_Command_yIntercept => 15*3.3+50 = 99.5 => Full Forward = 100)
-    int tempSpeedRequest = ROS_Speed_Command * ROS_Speed_Command_Slope + ROS_Speed_Command_yIntercept;
-    setDrivingSpeedRequest(driveRequest, tempSpeedRequest);
-
+    setCmdVelDiffDrive(cmdVelDiffDrive, steering_input->linear.x, steering_input->angular.z);
     PreviousTime = millis();
   }
 }
@@ -177,20 +134,19 @@ void ctrlCmdCallback(const void *msgin) {
 //        Something like direct regiser access, or PCNT or RMT peripherals to handle pulse measurements in hardware
 // left wheel speed 
 void IRAM_ATTR speedLeft_interrupt(){
-  int currentState = digitalRead(SpeedSensorL);
+  int currentState = digitalRead(SpeedSensorLeftPin);
   
-  if(currentState == HIGH && leftLastState == LOW) {
+  if(currentState == HIGH) {
     if((millis() - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
       leftToothCount++;
       leftLastEdgeTime = millis();
     }
   }
-  leftLastState = currentState;
 }
 
 // right wheel speed 
 void IRAM_ATTR speedRight_interrupt(){
-  int currentState = digitalRead(SpeedSensorR);
+  int currentState = digitalRead(SpeedSensorRightPin);
   
   if(currentState == HIGH && rightLastState == LOW) {
     if((millis() - rightLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
@@ -207,7 +163,7 @@ void IRAM_ATTR CH1_interrupt() {
         ch1_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        x_pwm = micros() - ch1_start_time;
+        rc_z_pwm = micros() - ch1_start_time;
     }
 }
 
@@ -217,7 +173,7 @@ void IRAM_ATTR CH2_interrupt() {
         ch2_start_time = micros();
     } else {
         // Falling edge - calculate pulse width
-        y_pwm = micros() - ch2_start_time;
+        rc_x_pwm = micros() - ch2_start_time;
     }
 }
 
@@ -234,12 +190,9 @@ void publishSpeedData() {
   leftLastPublishTime = now;
   interrupts();
     
-  // float pulsesPerSecLeft = (pulsesLeft / (timeDuration/1000.00));
-  speedLeft.data = pulsesLeft;
+  float pulsesPerSecLeft = (pulsesLeft / (timeDuration/1000.00));
+  speedLeft.data = pulsesPerSecLeft;
   RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
-  
-  Serial.print("Left: ");
-  Serial.print(pulsesLeft);
   
   noInterrupts();
   timeDuration = millis() - rightLastPublishTime;
@@ -248,41 +201,42 @@ void publishSpeedData() {
   rightLastPublishTime = now;
   interrupts();
     
-  // float pulsesPerSecRight = (pulsesRight / (timeDuration/1000.00));
-  speedRight.data = pulsesRight;
+  float pulsesPerSecRight = (pulsesRight / (timeDuration/1000.00));
+  speedRight.data = pulsesPerSecRight;
   RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
-  Serial.print(", Right: ");
-  Serial.println(pulsesRight);
+  char final_string[128] = "";
+  snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
+  debugDataPublisher(final_string);
 }
 
 void microrosInit(){
-  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
-  // set_microros_transports(); // microros over serial
+  //set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
+  set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
 
 
-  // Initialize the String message
-  debugMsg.data.data = (char *)malloc(100 * sizeof(char)); // Allocate memory for the string
+  // Initialize the /debug String message
+  debugMsg.data.data = (char *)malloc(128 * sizeof(char)); // Allocate memory for the string
   debugMsg.data.size = 0;
-  debugMsg.data.capacity = 100;
-
+  debugMsg.data.capacity = 128;
+  // Initialize the speed sensor msgs
   speedLeft.data = 0.00;
   speedRight.data = 0.00;
 
   // init subscribers
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/snower/ctrl_cmd"));
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel"));
 
   // init publishers
-  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/snower/debug")); // create debug publisher
-  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/snower/speed/left")); // create left speed publisher
-  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/snower/speed/right")); // create right speed publisher
+  RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher
+  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/left")); // create left speed publisher
+  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/right")); // create right speed publisher
 
   // Initialize executor
   RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
-  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &ctrlCmdCallback, ON_NEW_DATA));
+  RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &cmdVelCallback, ON_NEW_DATA));
 }
 
 void setup() {
@@ -295,8 +249,14 @@ void setup() {
   pinMode(Motor1DirPin, OUTPUT);
   pinMode(Motor2DirPin, OUTPUT);
   pinMode(McEnablePin, OUTPUT);
-  pinMode(SpeedSensorL, INPUT);
-  pinMode(SpeedSensorR, INPUT);
+  pinMode(SpeedSensorLeftPin, INPUT);
+  pinMode(SpeedSensorRightPin, INPUT);
+
+  //Initialising PWM on ESP32
+  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
+  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
+  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
+  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
   
   // Initialize motor PWM channels to zero to prevent erratic motor startup
   digitalWrite(Motor1SpeedPWMPin, LOW);
@@ -310,109 +270,115 @@ void setup() {
   // Attach interrupts to pins
   attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(CH2RCPin), CH2_interrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SpeedSensorL), speedLeft_interrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SpeedSensorR), speedRight_interrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SpeedSensorLeftPin), speedLeft_interrupt, CHANGE);
+  attachInterrupt(digitalPinToInterrupt(SpeedSensorRightPin), speedRight_interrupt, CHANGE);
 
-  //Initialising PWM on ESP32
-  ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
-  ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
-  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
-  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
-
-  driveRequest = createCtrlRequest(Steering_Middlepoint, Driving_Speed_Middlepoint);
+  cmdVelDiffDrive = createCommandVelocity();
 
   microrosInit(); // microros initialize
 }
-
+double mapFloat(int x, double in_min, double in_max, double out_min, double out_max) {
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
 void getRC(){
   //X-axis control
   //To do: Test out the rc controller for actual x and y values (min and max)
-  int angle = map(x_pwm,993,2016,-255,255);
-  int speed = map(y_pwm,1027,2010,-255,255);
+  
+  double X = 0.0;
+  double Z = 0.0;
 
-  if(angle > 15 || angle < -15){
-    setSteeringRequest(driveRequest, angle);
-  } else {
-    setSteeringRequest(driveRequest, 0);
+  if(rc_x_pwm > 1600 || rc_x_pwm < 1400){
+    X = mapFloat(rc_x_pwm,1000,2000,-1,1);
   }
-  if(speed > 15 || speed < -15){
-    setDrivingSpeedRequest(driveRequest, speed);
-  } else {
-    setDrivingSpeedRequest(driveRequest, 0);
+  if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
+    Z = mapFloat(rc_z_pwm,1000,2000,-3,3);
   }
+  setCmdVelDiffDrive(cmdVelDiffDrive, X, Z);
+
+  // char final_string[128] = "";
+  // snprintf(final_string, 128, "rc_x_pwm: %d, rc_z_pwm: %d, X: %f, Z: %f", rc_x_pwm, rc_z_pwm, X, Z);
+  // debugDataPublisher(final_string);
 
   PreviousTime = millis();
 
 }
 
-void enableMC(){
+void activateMotorController(){
   if(digitalRead(McEnablePin) == LOW){
     digitalWrite(McEnablePin, HIGH);
   }
   LastMCEnable = millis();
 }
 
+// Get PWM value by Speed (Linearization)
+int getPWMbySpeed(double speed){
+  int pwm = (int) ((293.65 * speed) + 16.43);
+  if(pwm > 255) {
+      pwm = 255;
+  } else if (pwm < 30) {
+      pwm = 0;
+  }
+  return pwm;
+}
+
+
 void driving() {
-  int speed = getDrivingSpeedRequest(driveRequest);
-  int angle = getSteeringRequest(driveRequest);
-  // for better readable code "if(speed != 0)" 
-  if(!speed==0 || !angle==0){
-    enableMC();
+
+  // activate motor controller using the relay switch
+  if(getLinearX(cmdVelDiffDrive)!=0.0 || getAngularZ(cmdVelDiffDrive)!=0.0){
+    activateMotorController();
   }
+    // get differential speed values for the left and right motors
+    double leftSpeed = getLeftSpeed(cmdVelDiffDrive);
+    double rightSpeed = getRightSpeed(cmdVelDiffDrive);
+    
+    // get the PWM values for the motors
+    int leftMotorPWM = getPWMbySpeed(abs(leftSpeed));
+    int rightMotorPWM = getPWMbySpeed(abs(rightSpeed));
+    
+    // Set motor direction based on speed values
+    digitalWrite(Motor1DirPin, leftSpeed >= 0.0);
+    digitalWrite(Motor2DirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
 
-  
-  int _x, _y;
-  if(speed + (abs(angle) * turnFactor) > 255 || speed - (abs(angle) * turnFactor) < -255) {
-    _x = angle * (255 / (abs(speed) + (abs(angle) * turnFactor)));
-    _y = speed * (255 / (abs(speed) + (abs(angle) * turnFactor)));
-    angle=_x;
-    speed=_y;
-  }
-  
-  motor1 = speed + (angle*turnFactor);
-  motor2 = -speed + (angle*turnFactor);
+    // Output PWM values to the motor controller
+    ledcWrite(0, abs(leftMotorPWM));
+    ledcWrite(1, abs(rightMotorPWM)); 
 
-  // Ensure motor PWM values are within limits
-  motor1 = constrain(motor1, -255, 255);
-  motor2 = constrain(motor2, -255, 255);
-  
-  digitalWrite(Motor1DirPin, motor1 >= 0);
-  motor_pwm1 = abs(motor1);
-  ledcWrite(0, motor_pwm1); // Writing PWM to channel 0 (AOUT1)
-
-  digitalWrite(Motor2DirPin, motor2 >= 0);
-  motor_pwm2 = abs(motor2);
-  ledcWrite(1, motor_pwm2); // Writing PWM to channel 1 (MotorSpeedPWM2)
+    char final_string[128] = "";
+    snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
+    debugDataPublisher(final_string);
 
 }
 
 void loop() {
+
+  // General block of the loop
   unsigned long now = millis();
   if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
-    General_block_LET = millis();;
+    General_block_LET = millis();
 
+    // is Remote Controller active
     if(isRCActive()){
       getRC();
     }
   
+    // cmd_vel timeout
     now = millis();
     if ((now - PreviousTime) >= TimeOut) {
-      setSteeringRequest(driveRequest, 0);
-      setDrivingSpeedRequest(driveRequest, 0);
+      setCmdVelDiffDrive(cmdVelDiffDrive, 0.0, 0.0);
     }
+
+    // Motor Control idle mode
+    now = millis();
     if ((now - LastMCEnable) >= MCTimeout) {
       digitalWrite(McEnablePin, LOW);
     }
-  
+    // main driving function
     driving();
-  }
-  
-  now = millis();
-  if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
-    debug_publisher_LET = millis();
-    generate_debug_data();
+
   }
 
+  // publish speed sensor data
   now = millis();
   if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
     speed_publisher_LET = millis();
