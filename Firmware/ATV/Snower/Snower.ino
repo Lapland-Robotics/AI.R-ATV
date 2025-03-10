@@ -211,9 +211,9 @@ void publishSpeedData() {
   speedRight.data = pulsesPerSecRight;
   RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
-  char final_string[128] = "";
-  snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
-  debugDataPublisher(final_string);
+  // char final_string[128] = "";
+  // snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
+  // debugDataPublisher(final_string);
 }
 
 void microrosInit(){
@@ -352,10 +352,11 @@ void driving() {
     ledcWrite(0, abs(leftMotorPWM));
     ledcWrite(1, abs(rightMotorPWM)); 
 
-    // char final_string[128] = "";
-    // snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
-    // debugDataPublisher(final_string);
-
+    speedLeft.data = leftSpeed;
+    RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
+    
+    speedRight.data = rightSpeed;
+    RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 }
 
 void loop() {
@@ -387,11 +388,11 @@ void loop() {
   }
 
   // publish speed sensor data
-  now = millis();
-  if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
-    speed_publisher_LET = millis();
-    publishSpeedData();
-  }
+  // now = millis();
+  // if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
+  //   speed_publisher_LET = millis();
+  //   publishSpeedData();
+  // }
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));

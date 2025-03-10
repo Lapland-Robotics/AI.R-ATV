@@ -44,4 +44,10 @@ def generate_launch_description():
             output='screen',
             parameters=['ros2_ws/src/atv/config/robot_localization.yaml']
         ),
+        Node(
+            package='atv',
+            executable='wheel_odom_publisher',
+            name='wheel_odom_publisher',
+            output='screen'
+        ),
     ])
