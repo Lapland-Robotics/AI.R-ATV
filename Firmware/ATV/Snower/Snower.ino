@@ -36,9 +36,9 @@ extern "C"{
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 #define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
-#define PWM_SLOPE 293.65 // Slope of the linearization function (m)
-#define PWM_INTERCEPT 16.43 // Intercept of the linearization function (C)
-#define MIN_PWM 16.43 // Minimum PWM value to start the motors
+#define PWM_SLOPE 340.00 // Slope of the linearization function (m)
+#define PWM_INTERCEPT -17.00 // Intercept of the linearization function (C)
+#define MIN_PWM 50 // Minimum PWM value to start the motors
 #define MAX_PWM 255 // Maximum PWM value to start the motors
 #define RC_PWM_UPPER_THRESHOLD 1600  // Upper threshold for RC PWM
 #define RC_PWM_LOWER_THRESHOLD 1400  // Lower threshold for RC PWM
@@ -296,10 +296,10 @@ void getRC(){
   double Z = 0.0;
 
   if(rc_x_pwm > RC_PWM_UPPER_THRESHOLD || rc_x_pwm < RC_PWM_LOWER_THRESHOLD){
-    X = mapFloat(rc_x_pwm,1000,2000,-1,1);
+    X = mapFloat(rc_x_pwm,1000,2000,-0.8,0.8);
   }
   if(rc_z_pwm > RC_PWM_UPPER_THRESHOLD || rc_z_pwm < RC_PWM_LOWER_THRESHOLD){
-    Z = mapFloat(rc_z_pwm,1000,2000,-3,3);
+    Z = mapFloat(rc_z_pwm,1000,2000,-2.2,2.2);
   }
   setCmdVelDiffDrive(cmdVelDiffDrive, X, Z);
 
@@ -321,10 +321,10 @@ void activateMotorController(){
 // Get PWM value by Speed (Linearization)
 int getPWMbySpeed(double speed){
   int pwm = (int) ((PWM_SLOPE * speed) + PWM_INTERCEPT);
-  if(pwm > 255) {
-      pwm = 255;
-  } else if (pwm < 30) {
-      pwm = 0;
+  if(pwm > MAX_PWM) {
+      pwm = MAX_PWM;
+  } else if (pwm < MIN_PWM) {
+      pwm = MIN_PWM;
   }
   return pwm;
 }
@@ -347,6 +347,8 @@ void driving() {
     // Set motor direction based on speed values
     digitalWrite(MotorLeftDirPin, leftSpeed >= 0.0);
     digitalWrite(MotorRightDirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
+
+    rightMotorPWM = int (rightMotorPWM * 0.94); // Right motor is more powerful than the left one, so we reduce its PWM value by 4%
 
     // Output PWM values to the motor controller
     ledcWrite(0, abs(leftMotorPWM));
