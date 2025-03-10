@@ -2081,6 +2081,12 @@
 		(uuid "b481e911-180c-4d37-9991-0c972c3de53a")
 	)
 	(junction
+		(at 251.46 48.26)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "b65099ab-4399-4b10-90f2-ad989e7406d9")
+	)
+	(junction
 		(at 88.9 135.89)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2139,12 +2145,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "dc1ff752-d559-4824-89ba-59d4ca991a54")
-	)
-	(junction
-		(at 251.46 46.99)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "e288cab1-2bc8-48b8-8dd9-58200ee0696c")
 	)
 	(junction
 		(at 243.84 109.22)
@@ -3542,7 +3542,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 46.99) (xy 251.46 49.53)
+			(xy 251.46 46.99) (xy 251.46 48.26)
 		)
 		(stroke
 			(width 0)
@@ -3619,6 +3619,16 @@
 			(type default)
 		)
 		(uuid "b15cf3b6-dcc8-4de2-a7c4-a68b5c9ab7e9")
+	)
+	(wire
+		(pts
+			(xy 251.46 48.26) (xy 251.46 49.53)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b1d4ba27-598e-4666-b5dd-58e8158c5c34")
 	)
 	(wire
 		(pts
@@ -3742,7 +3752,7 @@
 	)
 	(wire
 		(pts
-			(xy 251.46 46.99) (xy 266.7 46.99)
+			(xy 251.46 48.26) (xy 266.7 48.26)
 		)
 		(stroke
 			(width 0)
@@ -7338,7 +7348,7 @@
 		)
 		(uuid "4893f5b6-e48b-45a6-bbbd-c82b2b110e1f")
 	)
-	(label "INA_alert_19V"
+	(label "INA_alert_5V"
 		(at 173.99 123.19 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7470,7 +7480,7 @@
 		)
 		(uuid "d7f14912-9b0d-4358-95d0-fa78bd4992ec")
 	)
-	(label "INA_alert_19V"
+	(label "INA_alert_16V"
 		(at 255.27 62.23 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7492,7 +7502,7 @@
 		)
 		(uuid "e2cbb32d-ccb0-4f06-ba40-2791c923448c")
 	)
-	(label "INA_alert_24V"
+	(label "INA_alert_12V"
 		(at 93.98 123.19 0)
 		(fields_autoplaced yes)
 		(effects
@@ -7526,7 +7536,7 @@
 		(uuid "e9393dd9-bf9b-4a7e-b62b-5e658f585f49")
 	)
 	(label "INA_SDA"
-		(at 266.7 46.99 180)
+		(at 266.7 48.26 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -8324,7 +8334,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
 			(at 232.1052 97.79 0)
 			(effects
 				(font
@@ -8833,158 +8843,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 203.2 58.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3c3875d6-9730-4461-8d6b-ad1578ce7913")
-		(property "Reference" "R44"
-			(at 200.66 57.1499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "R_Shunt"
-			(at 200.66 59.6899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 201.422 58.42 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 203.2 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 203.2 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "c726444c-0bc8-43b6-94e2-9af2f0c677e3")
-		)
-		(pin "3"
-			(uuid "c77aa41a-1cb6-40fd-a3d3-5642fe6a35e0")
-		)
-		(pin "2"
-			(uuid "22188b98-396e-4f99-8043-15c472847f44")
-		)
-		(pin "1"
-			(uuid "2c110567-4e4a-428b-a6d9-dbf1f8bf53e7")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R44")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 40.64 119.38 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3dbae9ce-b21c-4e16-9c2e-d6755303cd37")
-		(property "Reference" "R12"
-			(at 38.1 118.1099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "R_Shunt"
-			(at 38.1 120.6499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 38.862 119.38 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 40.64 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 40.64 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "4760207c-3970-4113-99fc-e1514e212098")
-		)
-		(pin "3"
-			(uuid "f6822ed6-5883-4ac3-89c1-c018a1de4444")
-		)
-		(pin "2"
-			(uuid "0c29dfe5-f435-4b20-abf7-77738a8a479d")
-		)
-		(pin "1"
-			(uuid "ec55e05e-ba76-479c-8439-1f5073c18a68")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R12")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 93.98 68.58 0)
 		(unit 1)
@@ -9376,6 +9234,81 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 121.92 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "5118f46b-0e94-4dae-9474-894c60864129")
+		(property "Reference" "R23"
+			(at 120.904 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.8R"
+			(at 122.174 56.134 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 120.142 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 121.92 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 121.92 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "982734ca-0882-45c3-a84d-36c46bb302e1")
+		)
+		(pin "3"
+			(uuid "accac4c0-3de8-47c0-8520-ba577a406b6e")
+		)
+		(pin "2"
+			(uuid "f2faf33a-e2f8-4fa6-a31c-2f218c87410d")
+		)
+		(pin "1"
+			(uuid "70312f95-17e0-4f5a-8398-7d8a9bbf65e0")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R23")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+5V")
 		(at 251.46 76.2 180)
 		(unit 1)
@@ -9569,151 +9502,6 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "#PWR041")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:C")
-		(at 236.22 116.84 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5a04cfd2-8fa0-46bf-bed8-f91538045466")
-		(property "Reference" "C30"
-			(at 239.776 115.57 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "1nF"
-			(at 239.776 117.602 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" ""
-			(at 237.1852 120.65 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 236.22 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Unpolarized capacitor"
-			(at 236.22 116.84 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "e70ef5fe-46c1-4338-912f-5c7abe18eff1")
-		)
-		(pin "2"
-			(uuid "7f82ef9b-c197-4e4e-88e2-c520360349d4")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "C30")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 121.92 58.42 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "637659ef-e6be-4390-88da-0e3ad35db0ae")
-		(property "Reference" "R23"
-			(at 119.38 57.1499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "R_Shunt"
-			(at 119.38 59.6899 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 120.142 58.42 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 121.92 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 121.92 58.42 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "eebb83f8-ddcf-457d-8b95-c02656f25dca")
-		)
-		(pin "3"
-			(uuid "fc276253-3df6-42d6-9fe4-ce8964aac21a")
-		)
-		(pin "2"
-			(uuid "895dd6b7-e270-4caf-a803-a255b39ab269")
-		)
-		(pin "1"
-			(uuid "65c5e0f3-0e25-458d-b2a3-09a8e582e0ac")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R23")
 					(unit 1)
 				)
 			)
@@ -10091,10 +9879,9 @@
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
-		(fields_autoplaced yes)
 		(uuid "6f8a0dad-dd74-477b-af1c-82bd5e06b305")
 		(property "Reference" "R11"
-			(at 38.1 57.1499 0)
+			(at 39.624 58.42 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10102,8 +9889,8 @@
 				(justify right)
 			)
 		)
-		(property "Value" "R_Shunt"
-			(at 38.1 59.6899 0)
+		(property "Value" "0.8R"
+			(at 40.894 56.134 90)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -10111,7 +9898,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" ""
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
 			(at 38.862 58.42 90)
 			(effects
 				(font
@@ -10784,6 +10571,81 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 121.92 119.38 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "84030479-5df6-4214-a325-8db28b7351c0")
+		(property "Reference" "R24"
+			(at 120.904 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.8R"
+			(at 122.174 117.094 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 120.142 119.38 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 121.92 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 121.92 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "0ec7541c-2630-4e94-afcc-55e7d3a807c3")
+		)
+		(pin "3"
+			(uuid "7b3c5b47-3342-479e-bf22-ae9bfd0cad88")
+		)
+		(pin "2"
+			(uuid "f47a08ed-8020-4034-ac48-bcfd7dba880a")
+		)
+		(pin "1"
+			(uuid "5678d94f-d196-4df8-9b8d-7c03618ebaf5")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R24")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 261.62 125.73 90)
 		(unit 1)
@@ -10983,6 +10845,81 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 203.2 58.42 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "8fa2e924-e42c-4875-a0a6-5f7bb0a12485")
+		(property "Reference" "R44"
+			(at 202.184 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.8R"
+			(at 203.454 56.134 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 201.422 58.42 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 203.2 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 203.2 58.42 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "44d6fa3d-44ad-472b-959e-c8383d0947b2")
+		)
+		(pin "3"
+			(uuid "5f4770da-99ab-42a3-9132-14d492238128")
+		)
+		(pin "2"
+			(uuid "7ac1bc2c-f4f7-471c-99ba-dd9edb0f8ee7")
+		)
+		(pin "1"
+			(uuid "c60662e9-2c66-4908-93c9-f9ed6d2601a8")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R44")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+36V")
 		(at 203.2 63.5 180)
 		(unit 1)
@@ -11042,6 +10979,75 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "#PWR073")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:C")
+		(at 236.22 116.84 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "a0e445eb-b249-4932-bd1c-8ea5c622f83f")
+		(property "Reference" "C30"
+			(at 228.092 114.808 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "0.1µF"
+			(at 228.092 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "Capacitor_SMD:C_0603_1608Metric_Pad1.08x0.95mm_HandSolder"
+			(at 237.1852 120.65 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 236.22 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 236.22 116.84 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4a808f01-3d77-4fec-abf7-b96d69aac865")
+		)
+		(pin "2"
+			(uuid "56d02b6e-254f-4351-8724-8215d1a09522")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "C30")
 					(unit 1)
 				)
 			)
@@ -11808,82 +11814,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 121.92 119.38 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "b6083b7c-ab99-4fc5-ab9a-f1bfa9577f64")
-		(property "Reference" "R24"
-			(at 119.38 118.1099 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "R_Shunt"
-			(at 119.38 120.6499 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" ""
-			(at 120.142 119.38 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 121.92 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 121.92 119.38 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "0bf9de61-8649-40ff-8b32-7322a87e4909")
-		)
-		(pin "3"
-			(uuid "419730ee-b903-4c4d-a9d9-20971793c18a")
-		)
-		(pin "2"
-			(uuid "2fcaeaef-2dc4-46dc-b616-69af601441f9")
-		)
-		(pin "1"
-			(uuid "a481ca4c-61c4-49ee-8637-6a0839812876")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R24")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 83.82 129.54 0)
 		(unit 1)
@@ -12555,6 +12485,73 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:LED")
+		(at 254 118.11 90)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "d2f68fd1-ce7c-47b3-b5e8-0b9e743541a7")
+		(property "Reference" "D1"
+			(at 258.318 116.078 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "LED"
+			(at 258.318 119.888 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" "LED_SMD:LED_0603_1608Metric_Pad1.05x0.95mm_HandSolder"
+			(at 254 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 254 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Light emitting diode"
+			(at 254 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "2"
+			(uuid "2bf82e21-f0f5-47da-a245-eb869e8f1a65")
+		)
+		(pin "1"
+			(uuid "2ddad021-23e4-46c1-bbd2-31fa96fc0a31")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "D1")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:+36V")
 		(at 40.64 63.5 180)
 		(unit 1)
@@ -13190,73 +13187,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:LED")
-		(at 254 118.11 90)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "e799e19c-b7b2-4345-b01e-10292d3ed206")
-		(property "Reference" "D1"
-			(at 258.318 116.078 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Value" "LED"
-			(at 258.318 119.888 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 254 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 254 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Light emitting diode"
-			(at 254 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "2"
-			(uuid "e19fd295-3c3d-482d-bc05-a105f9507f75")
-		)
-		(pin "1"
-			(uuid "6b32f915-c637-4f4b-a095-0fdddc7fa294")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "D1")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:C")
 		(at 78.74 39.37 90)
 		(unit 1)
@@ -13753,6 +13683,81 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "R22")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 40.64 119.38 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "f54c7dd9-bd51-47bf-8290-f4b2f155906a")
+		(property "Reference" "R12"
+			(at 39.624 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.8R"
+			(at 40.894 117.094 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_2512_6332Metric_Pad1.40x3.35mm_HandSolder"
+			(at 38.862 119.38 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 40.64 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 40.64 119.38 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "0a4e3576-216a-4661-a096-44c112ff4d86")
+		)
+		(pin "3"
+			(uuid "249a5f8b-4e38-4d24-8f1a-6b8b1268d6cf")
+		)
+		(pin "2"
+			(uuid "88e803d7-6487-442c-80c7-8235e7879bc5")
+		)
+		(pin "1"
+			(uuid "f81cfca7-825c-4ba6-98eb-0559dc79d6ca")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R12")
 					(unit 1)
 				)
 			)
