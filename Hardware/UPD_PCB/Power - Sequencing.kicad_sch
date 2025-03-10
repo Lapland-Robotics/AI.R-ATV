@@ -5,7 +5,7 @@
 	(uuid "26e99a33-043b-499d-a26e-816ff79b487a")
 	(paper "A4")
 	(title_block
-		(title "Power - Sequencing")
+		(title "Sheet Title A")
 		(date "Last Modified Date")
 		(rev "${REVISION}")
 		(company "${COMPANY}")

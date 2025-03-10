@@ -5,7 +5,7 @@
 	(uuid "0650c7a8-acba-429c-9f8e-eec0baf0bc1c")
 	(paper "A3")
 	(title_block
-		(title "Cover Page")
+		(title "Sheet Title A")
 		(date "Last Modified Date")
 		(rev "${REVISION}")
 		(company "${COMPANY}")

@@ -5,7 +5,7 @@
 	(uuid "ea8c4f5e-7a49-4faf-a994-dbc85ed86b0a")
 	(paper "A4")
 	(title_block
-		(title "Revision History")
+		(title "Sheet Title A")
 		(date "Last Modified Date")
 		(rev "${REVISION}")
 		(company "${COMPANY}")
