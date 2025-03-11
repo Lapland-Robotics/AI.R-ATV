@@ -1847,6 +1847,12 @@
 		(uuid "028cbc40-8d2c-4ee2-83ab-48fb58280fcd")
 	)
 	(junction
+		(at 193.04 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "05ed1d82-7429-439f-a7c9-80e0b069b92c")
+	)
+	(junction
 		(at 59.69 148.59)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1857,12 +1863,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "06e3eac4-ea0c-46fe-b112-1b4666984607")
-	)
-	(junction
-		(at 110.49 50.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "0a74663e-20d5-48bb-9400-6c5ce4522c91")
 	)
 	(junction
 		(at 162.56 40.64)
@@ -1889,12 +1889,6 @@
 		(uuid "187ad10c-31a8-4d94-aad4-3d1f0fb6a1a0")
 	)
 	(junction
-		(at 29.21 50.8)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "1d164f25-d9ff-4a33-a170-7bed1381defd")
-	)
-	(junction
 		(at 83.82 115.57)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -1905,6 +1899,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "221f59c8-8f34-4dc7-ae4d-0c4568fbf393")
+	)
+	(junction
+		(at 113.03 50.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "303a42d4-3886-4a71-be5c-78cb773fedba")
 	)
 	(junction
 		(at 160.02 113.03)
@@ -1935,6 +1935,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "442d6638-670c-4add-a49c-02cbbeddd365")
+	)
+	(junction
+		(at 194.31 50.8)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "4695b41b-4630-45f9-8bbb-0f92f299d99c")
 	)
 	(junction
 		(at 165.1 115.57)
@@ -1985,16 +1991,16 @@
 		(uuid "67ac1e01-53f5-4993-96d1-19851374c26d")
 	)
 	(junction
-		(at 190.5 111.76)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "86145b1f-1c36-4c90-bdf9-826a4dad81be")
-	)
-	(junction
 		(at 129.54 60.96)
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "913bb249-cf18-4cfa-9c9e-c3ac499d785c")
+	)
+	(junction
+		(at 113.03 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "914383da-5418-4d9a-868b-69e459c61967")
 	)
 	(junction
 		(at 62.23 44.45)
@@ -2033,12 +2039,6 @@
 		(uuid "9c6afb48-9180-4b1f-ac7a-5e537528e369")
 	)
 	(junction
-		(at 29.21 111.76)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "9fafc82c-ae09-4877-9eb2-2af065c25727")
-	)
-	(junction
 		(at 241.3 52.07)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2057,10 +2057,10 @@
 		(uuid "af911d8c-244e-4e6b-ac57-0dab039be70e")
 	)
 	(junction
-		(at 191.77 50.8)
+		(at 31.75 50.8)
 		(diameter 0)
 		(color 0 0 0 0)
-		(uuid "b130c4b9-d4db-47cd-a422-f2845bf8d7c4")
+		(uuid "bd67d09d-80df-4f46-9149-c9016a28eca0")
 	)
 	(junction
 		(at 80.01 60.96)
@@ -2073,6 +2073,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "c5c0503a-567e-40f6-8901-80f9ea5d9c4d")
+	)
+	(junction
+		(at 31.75 111.76)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "cb8d2760-d53a-4678-83c9-316b810b60f0")
 	)
 	(junction
 		(at 78.74 113.03)
@@ -2127,12 +2133,6 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "fa16bd13-7f16-458f-be18-76dd5a764fff")
-	)
-	(junction
-		(at 110.49 111.76)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "ff0f543b-8bb0-4d51-a2a1-6131d11259dd")
 	)
 	(junction
 		(at 62.23 105.41)
@@ -2548,16 +2548,6 @@
 	)
 	(wire
 		(pts
-			(xy 181.61 111.76) (xy 190.5 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2923e3b4-4a8f-4c24-8f1c-883bb3e6b396")
-	)
-	(wire
-		(pts
 			(xy 194.31 52.07) (xy 194.31 50.8)
 		)
 		(stroke
@@ -2668,7 +2658,7 @@
 	)
 	(wire
 		(pts
-			(xy 190.5 111.76) (xy 193.04 111.76)
+			(xy 181.61 111.76) (xy 193.04 111.76)
 		)
 		(stroke
 			(width 0)
@@ -2698,7 +2688,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 50.8) (xy 113.03 50.8)
+			(xy 104.14 50.8) (xy 113.03 50.8)
 		)
 		(stroke
 			(width 0)
@@ -2878,16 +2868,6 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 111.76) (xy 31.75 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "51a28568-211e-4a5b-8336-90028967070c")
-	)
-	(wire
-		(pts
 			(xy 83.82 110.49) (xy 83.82 115.57)
 		)
 		(stroke
@@ -2948,16 +2928,6 @@
 	)
 	(wire
 		(pts
-			(xy 104.14 50.8) (xy 110.49 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "5aa5297e-3973-4977-909e-f7398a71554d")
-	)
-	(wire
-		(pts
 			(xy 224.79 44.45) (xy 226.06 44.45)
 		)
 		(stroke
@@ -2968,7 +2938,7 @@
 	)
 	(wire
 		(pts
-			(xy 110.49 111.76) (xy 113.03 111.76)
+			(xy 101.6 111.76) (xy 113.03 111.76)
 		)
 		(stroke
 			(width 0)
@@ -3128,7 +3098,7 @@
 	)
 	(wire
 		(pts
-			(xy 29.21 50.8) (xy 31.75 50.8)
+			(xy 22.86 50.8) (xy 31.75 50.8)
 		)
 		(stroke
 			(width 0)
@@ -3245,16 +3215,6 @@
 			(type default)
 		)
 		(uuid "89aa3453-c9f7-4b5c-896c-97143b8ea1cf")
-	)
-	(wire
-		(pts
-			(xy 101.6 111.76) (xy 110.49 111.76)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "8a86b355-19f1-4614-a7d9-84b88fbac58b")
 	)
 	(wire
 		(pts
@@ -3445,16 +3405,6 @@
 			(type default)
 		)
 		(uuid "a2f382d7-0064-4284-97c4-3f5a1aea71e3")
-	)
-	(wire
-		(pts
-			(xy 22.86 50.8) (xy 29.21 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "a4bf3316-0af7-4eb7-b0c0-0ca2a1c62aae")
 	)
 	(wire
 		(pts
@@ -3788,7 +3738,7 @@
 	)
 	(wire
 		(pts
-			(xy 185.42 50.8) (xy 191.77 50.8)
+			(xy 185.42 50.8) (xy 194.31 50.8)
 		)
 		(stroke
 			(width 0)
@@ -3808,7 +3758,7 @@
 	)
 	(wire
 		(pts
-			(xy 20.32 111.76) (xy 29.21 111.76)
+			(xy 20.32 111.76) (xy 31.75 111.76)
 		)
 		(stroke
 			(width 0)
@@ -4135,16 +4085,6 @@
 			(type default)
 		)
 		(uuid "fa91ada7-0755-45e9-a9d5-ce14e4875724")
-	)
-	(wire
-		(pts
-			(xy 191.77 50.8) (xy 194.31 50.8)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "fad4eb8d-e23a-48cd-840f-5b96b1566eeb")
 	)
 	(wire
 		(pts
@@ -6192,73 +6132,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 29.21 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "04c5fc2d-eb9a-4a5e-9178-ef5677143bb7")
-		(property "Reference" "TP4"
-			(at 31.75 107.1879 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 31.75 109.7279 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 34.29 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 34.29 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 29.21 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "31ca8256-04c2-46e4-b537-8710348cfe07")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP4")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+5V")
 		(at 143.51 102.87 0)
 		(unit 1)
@@ -6457,6 +6330,81 @@
 		)
 	)
 	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 113.03 57.15 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "08ee4571-cf58-4f80-986d-4621e0fd73d6")
+		(property "Reference" "R26"
+			(at 112.014 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.2R"
+			(at 113.03 54.864 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
+			(at 111.252 57.15 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 113.03 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 113.03 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "20ee4b42-8c4e-418b-ac6e-8aa8414565c2")
+		)
+		(pin "3"
+			(uuid "6cf07b79-f140-4256-9219-735aebbf99df")
+		)
+		(pin "2"
+			(uuid "340cbbb9-0768-45fc-b468-e1400ca9e61c")
+		)
+		(pin "1"
+			(uuid "7468b74f-4986-4e2b-8276-009dc5a16fdf")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R26")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "power:GND")
 		(at 161.29 59.69 90)
 		(unit 1)
@@ -6590,6 +6538,148 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 104.14 135.89 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "0f5c0f29-51f3-476d-952c-68b66ae8198c")
+		(property "Reference" "TP5"
+			(at 106.68 131.3179 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 106.68 133.8579 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 109.22 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 109.22 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 104.14 135.89 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "59b90b71-2a65-4c92-bc27-852cf15bd3d3")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP5")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 113.03 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "113e11c0-e95f-45fd-b015-ccdd0b9087ab")
+		(property "Reference" "R27"
+			(at 112.014 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.2R"
+			(at 113.03 115.824 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
+			(at 111.252 118.11 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 113.03 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 113.03 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "272a78c9-1e3b-4900-90e6-889bee7fdfeb")
+		)
+		(pin "3"
+			(uuid "deb24c77-d992-4d73-846a-a88ae2775b7f")
+		)
+		(pin "2"
+			(uuid "a2d6ada7-1894-48e9-a776-971ab0f33416")
+		)
+		(pin "1"
+			(uuid "a5b938d7-368d-44a8-83d5-4d7229e2bb87")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R27")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "Sensor_Energy:INA219AxD")
 		(at 223.52 118.11 0)
 		(unit 1)
@@ -6671,6 +6761,73 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "U6")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 31.75 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "194e8884-70be-4b00-96a0-38ee54764869")
+		(property "Reference" "TP4"
+			(at 34.29 107.1879 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 34.29 109.7279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 36.83 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 36.83 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 31.75 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1d2aa985-9fba-4288-8b9e-59bad2bce563")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP4")
 					(unit 1)
 				)
 			)
@@ -6812,81 +6969,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 113.03 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "200604ab-3241-4d30-8895-a43a3e2ad5a9")
-		(property "Reference" "R27"
-			(at 112.014 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0.2R"
-			(at 113.03 115.824 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
-			(at 111.252 118.11 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 113.03 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 113.03 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "3f1e9107-b386-43f4-8de4-7d037da77d1d")
-		)
-		(pin "3"
-			(uuid "07f82a02-202b-4134-a5c6-958960d705d8")
-		)
-		(pin "2"
-			(uuid "d4652951-7442-4e95-ad11-52525b1746fd")
-		)
-		(pin "1"
-			(uuid "edf5329b-9bfc-4f5f-b4c3-1bc7e7b617e8")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R27")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Sensor_Energy:INA219AxD")
 		(at 62.23 57.15 0)
 		(unit 1)
@@ -6968,6 +7050,81 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "U2")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 194.31 57.15 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "206355a2-c707-4f19-9701-8ac03c220ea8")
+		(property "Reference" "R37"
+			(at 193.294 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.2R"
+			(at 194.31 54.864 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
+			(at 192.532 57.15 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 194.31 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 194.31 57.15 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "c9ede0c6-fe29-46f5-9320-0b6cd1bd5e3e")
+		)
+		(pin "3"
+			(uuid "16f387a6-26cc-4330-98e0-be9be742375c")
+		)
+		(pin "2"
+			(uuid "01e86e42-d9b3-4ac0-9c07-fff2ebe3579d")
+		)
+		(pin "1"
+			(uuid "c434a565-0e8d-40ab-93dd-b403383fddc0")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R37")
 					(unit 1)
 				)
 			)
@@ -7375,73 +7532,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 110.49 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "29a9a2f2-3462-48d3-a94c-752769d0d5ef")
-		(property "Reference" "TP7"
-			(at 113.03 107.1879 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 113.03 109.7279 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 115.57 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 115.57 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 110.49 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "19c5c324-afd0-4216-ad54-2ca179ff334b")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP7")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 121.92 115.57 90)
 		(unit 1)
@@ -7644,73 +7734,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 29.21 50.8 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "3cde889b-a709-44a7-93b8-1822f4b81cda")
-		(property "Reference" "TP3"
-			(at 31.75 46.2279 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 31.75 48.7679 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 34.29 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 34.29 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 29.21 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "9d0f83a8-b687-4cc8-9ba6-6675b7204b55")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP3")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Sensor_Energy:INA219AxD")
 		(at 224.79 57.15 0)
 		(unit 1)
@@ -7792,6 +7815,73 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "U7")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 113.03 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "400d15a2-533a-482a-8033-efc3bf8c3a93")
+		(property "Reference" "TP7"
+			(at 115.57 107.1879 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 115.57 109.7279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 118.11 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 118.11 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 113.03 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "01262451-c1dc-4534-bcd4-a6a4e8735d72")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP7")
 					(unit 1)
 				)
 			)
@@ -8350,156 +8440,6 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "#PWR046")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 113.03 57.15 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "594e0cdc-b442-4c4e-8d68-5cb2a084bf19")
-		(property "Reference" "R26"
-			(at 112.014 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0.2R"
-			(at 113.03 54.864 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
-			(at 111.252 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 113.03 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 113.03 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "2422ff0a-21f2-4026-a56e-6a5c87621aa9")
-		)
-		(pin "3"
-			(uuid "052aab45-65ad-4572-9b68-a5f81b350c37")
-		)
-		(pin "2"
-			(uuid "01700339-ef2f-45e4-ba17-69d57146bcfb")
-		)
-		(pin "1"
-			(uuid "f610aa23-0fbe-4dbc-815c-fdb08a3808e2")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R26")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 194.31 57.15 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "5c6e738e-4ace-4e08-866c-860ba86f6260")
-		(property "Reference" "R37"
-			(at 193.294 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0.2R"
-			(at 194.31 54.864 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
-			(at 192.532 57.15 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 194.31 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 194.31 57.15 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "7c6cbdbe-4bb3-4c9a-b5a0-4fd5d12a5c4a")
-		)
-		(pin "3"
-			(uuid "a9c01c9e-4095-43f9-a9b3-f432560ec179")
-		)
-		(pin "2"
-			(uuid "612a5c52-96cb-4d9f-acd8-2aeb4921123b")
-		)
-		(pin "1"
-			(uuid "6f4db30d-e146-4bb9-bf6a-5f3bebe65267")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R37")
 					(unit 1)
 				)
 			)
@@ -9242,7 +9182,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
 			(at 29.972 118.11 90)
 			(effects
 				(font
@@ -9285,6 +9225,81 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "R14")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 193.04 118.11 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "7ed174a9-3cd7-46e0-8299-3f0dbefd98d7")
+		(property "Reference" "R36"
+			(at 192.024 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "0.2R"
+			(at 193.04 115.824 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
+			(at 191.262 118.11 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 193.04 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 193.04 118.11 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "4"
+			(uuid "604ba737-add5-4b1a-82f0-4333ba32bc2f")
+		)
+		(pin "3"
+			(uuid "2c5eafeb-7a70-4c91-a421-f3870f1d2112")
+		)
+		(pin "2"
+			(uuid "9920c82f-0aa7-49b5-9989-964a3d80bebe")
+		)
+		(pin "1"
+			(uuid "a86e77db-e299-4c5a-b66b-3dcac6564bb2")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "R36")
 					(unit 1)
 				)
 			)
@@ -9354,6 +9369,73 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "R21")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 113.03 50.8 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "82de8c56-2fd6-4d28-be89-66e15e7eb859")
+		(property "Reference" "TP6"
+			(at 115.57 46.2279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 115.57 48.7679 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 118.11 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 118.11 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 113.03 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "5201875f-03ee-42c1-9d3a-85ce940615b2")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP6")
 					(unit 1)
 				)
 			)
@@ -9695,16 +9777,16 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 110.49 50.8 0)
+		(at 22.86 135.89 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
 		(on_board yes)
 		(dnp no)
 		(fields_autoplaced yes)
-		(uuid "8e24ceae-ae8e-4037-b890-362481ee89be")
-		(property "Reference" "TP6"
-			(at 113.03 46.2279 0)
+		(uuid "8e9e06da-adb9-4a88-9674-2da125d97d00")
+		(property "Reference" "TP2"
+			(at 25.4 131.3179 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9713,7 +9795,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 113.03 48.7679 0)
+			(at 25.4 133.8579 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9721,8 +9803,8 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 115.57 50.8 0)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 27.94 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9731,7 +9813,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 115.57 50.8 0)
+			(at 27.94 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9740,7 +9822,7 @@
 			)
 		)
 		(property "Description" "test point"
-			(at 110.49 50.8 0)
+			(at 22.86 135.89 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -9749,12 +9831,12 @@
 			)
 		)
 		(pin "1"
-			(uuid "3c580858-8dbd-442c-a8ae-0d08e37ac38a")
+			(uuid "050dcf73-f730-4f4e-943c-a3414bf65828")
 		)
 		(instances
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP6")
+					(reference "TP2")
 					(unit 1)
 				)
 			)
@@ -10258,7 +10340,7 @@
 				(justify right)
 			)
 		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
+		(property "Footprint" "Library:R_shunt_different_pad_layout"
 			(at 29.972 57.15 90)
 			(effects
 				(font
@@ -10506,81 +10588,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Device:R_Shunt")
-		(at 193.04 118.11 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "abc98132-d3bd-437c-a209-e1e193a12e5f")
-		(property "Reference" "R36"
-			(at 192.024 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Value" "0.2R"
-			(at 193.04 115.824 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-			)
-		)
-		(property "Footprint" "Resistor_SMD:R_Shunt_Vishay_WSK2512_6332Metric_T2.21mm"
-			(at 191.262 118.11 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 193.04 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Shunt resistor"
-			(at 193.04 118.11 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "4"
-			(uuid "019159f2-536c-45d8-9bf5-4f9b46700af6")
-		)
-		(pin "3"
-			(uuid "5de50f9a-e65f-43a1-a093-77813ef2ea39")
-		)
-		(pin "2"
-			(uuid "3aa54878-957e-436e-b44c-d5da9fc0775d")
-		)
-		(pin "1"
-			(uuid "b8bbccf8-ef84-44ab-a7c4-17c4adbeedb5")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "R36")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 40.64 54.61 90)
 		(unit 1)
@@ -10711,6 +10718,73 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "R42")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 193.04 111.76 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "b2994047-7f49-44c6-8afb-a62e9184bcd6")
+		(property "Reference" "TP8"
+			(at 195.58 107.1879 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 195.58 109.7279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 198.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 198.12 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 193.04 111.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "04bb6a12-8824-468c-94a6-ecb1f27ac0f1")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP8")
 					(unit 1)
 				)
 			)
@@ -11049,73 +11123,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 190.5 111.76 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "bfc5510a-6e5b-401c-bfaf-817925dcba9b")
-		(property "Reference" "TP8"
-			(at 193.04 107.1879 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 193.04 109.7279 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 195.58 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 195.58 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 190.5 111.76 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "bb8aa4fe-0189-459f-9ba8-fe7bce80b035")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP8")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "Device:R")
 		(at 241.3 45.72 180)
 		(unit 1)
@@ -11311,6 +11318,140 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "#PWR033")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 194.31 50.8 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c8523c77-d3e8-437f-a32b-b7909b5e2468")
+		(property "Reference" "TP9"
+			(at 196.85 46.2279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 196.85 48.7679 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 199.39 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 199.39 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 194.31 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "e0898dd9-f219-4688-a6d1-3b3d2db6a708")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP9")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 31.75 50.8 0)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "c9b1f4bd-9480-4492-b2cd-16766aa514d6")
+		(property "Reference" "TP3"
+			(at 34.29 46.2279 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 34.29 48.7679 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
+			(at 36.83 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 36.83 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 31.75 50.8 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "81d434a7-e767-4c51-affd-757290b645e7")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "TP3")
 					(unit 1)
 				)
 			)
@@ -12697,207 +12838,6 @@
 		)
 	)
 	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 104.14 135.89 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e159c0c1-7636-4d68-ba36-100be81998ac")
-		(property "Reference" "TP5"
-			(at 106.68 131.3179 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 106.68 133.8579 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 109.22 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 109.22 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 104.14 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "c94349c6-2dfa-459c-b571-4dcf4d02e2ce")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP5")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 191.77 50.8 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e1728db1-273f-4f22-b5a5-831d15e64b6d")
-		(property "Reference" "TP9"
-			(at 194.31 46.2279 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 194.31 48.7679 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 196.85 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 196.85 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 191.77 50.8 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "adce756a-2a23-461e-a8cb-9290e3a3b287")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP9")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "Connector:TestPoint")
-		(at 22.86 135.89 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "e29cd47e-54c2-4b80-af61-90cb7b980fce")
-		(property "Reference" "TP2"
-			(at 25.4 131.3179 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Value" "TestPoint"
-			(at 25.4 133.8579 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
-			)
-		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
-			(at 27.94 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" "~"
-			(at 27.94 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "test point"
-			(at 22.86 135.89 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "3accd2f3-f70d-4317-95b3-5c5f98474fbf")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
-					(reference "TP2")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "power:+5V")
 		(at 223.52 102.87 0)
 		(unit 1)
@@ -13535,7 +13475,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "TestPoint:TestPoint_Loop_D2.54mm_Drill1.5mm_Beaded"
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
 			(at 27.94 74.93 0)
 			(effects
 				(font
