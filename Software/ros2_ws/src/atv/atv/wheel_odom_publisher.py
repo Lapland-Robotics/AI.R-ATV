@@ -4,6 +4,7 @@ import rclpy
 from rclpy.node import Node
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
+from rclpy.qos import QoSProfile, ReliabilityPolicy
 
 class WheelOdomPublisher(Node):
     def __init__(self):
@@ -14,8 +15,9 @@ class WheelOdomPublisher(Node):
         self.right_speed = 0.0
 
         # Subscribers to the wheel speed topics
-        self.create_subscription(Float32, '/speed/left', self.left_speed_callback, 10)
-        self.create_subscription(Float32, '/speed/right', self.right_speed_callback, 10)
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        self.create_subscription(Float32, '/speed/left', self.left_speed_callback, qos_profile)
+        self.create_subscription(Float32, '/speed/right', self.right_speed_callback, qos_profile)
 
         # Publisher for the wheel odometry message
         self.odom_pub = self.create_publisher(Odometry, '/wheel_odom', 10)

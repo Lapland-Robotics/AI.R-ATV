@@ -324,7 +324,7 @@ int getPWMbySpeed(double speed){
   if(pwm > MAX_PWM) {
       pwm = MAX_PWM;
   } else if (pwm < MIN_PWM) {
-      pwm = MIN_PWM;
+      pwm = 0;
   }
   return pwm;
 }
@@ -359,6 +359,15 @@ void driving() {
     
     speedRight.data = rightSpeed;
     RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
+
+    // publish speed sensor data
+    unsigned long now = millis();
+    if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
+      debug_publisher_LET = millis();
+      char final_string[128] = "";
+      snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
+      debugDataPublisher(final_string);
+    }
 }
 
 void loop() {
