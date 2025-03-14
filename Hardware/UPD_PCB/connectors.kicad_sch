@@ -1406,7 +1406,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 85.09) (xy 69.85 85.09)
+			(xy 68.58 85.09) (xy 73.66 85.09)
 		)
 		(stroke
 			(width 0)
@@ -1453,16 +1453,6 @@
 			(type default)
 		)
 		(uuid "35265d51-f123-40cb-a6cb-63c7bb6f159b")
-	)
-	(wire
-		(pts
-			(xy 66.04 87.63) (xy 68.58 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "377b7875-b195-4c03-a19b-3050f8c9e115")
 	)
 	(wire
 		(pts
@@ -1586,7 +1576,7 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 87.63) (xy 69.85 87.63)
+			(xy 68.58 87.63) (xy 73.66 87.63)
 		)
 		(stroke
 			(width 0)
@@ -1603,6 +1593,16 @@
 			(type default)
 		)
 		(uuid "700c0509-dfde-4bb2-986a-ec8bf5164cde")
+	)
+	(wire
+		(pts
+			(xy 66.04 87.63) (xy 68.58 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "771cd649-8dda-4593-9a54-b1964eb3d15f")
 	)
 	(wire
 		(pts
@@ -1876,7 +1876,7 @@
 	)
 	(wire
 		(pts
-			(xy 100.33 36.83) (xy 105.41 36.83)
+			(xy 104.14 36.83) (xy 105.41 36.83)
 		)
 		(stroke
 			(width 0)
@@ -1991,6 +1991,17 @@
 			)
 		)
 		(uuid "d2d1ea28-803a-449f-a2b3-51a2298a3fa5")
+	)
+	(label "+42V_out"
+		(at 66.04 87.63 0)
+		(fields_autoplaced yes)
+		(effects
+			(font
+				(size 1.27 1.27)
+			)
+			(justify left bottom)
+		)
+		(uuid "946c14cc-420c-451c-a87a-4be356577191")
 	)
 	(global_label "INA_SCL"
 		(shape input)
@@ -2278,9 +2289,9 @@
 			)
 		)
 	)
-	(global_label "+42V"
+	(global_label "+42V_out"
 		(shape input)
-		(at 100.33 36.83 180)
+		(at 104.14 36.83 180)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -2290,7 +2301,7 @@
 		)
 		(uuid "cb1625ea-dea3-4c87-86ba-e73dfbb6290f")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 92.2648 36.83 0)
+			(at 92.0835 36.83 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3170,7 +3181,7 @@
 	)
 	(symbol
 		(lib_id "796739-2:796739-2")
-		(at 69.85 85.09 0)
+		(at 73.66 85.09 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3178,7 +3189,7 @@
 		(dnp no)
 		(uuid "5bf469b5-597a-4c2e-aff0-76a1363b90de")
 		(property "Reference" "J10"
-			(at 77.724 78.994 0)
+			(at 81.534 78.994 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3187,7 +3198,7 @@
 			)
 		)
 		(property "Value" "796739-2"
-			(at 74.676 81.026 0)
+			(at 78.486 81.026 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3196,7 +3207,7 @@
 			)
 		)
 		(property "Footprint" "7967392"
-			(at 86.36 180.01 0)
+			(at 90.17 180.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3206,7 +3217,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=1-1773458-1_EURO_STYLE_QRG&DocType=Data%20Sheet&DocLang=English&PartCntxt=796739-2&DocFormat=pdf"
-			(at 86.36 280.01 0)
+			(at 90.17 280.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3216,7 +3227,7 @@
 			)
 		)
 		(property "Description" "Body Features: Product Orientation Vertical | Primary Product Color Green | Configuration Features: Wire Entry Angle 90 | Stacked Levels Without | Number of Positions 2 | Number of Rows 1 | Wire Entry Location Side | Contact Features: Contact Base Material Brass | Contact Current Rating (Max) 30 AMP | Contact Mating Area Plating Material Tin | Dimensions: Wire Size .05  5.26 MMSQ | Wire Size 30  10 AWG | Electrical Characteristics: Operating Voltage 600 VAC | Housing Features: Housing Material PA 66"
-			(at 69.85 85.09 0)
+			(at 73.66 85.09 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3225,7 +3236,7 @@
 			)
 		)
 		(property "Height" "21.7"
-			(at 86.36 480.01 0)
+			(at 90.17 480.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3235,7 +3246,7 @@
 			)
 		)
 		(property "Mouser Part Number" "571-796739-2"
-			(at 86.36 580.01 0)
+			(at 90.17 580.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3245,7 +3256,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/TE-Connectivity/796739-2?qs=DUs9f6OUnucjHXAXMBymqQ%3D%3D"
-			(at 86.36 680.01 0)
+			(at 90.17 680.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3255,7 +3266,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "TE Connectivity"
-			(at 86.36 780.01 0)
+			(at 90.17 780.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3265,7 +3276,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "796739-2"
-			(at 86.36 880.01 0)
+			(at 90.17 880.01 0)
 			(effects
 				(font
 					(size 1.27 1.27)
