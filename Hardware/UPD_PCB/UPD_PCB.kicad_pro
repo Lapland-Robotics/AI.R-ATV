@@ -524,7 +524,7 @@
       "plot": "",
       "pos_files": "",
       "specctra_dsn": "",
-      "step": "STEP/amulet_controller.step",
+      "step": "../../../../../Downloads/amulet_controller.step",
       "svg": "",
       "vrml": ""
     },
