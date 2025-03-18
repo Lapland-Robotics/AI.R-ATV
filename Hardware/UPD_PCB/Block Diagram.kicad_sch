@@ -12,8 +12,8 @@
 	)
 	(lib_symbols)
 	(rectangle
-		(start 330.2 236.22)
-		(end 401.32 236.982)
+		(start 328.93 233.68)
+		(end 400.05 234.442)
 		(stroke
 			(width 0)
 			(type default)
@@ -26,8 +26,8 @@
 		(uuid 8956a1c0-282a-4b1e-927b-8bc74278d14f)
 	)
 	(rectangle
-		(start 330.2 179.07)
-		(end 401.32 179.832)
+		(start 328.93 170.18)
+		(end 400.05 170.942)
 		(stroke
 			(width 0)
 			(type default)
@@ -1237,7 +1237,7 @@
 	)
 	(text_box "Out 2\n"
 		(exclude_from_sim no)
-		(at 331.47 198.12 0)
+		(at 330.2 189.23 0)
 		(size 41.91 7.62)
 		(stroke
 			(width -0.0001)
@@ -1260,7 +1260,7 @@
 	)
 	(text_box "Out 1"
 		(exclude_from_sim no)
-		(at 331.47 190.5 0)
+		(at 330.2 181.61 0)
 		(size 43.18 7.62)
 		(stroke
 			(width -0.0001)
@@ -1283,7 +1283,7 @@
 	)
 	(text_box "16V (2A)"
 		(exclude_from_sim no)
-		(at 377.19 213.36 0)
+		(at 375.92 204.47 0)
 		(size 27.94 7.62)
 		(stroke
 			(width -0.0001)
@@ -1304,7 +1304,7 @@
 	)
 	(text_box "Input voltage:"
 		(exclude_from_sim no)
-		(at 330.2 182.88 0)
+		(at 328.93 173.99 0)
 		(size 41.91 7.62)
 		(stroke
 			(width -0.0001)
@@ -1327,7 +1327,7 @@
 	)
 	(text_box "19V (2A)"
 		(exclude_from_sim no)
-		(at 377.19 205.74 0)
+		(at 375.92 196.85 0)
 		(size 29.21 7.62)
 		(stroke
 			(width -0.0001)
@@ -1348,7 +1348,7 @@
 	)
 	(text_box "36 V (25A)"
 		(exclude_from_sim no)
-		(at 377.19 190.5 0)
+		(at 375.92 181.61 0)
 		(size 27.94 7.62)
 		(stroke
 			(width -0.0001)
@@ -1367,9 +1367,9 @@
 		)
 		(uuid "3d9a8928-04fd-4c32-8894-e3210045027d")
 	)
-	(text_box "5V (2A)"
+	(text_box "12V (2A)"
 		(exclude_from_sim no)
-		(at 377.19 228.6 0)
+		(at 375.92 219.71 0)
 		(size 29.21 7.62)
 		(stroke
 			(width -0.0001)
@@ -1387,6 +1387,29 @@
 			(justify left top)
 		)
 		(uuid "3ff909b8-88ee-4c6c-b81f-1e49bf789885")
+	)
+	(text_box "Out 7"
+		(exclude_from_sim no)
+		(at 330.2 227.33 0)
+		(size 44.45 7.62)
+		(stroke
+			(width -0.0001)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(face "Times New Roman")
+				(size 3.048 3.048)
+				(thickness 0.4572)
+				(bold yes)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "4dfff309-9b33-48c9-b855-3b85b0ea1677")
 	)
 	(text_box "[${#}] ${TITLE}"
 		(exclude_from_sim no)
@@ -1412,7 +1435,7 @@
 	)
 	(text_box "Out 4"
 		(exclude_from_sim no)
-		(at 331.47 213.36 0)
+		(at 330.2 204.47 0)
 		(size 43.18 7.62)
 		(stroke
 			(width -0.0001)
@@ -1435,7 +1458,7 @@
 	)
 	(text_box "Target specifications:"
 		(exclude_from_sim no)
-		(at 327.66 171.45 0)
+		(at 326.39 162.56 0)
 		(size 73.66 7.62)
 		(stroke
 			(width -0.0001)
@@ -1458,7 +1481,7 @@
 	)
 	(text_box "24V (2A)"
 		(exclude_from_sim no)
-		(at 377.19 198.12 0)
+		(at 375.92 189.23 0)
 		(size 27.94 7.62)
 		(stroke
 			(width -0.0001)
@@ -1479,7 +1502,7 @@
 	)
 	(text_box "Out 6"
 		(exclude_from_sim no)
-		(at 331.47 228.6 0)
+		(at 330.2 219.71 0)
 		(size 44.45 7.62)
 		(stroke
 			(width -0.0001)
@@ -1502,7 +1525,7 @@
 	)
 	(text_box "42 - 36 V"
 		(exclude_from_sim no)
-		(at 375.92 182.88 0)
+		(at 374.65 173.99 0)
 		(size 24.13 7.62)
 		(stroke
 			(width -0.0001)
@@ -1523,7 +1546,7 @@
 	)
 	(text_box "12V (2A)"
 		(exclude_from_sim no)
-		(at 377.19 220.98 0)
+		(at 375.92 212.09 0)
 		(size 30.48 7.62)
 		(stroke
 			(width -0.0001)
@@ -1542,9 +1565,30 @@
 		)
 		(uuid "c01131cd-48f3-4afa-9c2c-3a6e691d3dfc")
 	)
+	(text_box "5V (2A)"
+		(exclude_from_sim no)
+		(at 375.92 227.33 0)
+		(size 29.21 7.62)
+		(stroke
+			(width -0.0001)
+			(type default)
+		)
+		(fill
+			(type none)
+		)
+		(effects
+			(font
+				(face "Times New Roman")
+				(size 3.048 3.048)
+				(color 0 0 0 1)
+			)
+			(justify left top)
+		)
+		(uuid "c097f75c-6a7b-4f0f-90be-5ec8fab3f8bb")
+	)
 	(text_box "Out 5"
 		(exclude_from_sim no)
-		(at 331.47 220.98 0)
+		(at 330.2 212.09 0)
 		(size 41.91 7.62)
 		(stroke
 			(width -0.0001)
@@ -1567,7 +1611,7 @@
 	)
 	(text_box "Out 3"
 		(exclude_from_sim no)
-		(at 331.47 205.74 0)
+		(at 330.2 196.85 0)
 		(size 44.45 7.62)
 		(stroke
 			(width -0.0001)
