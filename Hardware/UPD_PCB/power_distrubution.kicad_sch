@@ -2666,8 +2666,8 @@
 		(uuid 71a5d391-76f0-47e7-a480-4d81a1f1ae7e)
 	)
 	(rectangle
-		(start 186.69 24.13)
-		(end 267.97 69.85)
+		(start 267.97 69.85)
+		(end 186.69 24.13)
 		(stroke
 			(width 0.508)
 			(type default)
@@ -3991,7 +3991,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 93.98 52.07 180)
+		(at 93.98 52.07 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3999,7 +3999,7 @@
 		(dnp no)
 		(uuid "2c7898dd-64df-4cdc-86d4-356d9bb3a543")
 		(property "Reference" "C7"
-			(at 98.298 54.61 0)
+			(at 89.662 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4008,7 +4008,7 @@
 			)
 		)
 		(property "Value" "22µF"
-			(at 102.108 52.07 0)
+			(at 85.852 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4017,7 +4017,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 93.0148 48.26 0)
+			(at 94.9452 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4386,7 +4386,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 175.26 97.79 180)
+		(at 175.26 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4394,7 +4394,7 @@
 		(dnp no)
 		(uuid "3e6a0581-4c26-4ed8-ae9e-5e5717aeb209")
 		(property "Reference" "C17"
-			(at 174.752 100.076 0)
+			(at 175.768 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4403,7 +4403,7 @@
 			)
 		)
 		(property "Value" "10µF"
-			(at 173.99 95.25 0)
+			(at 176.53 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4412,7 +4412,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 174.2948 93.98 0)
+			(at 176.2252 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5137,7 +5137,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 264.16 97.79 180)
+		(at 264.16 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5145,7 +5145,7 @@
 		(dnp no)
 		(uuid "54de7e70-a372-43b5-a518-7a3da57d3305")
 		(property "Reference" "C27"
-			(at 263.652 100.076 0)
+			(at 264.668 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5154,7 +5154,7 @@
 			)
 		)
 		(property "Value" "33µF"
-			(at 262.89 95.25 0)
+			(at 265.43 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5163,7 +5163,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 263.1948 93.98 0)
+			(at 265.1252 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5206,7 +5206,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 93.98 97.79 180)
+		(at 93.98 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5214,7 +5214,7 @@
 		(dnp no)
 		(uuid "571e1159-e9e0-41b6-b968-7a67066b4d9d")
 		(property "Reference" "C8"
-			(at 93.472 100.076 0)
+			(at 94.488 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5223,7 +5223,7 @@
 			)
 		)
 		(property "Value" "10µF"
-			(at 92.71 95.25 0)
+			(at 95.25 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5232,7 +5232,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 93.0148 93.98 0)
+			(at 94.9452 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5344,7 +5344,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 101.6 97.79 180)
+		(at 101.6 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -5352,7 +5352,7 @@
 		(dnp no)
 		(uuid "6e3f60d6-9540-440c-94ae-75c2a5a48cb5")
 		(property "Reference" "C9"
-			(at 101.092 100.076 0)
+			(at 102.108 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5361,7 +5361,7 @@
 			)
 		)
 		(property "Value" "22µF"
-			(at 100.33 95.25 0)
+			(at 102.87 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -5370,7 +5370,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 100.6348 93.98 0)
+			(at 102.5652 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7221,7 +7221,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 175.26 52.07 180)
+		(at 175.26 52.07 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7229,7 +7229,7 @@
 		(dnp no)
 		(uuid "af3084eb-7945-45fb-a410-d780abb450c0")
 		(property "Reference" "C16"
-			(at 179.578 54.61 0)
+			(at 170.942 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7238,7 +7238,7 @@
 			)
 		)
 		(property "Value" "22µF"
-			(at 183.388 52.07 0)
+			(at 167.132 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7247,7 +7247,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 174.2948 48.26 0)
+			(at 176.2252 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7778,7 +7778,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 256.54 52.07 180)
+		(at 256.54 52.07 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -7786,7 +7786,7 @@
 		(dnp no)
 		(uuid "c5675251-6fcf-4c86-99c0-1913538dd236")
 		(property "Reference" "C25"
-			(at 261.112 54.61 0)
+			(at 251.968 49.53 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7795,7 +7795,7 @@
 			)
 		)
 		(property "Value" "22µF"
-			(at 263.906 52.07 0)
+			(at 249.174 52.07 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7804,7 +7804,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 255.5748 48.26 0)
+			(at 257.5052 55.88 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8182,7 +8182,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 256.54 97.79 180)
+		(at 256.54 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8190,7 +8190,7 @@
 		(dnp no)
 		(uuid "d84e5fd7-b9dc-441f-8d67-c73ce67ccc7b")
 		(property "Reference" "C26"
-			(at 256.032 100.076 0)
+			(at 257.048 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8199,7 +8199,7 @@
 			)
 		)
 		(property "Value" "33µF"
-			(at 255.27 95.25 0)
+			(at 257.81 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8208,7 +8208,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 255.5748 93.98 0)
+			(at 257.5052 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8795,7 +8795,7 @@
 	)
 	(symbol
 		(lib_id "Device:C")
-		(at 182.88 97.79 180)
+		(at 182.88 97.79 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -8803,7 +8803,7 @@
 		(dnp no)
 		(uuid "f2fc5a49-4a90-4ecb-a775-bc9abfa46d67")
 		(property "Reference" "C18"
-			(at 182.372 100.076 0)
+			(at 183.388 95.504 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8812,7 +8812,7 @@
 			)
 		)
 		(property "Value" "22µF"
-			(at 181.61 95.25 0)
+			(at 184.15 100.33 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -8821,7 +8821,7 @@
 			)
 		)
 		(property "Footprint" "Capacitor_SMD:CP_Elec_6.3x5.8"
-			(at 181.9148 93.98 0)
+			(at 183.8452 101.6 0)
 			(effects
 				(font
 					(size 1.27 1.27)
