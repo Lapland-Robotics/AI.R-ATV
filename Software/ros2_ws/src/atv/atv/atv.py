@@ -10,17 +10,17 @@ class Esp32ControllerNode(Node):
 
     def __init__(self):
         super().__init__('atv')
-        topic = "/snower/debug"
+        topic = "/debug"
         self.get_logger().info('Esp32ControllerNode is listening to Topic -> ' + topic)
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
         self.sub = self.create_subscription(String, topic, self.chatter_callback, qos_profile)
         
         # Create a publisher for the Twist message
-        self.twist_pub = self.create_publisher(Twist, '/snower/ctrl_cmd', 10)
+        self.twist_pub = self.create_publisher(Twist, '/cmd_vel', 10)
         
         # Create a timer to publish the Twist message
         timer_period = 4.0  # seconds
-        self.timer = self.create_timer(timer_period, self.timer_callback)
+        # self.timer = self.create_timer(timer_period, self.timer_callback)
         
         self.iteration = 0
 
@@ -41,13 +41,13 @@ class Esp32ControllerNode(Node):
     # demo program to move the steering
     def timer_callback(self):
         if self.iteration % 4 == 0:
-            self.publish_twist(0.0, 0.0)
+            self.publish_twist(0.5, 0.5)
         if self.iteration % 4 == 1:
-            self.publish_twist(0.0, 0.0)
+            self.publish_twist(0.5, -0.5)
         if self.iteration % 4 == 2:
-            self.publish_twist(0.0, 0.0)
+            self.publish_twist(-0.5, 0.5)
         if self.iteration % 4 == 3:
-            self.publish_twist(0.0, 0.0)
+            self.publish_twist(-0.5, -0.5)
 
         self.iteration += 1
 

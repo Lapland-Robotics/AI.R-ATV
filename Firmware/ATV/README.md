@@ -1,5 +1,12 @@
 # Arduino sketch for ATV Interface (ESP32)
 
+## Prevent Committing Credentials
+
+To ensure sensitive files are not accidentally committed, run the following commands to ignore modifications locally:
+```bash
+git update-index --assume-unchanged Firmware/GNSS/zedf9p_esp32/secrets.h
+git update-index --assume-unchanged Firmware/ATV/Snower/wifi_secrets.h
+```
 
 ## Install Arduino IDE
 You can use _Ubuntu Sofware_ -application for installing Arduino IDE
@@ -34,6 +41,7 @@ You have to make following changes in Arduino IDE to make code work:
 2. in library manager, Search **ESP32TimerInterrupt (select 2.3.0 version)**
 3. Download zip file from this git repository, branch foxy [https://github.com/micro-ROS/micro_ros_arduino/tree/foxy](https://github.com/micro-ROS/micro_ros_arduino/tree/foxy)
 4. **Sketsch -> add Zip Library -> Select the Downloaded zip file**
+
 
 
 ## Jetson Nano UART:
