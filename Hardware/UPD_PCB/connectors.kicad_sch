@@ -1493,16 +1493,6 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 85.09) (xy 72.39 85.09)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "1239d8fe-85c6-4b38-85a2-509f18f99ef1")
-	)
-	(wire
-		(pts
 			(xy 113.03 73.66) (xy 114.3 73.66)
 		)
 		(stroke
@@ -1663,16 +1653,6 @@
 	)
 	(wire
 		(pts
-			(xy 68.58 87.63) (xy 72.39 87.63)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6e4642ed-534f-40e8-bc7d-30d76b6fe4b7")
-	)
-	(wire
-		(pts
 			(xy 38.1 87.63) (xy 43.18 87.63)
 		)
 		(stroke
@@ -1740,6 +1720,16 @@
 			(type default)
 		)
 		(uuid "8f3f626e-4acd-4dab-bc3d-c3744ed45a6f")
+	)
+	(wire
+		(pts
+			(xy 68.58 87.63) (xy 72.39 87.63)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8fb40727-9552-41ce-b315-dd2bb9e51a8f")
 	)
 	(wire
 		(pts
@@ -2854,71 +2844,6 @@
 		)
 	)
 	(symbol
-		(lib_id "power:GND")
-		(at 68.58 85.09 180)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(uuid "2127ed39-e94d-490c-9d4b-102482ea17de")
-		(property "Reference" "#PWR081"
-			(at 68.58 78.74 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 68.326 80.772 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 68.58 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 68.58 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 68.58 85.09 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "f25cb6c2-0ec8-4345-8933-a712664c0476")
-		)
-		(instances
-			(project "UPD_PCB"
-				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/4a3b49c6-ce69-4997-95b2-b7bb4e96c397"
-					(reference "#PWR081")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
 		(lib_id "1776119-2:1776119-2")
 		(at 55.88 107.95 0)
 		(unit 1)
@@ -3068,7 +2993,7 @@
 				(justify left)
 			)
 		)
-		(property "Footprint" "Connector:NS-Tech_Grove_1x04_P2mm_Vertical"
+		(property "Footprint" "Connector_JST:JST_XA_B04B-XASK-1_1x04_P2.50mm_Vertical"
 			(at 157.48 35.56 0)
 			(effects
 				(font
@@ -3373,7 +3298,7 @@
 	)
 	(symbol
 		(lib_id "796739-2:796739-2")
-		(at 72.39 85.09 0)
+		(at 72.39 87.63 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -3381,7 +3306,7 @@
 		(dnp no)
 		(uuid "5bf469b5-597a-4c2e-aff0-76a1363b90de")
 		(property "Reference" "J10"
-			(at 80.264 78.994 0)
+			(at 80.264 81.534 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3390,7 +3315,7 @@
 			)
 		)
 		(property "Value" "796739-2"
-			(at 77.216 81.026 0)
+			(at 77.216 83.566 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3399,7 +3324,7 @@
 			)
 		)
 		(property "Footprint" "7967392"
-			(at 88.9 180.01 0)
+			(at 88.9 182.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3409,7 +3334,7 @@
 			)
 		)
 		(property "Datasheet" "https://www.te.com/commerce/DocumentDelivery/DDEController?Action=srchrtrv&DocNm=1-1773458-1_EURO_STYLE_QRG&DocType=Data%20Sheet&DocLang=English&PartCntxt=796739-2&DocFormat=pdf"
-			(at 88.9 280.01 0)
+			(at 88.9 282.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3419,7 +3344,7 @@
 			)
 		)
 		(property "Description" "Body Features: Product Orientation Vertical | Primary Product Color Green | Configuration Features: Wire Entry Angle 90 | Stacked Levels Without | Number of Positions 2 | Number of Rows 1 | Wire Entry Location Side | Contact Features: Contact Base Material Brass | Contact Current Rating (Max) 30 AMP | Contact Mating Area Plating Material Tin | Dimensions: Wire Size .05  5.26 MMSQ | Wire Size 30  10 AWG | Electrical Characteristics: Operating Voltage 600 VAC | Housing Features: Housing Material PA 66"
-			(at 72.39 85.09 0)
+			(at 72.39 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3428,7 +3353,7 @@
 			)
 		)
 		(property "Height" "21.7"
-			(at 88.9 480.01 0)
+			(at 88.9 482.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3438,7 +3363,7 @@
 			)
 		)
 		(property "Mouser Part Number" "571-796739-2"
-			(at 88.9 580.01 0)
+			(at 88.9 582.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3448,7 +3373,7 @@
 			)
 		)
 		(property "Mouser Price/Stock" "https://www.mouser.co.uk/ProductDetail/TE-Connectivity/796739-2?qs=DUs9f6OUnucjHXAXMBymqQ%3D%3D"
-			(at 88.9 680.01 0)
+			(at 88.9 682.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3458,7 +3383,7 @@
 			)
 		)
 		(property "Manufacturer_Name" "TE Connectivity"
-			(at 88.9 780.01 0)
+			(at 88.9 782.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -3468,7 +3393,7 @@
 			)
 		)
 		(property "Manufacturer_Part_Number" "796739-2"
-			(at 88.9 880.01 0)
+			(at 88.9 882.55 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4459,7 +4384,7 @@
 	)
 	(symbol
 		(lib_id "Connector:TestPoint")
-		(at 68.58 87.63 180)
+		(at 68.58 87.63 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -4467,7 +4392,7 @@
 		(dnp no)
 		(uuid "9196997e-3f72-430a-8da9-35ebb19299ef")
 		(property "Reference" "TP8"
-			(at 69.596 90.678 0)
+			(at 67.564 84.582 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4476,7 +4401,7 @@
 			)
 		)
 		(property "Value" "TestPoint"
-			(at 69.596 92.456 0)
+			(at 67.564 82.804 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4485,7 +4410,7 @@
 			)
 		)
 		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.0mm_Drill0.5mm"
-			(at 63.5 87.63 0)
+			(at 73.66 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4494,7 +4419,7 @@
 			)
 		)
 		(property "Datasheet" "~"
-			(at 63.5 87.63 0)
+			(at 73.66 87.63 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -4723,6 +4648,71 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/4a3b49c6-ce69-4997-95b2-b7bb4e96c397"
 					(reference "#PWR078")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:GND")
+		(at 72.39 90.17 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "ac2106e0-6375-491a-bd5d-be5c8459f2f1")
+		(property "Reference" "#PWR081"
+			(at 66.04 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 68.072 90.424 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 72.39 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 72.39 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 72.39 90.17 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a458c0e9-89b7-4717-bbd8-41e10e456318")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/4a3b49c6-ce69-4997-95b2-b7bb4e96c397"
+					(reference "#PWR081")
 					(unit 1)
 				)
 			)
