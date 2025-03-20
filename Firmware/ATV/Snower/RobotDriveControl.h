@@ -4,10 +4,10 @@
 #define RobotDriveControl_H
 
 #define RC_input_Count 2
-#define Steering_Left_Limit -2.9    // Left direction limit value for Steering Pot
-#define Steering_Right_Limit 2.9   // Right direction limit value for Steering Pot
-#define Driving_Reverse_Limit -0.9  // Reverse Driving Speed limit (not actual speed m/s)
-#define Driving_Forward_Limit 0.9  // Forward Driving Speed limit (not actual speed m/s)
+#define Steering_Left_Limit -2.2    // Left direction limit value for Steering Pot
+#define Steering_Right_Limit 2.2   // Right direction limit value for Steering Pot
+#define Driving_Reverse_Limit -0.8  // Reverse Driving Speed limit (not actual speed m/s)
+#define Driving_Forward_Limit 0.8  // Forward Driving Speed limit (not actual speed m/s)
 #define WheelBase 0.68 // Distance between front wheels(center)
 
 struct CommandVelocity;
