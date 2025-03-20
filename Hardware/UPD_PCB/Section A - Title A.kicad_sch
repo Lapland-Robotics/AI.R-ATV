@@ -24,7 +24,7 @@
 		)
 		(uuid bb86d4de-8a6c-49fd-bb3c-0c8f9cc72e55)
 	)
-	(text_box "[${#}] ${TITLE}"
+	(text_box "[${#}] Schematics"
 		(exclude_from_sim no)
 		(at 115.57 15.24 0)
 		(size 72.39 12.7)
