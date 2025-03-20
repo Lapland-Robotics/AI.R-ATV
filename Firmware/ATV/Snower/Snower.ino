@@ -46,7 +46,7 @@ extern "C"{
 /* Time variables */
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
-unsigned long TimeOut = 200;  // control command time out
+unsigned long TimeOut = 20;  // control command time out
 unsigned long MCTimeout = 60000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
@@ -233,7 +233,7 @@ void microrosInit(){
   speedRight.data = 0.00;
 
   // init subscribers
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel"));
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel_nav"));
 
   // init publishers
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher
