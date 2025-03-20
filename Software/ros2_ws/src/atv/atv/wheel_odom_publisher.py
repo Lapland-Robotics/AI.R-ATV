@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 
 import rclpy
+from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 from std_msgs.msg import Float32
 from nav_msgs.msg import Odometry
@@ -27,11 +28,9 @@ class WheelOdomPublisher(Node):
 
     def left_speed_callback(self, msg: Float32):
         self.left_speed = msg.data
-        self.get_logger().debug(f"Left speed: {self.left_speed:.2f} m/s")
 
     def right_speed_callback(self, msg: Float32):
         self.right_speed = msg.data
-        self.get_logger().debug(f"Right speed: {self.right_speed:.2f} m/s")
 
     def timer_callback(self):
         # Compute the linear velocity as the average of the left and right speeds.
@@ -70,7 +69,7 @@ def main(args=None):
     node = WheelOdomPublisher()
     try:
         rclpy.spin(node)
-    except KeyboardInterrupt:
+    except (KeyboardInterrupt, ExternalShutdownException):
         pass
     finally:
         node.destroy_node()

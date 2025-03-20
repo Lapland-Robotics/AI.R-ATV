@@ -348,7 +348,7 @@ void driving() {
     digitalWrite(MotorLeftDirPin, leftSpeed >= 0.0);
     digitalWrite(MotorRightDirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
 
-    rightMotorPWM = int (rightMotorPWM * 0.94); // Right motor is more powerful than the left one, so we reduce its PWM value by 4%
+    leftMotorPWM = int (leftMotorPWM * 0.91); // left motor is more powerful than the right one, so we reduce its PWM value by 9%
 
     // Output PWM values to the motor controller
     ledcWrite(0, abs(leftMotorPWM));
