@@ -41,7 +41,7 @@ class WheelOdomPublisher(Node):
         current_time = self.get_clock().now().to_msg()
         odom.header.stamp = current_time
         odom.header.frame_id = "odom"
-        odom.child_frame_id = "base_link"
+        odom.child_frame_id = "base_footprint"
 
         # Pose is set to a constant zero value as EKF handles pose integration.
         odom.pose.pose.position.x = 0.0
