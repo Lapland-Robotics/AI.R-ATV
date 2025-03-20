@@ -105,7 +105,7 @@
 		)
 		(uuid "51bc3fdc-86f1-4742-b7d8-53f1faaab343")
 	)
-	(text_box "[${#}] ${TITLE}"
+	(text_box "[${#}] Project architecture"
 		(exclude_from_sim no)
 		(at 144.78 20.32 0)
 		(size 130.81 12.7)
