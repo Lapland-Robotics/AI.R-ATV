@@ -16,15 +16,15 @@ extern "C"{
 /* ESP32 pin definition */
 #define CH1RCPin 18 //Remote Control ch1
 #define CH2RCPin 19 //Remote Control ch2
-#define Motor1DirPin  22 //Motor1 Direction
-#define Motor2DirPin  23 //Motor2 Direction
-#define Motor1SpeedPWMPin 25 //Motor1 Speed PWM
-#define Motor2SpeedPWMPin 26 //Motor2 Speed PWM
-#define McEnablePin 21 //Motor2 Speed PWM
+#define MotorLeftDirPin  22 //Motor1 Direction
+#define MotorRightDirPin  23 //Motor2 Direction
+#define MotorLeftPWMPin 25 //Motor1 Speed PWM
+#define MotorRightPWMPin 26 //Motor2 Speed PWM
+#define MCEnablePin 21 //Motor Controller Enable Pin
 #define SpeedSensorLeftPin 32 //Left speed sensor
-#define SpeedSensorRightPin 33 //Left speed sensor
+#define SpeedSensorRightPin 33 //Right speed sensor
 #define PullUpSpeedLPin 12 //Left speed sensor
-#define PullUpSpeedRPin 14 //Left speed sensor
+#define PullUpSpeedRPin 14 //Right speed sensor
 
 //Constants
 #define FREQ  490  //AnalogWrite frequency
@@ -36,11 +36,17 @@ extern "C"{
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
 #define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
+#define PWM_SLOPE 340.00 // Slope of the linearization function (m)
+#define PWM_INTERCEPT -17.00 // Intercept of the linearization function (C)
+#define MIN_PWM 50 // Minimum PWM value to start the motors
+#define MAX_PWM 255 // Maximum PWM value to start the motors
+#define RC_PWM_UPPER_THRESHOLD 1600  // Upper threshold for RC PWM
+#define RC_PWM_LOWER_THRESHOLD 1400  // Lower threshold for RC PWM
 
 /* Time variables */
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
-unsigned long TimeOut = 200;  // control command time out
+unsigned long TimeOut = 20;  // control command time out
 unsigned long MCTimeout = 60000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
@@ -96,7 +102,7 @@ void errorLoop() {
     retryCount++;
 
     // Disable motors as a safety measure
-    digitalWrite(McEnablePin, LOW);
+    digitalWrite(MCEnablePin, LOW);
     delay(2000);
 
     if (retryCount > 5) {
@@ -115,7 +121,7 @@ boolean isRCActive(){
 
 
 /*Genarate debug String and push to the topic*/
-void debugDataPublisher(char final_string[256]) {
+void debugDataPublisher(char final_string[128]) {
   snprintf(debugMsg.data.data, debugMsg.data.capacity, "[SNOWER]: %s", final_string);
   debugMsg.data.size = strlen(debugMsg.data.data);
   RCSOFTCHECK(rcl_publish(&debugPublisher, &debugMsg, NULL));
@@ -205,9 +211,9 @@ void publishSpeedData() {
   speedRight.data = pulsesPerSecRight;
   RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
-  char final_string[128] = "";
-  snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
-  debugDataPublisher(final_string);
+  // char final_string[128] = "";
+  // snprintf(final_string, 128, "pulsesLeft: %d, pulsesRight: %d, pulsesPerSecLeft: %f, pulsesPerSecRight: %f", pulsesLeft, pulsesRight, pulsesPerSecLeft, pulsesPerSecRight);
+  // debugDataPublisher(final_string);
 }
 
 void microrosInit(){
@@ -227,7 +233,7 @@ void microrosInit(){
   speedRight.data = 0.00;
 
   // init subscribers
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel"));
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel_nav"));
 
   // init publishers
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher
@@ -240,28 +246,28 @@ void microrosInit(){
 }
 
 void setup() {
-  delay(3000); // wait for Jetson to start the services
+  // delay(3000); // wait for Jetson to start the services
   Serial.begin(115200);
  
   //pin initialising
   pinMode(CH1RCPin, INPUT);
   pinMode(CH2RCPin, INPUT);
-  pinMode(Motor1DirPin, OUTPUT);
-  pinMode(Motor2DirPin, OUTPUT);
-  pinMode(McEnablePin, OUTPUT);
+  pinMode(MotorLeftDirPin, OUTPUT);
+  pinMode(MotorRightDirPin, OUTPUT);
+  pinMode(MCEnablePin, OUTPUT);
   pinMode(SpeedSensorLeftPin, INPUT);
   pinMode(SpeedSensorRightPin, INPUT);
 
   //Initialising PWM on ESP32
   ledcSetup(0, FREQ, RESOLUTION); // Channel 0 for MotorSpeedPWM1
   ledcSetup(1, FREQ, RESOLUTION); // Channel 1 for MotorSpeedPWM2
-  ledcAttachPin(Motor1SpeedPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
-  ledcAttachPin(Motor2SpeedPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
+  ledcAttachPin(MotorLeftPWMPin, 0); // Attach MotorSpeedPWM1 to channel 0
+  ledcAttachPin(MotorRightPWMPin, 1); // Attach MotorSpeedPWM2 to channel 1
   
   // Initialize motor PWM channels to zero to prevent erratic motor startup
-  digitalWrite(Motor1SpeedPWMPin, LOW);
-  digitalWrite(Motor2SpeedPWMPin, LOW);
-  digitalWrite(McEnablePin, LOW);
+  digitalWrite(MotorLeftPWMPin, LOW);
+  digitalWrite(MotorRightPWMPin, LOW);
+  digitalWrite(MCEnablePin, LOW);
   ledcWrite(0, 0);  // Stop Motor 1
   ledcWrite(1, 0);  // Stop Motor 2
   digitalWrite(PullUpSpeedLPin, HIGH);
@@ -277,9 +283,11 @@ void setup() {
 
   microrosInit(); // microros initialize
 }
+
 double mapFloat(int x, double in_min, double in_max, double out_min, double out_max) {
     return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
+
 void getRC(){
   //X-axis control
   //To do: Test out the rc controller for actual x and y values (min and max)
@@ -287,11 +295,11 @@ void getRC(){
   double X = 0.0;
   double Z = 0.0;
 
-  if(rc_x_pwm > 1600 || rc_x_pwm < 1400){
-    X = mapFloat(rc_x_pwm,1000,2000,-1,1);
+  if(rc_x_pwm > RC_PWM_UPPER_THRESHOLD || rc_x_pwm < RC_PWM_LOWER_THRESHOLD){
+    X = mapFloat(rc_x_pwm,1000,2000,-0.8,0.8);
   }
-  if(rc_z_pwm > 1600 || rc_z_pwm < 1400){
-    Z = mapFloat(rc_z_pwm,1000,2000,-3,3);
+  if(rc_z_pwm > RC_PWM_UPPER_THRESHOLD || rc_z_pwm < RC_PWM_LOWER_THRESHOLD){
+    Z = mapFloat(rc_z_pwm,1000,2000,-2.2,2.2);
   }
   setCmdVelDiffDrive(cmdVelDiffDrive, X, Z);
 
@@ -304,18 +312,18 @@ void getRC(){
 }
 
 void activateMotorController(){
-  if(digitalRead(McEnablePin) == LOW){
-    digitalWrite(McEnablePin, HIGH);
+  if(digitalRead(MCEnablePin) == LOW){
+    digitalWrite(MCEnablePin, HIGH);
   }
   LastMCEnable = millis();
 }
 
 // Get PWM value by Speed (Linearization)
 int getPWMbySpeed(double speed){
-  int pwm = (int) ((293.65 * speed) + 16.43);
-  if(pwm > 255) {
-      pwm = 255;
-  } else if (pwm < 30) {
+  int pwm = (int) ((PWM_SLOPE * speed) + PWM_INTERCEPT);
+  if(pwm > MAX_PWM) {
+      pwm = MAX_PWM;
+  } else if (pwm < MIN_PWM) {
       pwm = 0;
   }
   return pwm;
@@ -337,17 +345,29 @@ void driving() {
     int rightMotorPWM = getPWMbySpeed(abs(rightSpeed));
     
     // Set motor direction based on speed values
-    digitalWrite(Motor1DirPin, leftSpeed >= 0.0);
-    digitalWrite(Motor2DirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
+    digitalWrite(MotorLeftDirPin, leftSpeed >= 0.0);
+    digitalWrite(MotorRightDirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
+
+    leftMotorPWM = int (leftMotorPWM * 0.91); // left motor is more powerful than the right one, so we reduce its PWM value by 9%
 
     // Output PWM values to the motor controller
     ledcWrite(0, abs(leftMotorPWM));
     ledcWrite(1, abs(rightMotorPWM)); 
 
-    char final_string[128] = "";
-    snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
-    debugDataPublisher(final_string);
+    speedLeft.data = leftSpeed;
+    RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
+    
+    speedRight.data = rightSpeed;
+    RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
 
+    // publish speed sensor data
+    unsigned long now = millis();
+    if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
+      debug_publisher_LET = millis();
+      char final_string[128] = "";
+      snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeed, rightSpeed, leftMotorPWM, rightMotorPWM);
+      debugDataPublisher(final_string);
+    }
 }
 
 void loop() {
@@ -371,7 +391,7 @@ void loop() {
     // Motor Control idle mode
     now = millis();
     if ((now - LastMCEnable) >= MCTimeout) {
-      digitalWrite(McEnablePin, LOW);
+      digitalWrite(MCEnablePin, LOW);
     }
     // main driving function
     driving();
@@ -379,11 +399,11 @@ void loop() {
   }
 
   // publish speed sensor data
-  now = millis();
-  if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
-    speed_publisher_LET = millis();
-    publishSpeedData();
-  }
+  // now = millis();
+  // if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
+  //   speed_publisher_LET = millis();
+  //   publishSpeedData();
+  // }
 
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));

@@ -1,8 +1,8 @@
 {
   "board": {
-    "active_layer": 44,
-    "active_layer_preset": "All Layers",
-    "auto_track_width": true,
+    "active_layer": 0,
+    "active_layer_preset": "",
+    "auto_track_width": false,
     "hidden_netclasses": [],
     "hidden_nets": [],
     "high_contrast_mode": 0,
@@ -65,7 +65,7 @@
       39,
       40
     ],
-    "visible_layers": "fffffff_ffffffff",
+    "visible_layers": "fffffff_ffffffe9",
     "zone_display_mode": 0
   },
   "git": {
@@ -75,7 +75,7 @@
     "ssh_key": ""
   },
   "meta": {
-    "filename": "KDT_Hierarchical.kicad_prl",
+    "filename": "UPD_PCB.kicad_prl",
     "version": 3
   },
   "project": {

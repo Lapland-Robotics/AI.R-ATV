@@ -48,14 +48,14 @@ double getRightSpeed(struct CommandVelocity *request) {
 // Setter for LeftSpeed
 void setLeftSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
     if (!request) return;
-    double leftSpeed = linearX + (angularZ * WheelBase / 2.0);
+    double leftSpeed = linearX - (angularZ * WheelBase / 2.0);
     request->leftSpeed = leftSpeed;
 }
 
 // Setter for rightSpeed
 void setRightSpeed(struct CommandVelocity *request, double linearX, double angularZ) {
     if (!request) return;
-    double rightSpeed = linearX - (angularZ * WheelBase / 2.0);
+    double rightSpeed = linearX + (angularZ * WheelBase / 2.0);
     request->rightSpeed = rightSpeed;
 }
 

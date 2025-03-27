@@ -42,6 +42,13 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_filter_node',
             output='screen',
-            parameters=['ros2_ws/src/atv/config/robot_localization.yaml']
+            parameters=['ros2_ws/src/atv/config/robot_localization.yaml'],
+            remappings=[('/odometry/filtered', '/odom')]
+        ),
+        Node(
+            package='atv',
+            executable='wheel_odom_publisher',
+            name='wheel_odom_publisher',
+            output='screen'
         ),
     ])

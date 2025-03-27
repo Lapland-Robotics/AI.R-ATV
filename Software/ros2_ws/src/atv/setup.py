@@ -27,7 +27,8 @@ setup(
         'console_scripts': [
             "atv = atv.atv:main",
             "data_collector = atv.data_collector:main",
-            "thermal_camera_publisher = atv.thermal_camera_publisher:main"
+            "thermal_camera_publisher = atv.thermal_camera_publisher:main",
+            "wheel_odom_publisher = atv.wheel_odom_publisher:main"
         ],
     },
 )
