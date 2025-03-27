@@ -22,17 +22,3 @@ ros2_ws/src/*/.idea/
 *.so
 *.a
 *.d
-
-# Ignoring IDE files (VSCode, CLion, etc.)
-.vscode/
-.idea/
-
-# MacOS and Linux system files
-.DS_Store
-*.swp
-
-# Arduino / ESP32 platformio specific files
-.pio/
-.clang_complete
-.cppcheck
-.clangd/

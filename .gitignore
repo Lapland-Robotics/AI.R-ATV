@@ -1,0 +1,7 @@
+# Ignoring IDE files (VSCode, CLion, etc.)
+.vscode/
+.idea/
+
+# MacOS and Linux system files
+.DS_Store
+*.swp
