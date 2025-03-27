@@ -14,7 +14,7 @@ import pcl
 class DataCollector(Node):
 
     def __init__(self):
-        super().__init__('DataCollector')
+        super().__init__('data_collector')
 
         topic = "/trigger"
         qos_profile = QoSProfile(depth=10, reliability=QoSReliabilityPolicy.BEST_EFFORT)

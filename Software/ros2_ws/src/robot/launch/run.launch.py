@@ -12,7 +12,7 @@ def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time')
 
     # Process the URDF file robot.urdf.xacro 
-    xacro_file = os.path.join('ros2_ws/src/atv', 'urdf','snower.urdf.xacro')
+    xacro_file = os.path.join('ros2_ws/src/robot', 'urdf','snower.urdf.xacro')
     robot_description_config = xacro.process_file(xacro_file)
     
     # Create a robot_state_publisher node
@@ -26,9 +26,9 @@ def generate_launch_description():
 
     return LaunchDescription([
         Node(
-            package='atv',
-            executable='atv',
-            name='atv',
+            package='robot',
+            executable='robot_debug',
+            name='robot_debug',
             output='screen'
         ),
         DeclareLaunchArgument(
@@ -42,11 +42,11 @@ def generate_launch_description():
             executable='ekf_node',
             name='ekf_filter_node',
             output='screen',
-            parameters=['ros2_ws/src/atv/config/robot_localization.yaml'],
+            parameters=['ros2_ws/src/robot/config/robot_localization.yaml'],
             remappings=[('/odometry/filtered', '/odom')]
         ),
         Node(
-            package='atv',
+            package='robot',
             executable='wheel_odom_publisher',
             name='wheel_odom_publisher',
             output='screen'

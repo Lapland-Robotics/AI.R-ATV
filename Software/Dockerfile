@@ -27,4 +27,4 @@ ADD ros_entrypoint.sh /
 
 ENTRYPOINT ["/ros_entrypoint.sh"]
 
-CMD ["ros2", "launch", "atv", "run.launch.py"]
+CMD ["ros2", "launch", "robot", "run.launch.py"]

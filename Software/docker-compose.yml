@@ -1,14 +1,12 @@
 version: '3'
 
 services:
-  atv:
+  robot:
     build:
       context: .
       dockerfile: Dockerfile
-    image: atv-ros2-image
-    container_name: atv-ros2-container
-    volumes:
-      - /srv/ATV/:/srv/ATV/
+    image: robot-ros2-image
+    container_name: robot-ros2-container
     stdin_open: true
     network_mode: "host"
 
@@ -16,7 +14,7 @@ services:
     build:
       context: .
       dockerfile: microros.Dockerfile
-    container_name: atv-microros-container
+    container_name: robot-microros-container
     tty: true
     privileged: true
     devices:
@@ -40,7 +38,7 @@ services:
     build:
       context: .
       dockerfile: microros.Dockerfile
-    container_name: atv-gnss-container
+    container_name: robot-gnss-container
     tty: true
     privileged: true
     devices:
@@ -52,8 +50,8 @@ services:
   #   build:
   #     context: /path/to/ouster_lider_ros2_ws/src/ouster-ros
   #     dockerfile: Dockerfile
-  #   image: atv-ouster-ros-image
-  #   container_name: atv-ouster-ros-container
+  #   image: robot-ouster-ros-image
+  #   container_name: robot-ouster-ros-container
   #   privileged: true
   #   network_mode: "host"
   #   command: sensor_hostname:=169.254.58.82 viz:=false

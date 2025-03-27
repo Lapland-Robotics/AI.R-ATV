@@ -1,7 +1,7 @@
 from setuptools import find_packages, setup
 import os
 
-package_name = 'atv'
+package_name = 'robot'
 launch_file_path = os.path.join(os.path.dirname(__file__), 'launch')
 
 setup(
@@ -13,8 +13,9 @@ setup(
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
         ('share/' + package_name + '/launch', 
-            [os.path.join(launch_file_path, 'run.launch.py'),
-             os.path.join(launch_file_path, 'data_collector.launch.py')]),
+            [
+                os.path.join(launch_file_path, 'run.launch.py')
+            ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -25,10 +26,8 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "atv = atv.atv:main",
-            "data_collector = atv.data_collector:main",
-            "thermal_camera_publisher = atv.thermal_camera_publisher:main",
-            "wheel_odom_publisher = atv.wheel_odom_publisher:main"
+            "robot_debug = robot.robot_debug:main",
+            "wheel_odom_publisher = robot.wheel_odom_publisher:main"
         ],
     },
 )
