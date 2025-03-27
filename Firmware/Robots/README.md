@@ -1,11 +1,11 @@
-# Arduino sketch for ATV Interface (ESP32)
+# Arduino for Microcontroller Interface (ESP32)
 
 ## Prevent Committing Credentials
 
 To ensure sensitive files are not accidentally committed, run the following commands to ignore modifications locally:
 ```bash
 git update-index --assume-unchanged Firmware/GNSS/zedf9p_esp32/secrets.h
-git update-index --assume-unchanged Firmware/ATV/Snower/wifi_secrets.h
+git update-index --assume-unchanged Firmware/Robots/Snower/wifi_secrets.h
 ```
 
 ## Install Arduino IDE

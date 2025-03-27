@@ -1,10 +1,10 @@
-# ATV service
-If you want the softwares to execute automatically on the ATV after the main brain switch on, you can use the Linux systemctl approach. 
+# SystemCTL service
+If you want the softwares to execute automatically on the robot after the main brain switch on, you can use the Linux systemctl approach. 
 
 # useful commands in Linux systemctl
 
 ``` bash
-sudo cp atv.service /etc/systemd/system/atv.service
+sudo cp robot.service /etc/systemd/system/robot.service
 ```
 
 reload the daemon after you change the code in .service file
@@ -14,25 +14,30 @@ sudo systemctl daemon-reload
 
 start the service manually
 ``` bash
-sudo systemctl start atv.service
+sudo systemctl start robot.service
+``` 
+
+restart the service manually
+``` bash
+sudo systemctl restart robot.service
 ``` 
 
 stop the service manually
 ``` bash
-sudo systemctl stop atv.service
+sudo systemctl stop robot.service
 ``` 
 
 view the status of the service
 ``` bash
-sudo systemctl status atv.service
+sudo systemctl status robot.service
 ```
 
 view the log of the service
 ``` bash
-sudo journalctl -u atv.service
+sudo journalctl -u robot.service
 ```
 
 To start a service at boot, use the enable
 ``` bash
-sudo systemctl enable atv.service
+sudo systemctl enable robot.service
 ``` 
