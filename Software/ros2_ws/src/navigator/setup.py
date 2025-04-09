@@ -1,6 +1,8 @@
+import os
 from setuptools import find_packages, setup
 
 package_name = 'navigator'
+launch_file_path = os.path.join(os.path.dirname(__file__), 'launch')
 
 setup(
     name=package_name,
@@ -10,6 +12,10 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
+        ('share/' + package_name + '/launch', 
+            [
+                os.path.join(launch_file_path, 'navigator.launch.py')
+            ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,

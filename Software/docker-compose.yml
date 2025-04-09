@@ -10,6 +10,15 @@ services:
     stdin_open: true
     network_mode: "host"
 
+  nav2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: robot-nav2-image
+    container_name: robot-nav2-container
+    command: ros2 launch navigator navigator.launch.py
+    network_mode: "host"
+
   microros:
     build:
       context: .

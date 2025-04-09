@@ -1,5 +1,5 @@
-from setuptools import find_packages, setup
 import os
+from setuptools import find_packages, setup
 
 package_name = 'robot'
 launch_file_path = os.path.join(os.path.dirname(__file__), 'launch')
