@@ -40,7 +40,7 @@ def generate_launch_description():
         ),
 
         # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_launch.py']),
+        #     PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
         #     launch_arguments={
         #         'map': map_dir,
         #         'params_file': param_dir,}.items(),
