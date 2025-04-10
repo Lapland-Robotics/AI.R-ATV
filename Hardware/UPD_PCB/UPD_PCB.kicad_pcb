@@ -17089,7 +17089,7 @@
 		(descr "JST XA series connector, B04B-XASK-1 (http://www.jst-mfg.com/product/pdf/eng/eXA1.pdf), generated with kicad-footprint-generator")
 		(tags "connector JST XA vertical")
 		(property "Reference" "J11"
-			(at -0.9 -4.8 360)
+			(at -0.9 -4.8 0)
 			(layer "F.SilkS")
 			(uuid "04fb4d66-3c5c-47e2-9843-c3ed4df4be68")
 			(effects
@@ -17100,7 +17100,7 @@
 			)
 		)
 		(property "Value" "Conn_01x04"
-			(at 3.75 4.4 360)
+			(at 3.75 4.4 0)
 			(layer "F.Fab")
 			(uuid "55318db3-cbe1-4600-ac8e-6ea1e0ec5b23")
 			(effects
@@ -17455,7 +17455,7 @@
 			(uuid "f9c7cda7-7f80-4f95-aa1d-aa9777f5b615")
 		)
 		(fp_text user "${REFERENCE}"
-			(at 3.75 1.5 360)
+			(at 3.75 1.5 0)
 			(layer "F.Fab")
 			(uuid "17007a46-c012-4790-9a48-1deefdbc5755")
 			(effects
