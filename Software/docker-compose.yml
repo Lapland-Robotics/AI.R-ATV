@@ -31,17 +31,17 @@ services:
     command: serial --dev /dev/ttyUSB0
     network_mode: "host"
 
-  microros-udp:
-    build:
-      context: .
-      dockerfile: microros.Dockerfile
-    container_name: trigger-container
-    tty: true
-    privileged: true
-    ports:
-      - "8888:8888/udp"
-    command: udp4 --port 8888
-    network_mode: "host"
+  # microros-udp:
+  #   build:
+  #     context: .
+  #     dockerfile: microros.Dockerfile
+  #   container_name: trigger-container
+  #   tty: true
+  #   privileged: true
+  #   ports:
+  #     - "8888:8888/udp"
+  #   command: udp4 --port 8888
+  #   network_mode: "host"
 
   gnss:
     build:

@@ -35,8 +35,8 @@ def generate_launch_description():
         
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_launch.py']),
-            launch_arguments={
-                'params_file': param_dir,}.items(),
+            # launch_arguments={
+            #     'params_file': param_dir,}.items(),
         ),
 
         # IncludeLaunchDescription(
