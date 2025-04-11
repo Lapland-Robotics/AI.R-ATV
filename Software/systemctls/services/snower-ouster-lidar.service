@@ -1,0 +1,18 @@
+[Unit]
+Description=Ouster Lidar Launch Service
+After=network.target
+
+[Timer]
+OnBootSec=2min
+
+[Service]
+Type=simple
+User=robotics
+WorkingDirectory=/home/robotics/repo/AI.R-ATV/Software/systemctls/scripts
+ExecStart=/bin/bash ouster.sh
+Restart=on-failure
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
