@@ -1,9 +1,6 @@
 [Unit]
 Description=Ouster Lidar Launch Service
-After=network.target
-
-[Timer]
-OnBootSec=2min
+After=multi-user.target
 
 [Service]
 Type=simple

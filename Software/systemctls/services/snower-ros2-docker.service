@@ -1,6 +1,6 @@
 [Unit]
 Description=ROS2 Docker Compose Service
-After=docker.service
+After=multi-user.target
 Requires=docker.service
 
 [Service]

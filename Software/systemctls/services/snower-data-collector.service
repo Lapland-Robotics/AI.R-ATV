@@ -1,9 +1,6 @@
 [Unit]
 Description=Snower Data Collector Service
-After=network.target
-
-[Timer]
-OnBootSec=3min
+After=multi-user.target
 
 [Service]
 Type=simple

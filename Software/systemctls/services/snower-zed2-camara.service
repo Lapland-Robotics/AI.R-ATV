@@ -1,6 +1,6 @@
 [Unit]
 Description=Robosense RS16 Lidar Launch Service
-After=network.target
+After=multi-user.target
 
 [Service]
 Type=simple
