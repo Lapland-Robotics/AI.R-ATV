@@ -7,9 +7,8 @@ from launch.actions import DeclareLaunchArgument
 import xacro
 
 def generate_launch_description():
-
-    # Check if we're told to use sim time
-    use_sim_time = LaunchConfiguration('use_sim_time')
+    # Use sim time true if using a simulator (Gazebo)
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
 
     # Process the URDF file robot.urdf.xacro 
     xacro_file = os.path.join('ros2_ws/src/robot', 'urdf','snower.urdf.xacro')
@@ -34,7 +33,7 @@ def generate_launch_description():
         DeclareLaunchArgument(
             'use_sim_time',
             default_value='false',
-            description='Use sim time if true'
+            description='Use sim time true if using a simulator (Gazebo)'
         ),
         node_robot_state_publisher,
         Node(

@@ -9,6 +9,7 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
+    use_sim_time = LaunchConfiguration('use_sim_time', default='false')
     param_file_name = 'snower.yaml'
     nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
     slam_toolbox_file_dir = os.path.join(get_package_share_directory('slam_toolbox'), 'launch')
@@ -28,6 +29,11 @@ def generate_launch_description():
             'params_file',
             default_value=param_dir,
             description='Full path to param file to load'),
+    
+        DeclareLaunchArgument(
+            'use_sim_time',
+            default_value='false',
+            description='Use sim time true if using a simulator (Gazebo)'),
         
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([slam_toolbox_file_dir, '/online_async_launch.py']),
@@ -36,13 +42,17 @@ def generate_launch_description():
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_launch.py']),
             launch_arguments={
-                'params_file': param_dir,}.items(),
+                'use_sim_time': use_sim_time,
+                'params_file': param_dir,
+            }.items(),
         ),
 
         # IncludeLaunchDescription(
         #     PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
         #     launch_arguments={
+        #         'use_sim_time': use_sim_time,
         #         'map': map_dir,
-        #         'params_file': param_dir,}.items(),
+        #         'params_file': param_dir,
+        #   }.items(),
         # ),
     ])

@@ -32,3 +32,13 @@ ekf_filter_node:
     odom0_differential: false
     odom0_relative: false
     odom0_queue_size: 10
+
+    # odom1: "/odom_rf2o"
+    # odom1_config: [false, false, false,   # position (x, y, z) 
+    #                false,  false,  true,   # orientation (roll, pitch, yaw)
+    #                true, true, false,    # linear velocity (x, y, z)
+    #                false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
+    #                false, false, false]  # linear acceleration (ax, ay, az)
+    # odom1_differential: false
+    # odom1_relative: false
+    # odom1_queue_size: 10
