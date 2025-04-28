@@ -2094,12 +2094,6 @@
 		(uuid "498a95f4-7259-469b-941b-7af13b6d1b19")
 	)
 	(junction
-		(at 210.82 144.78)
-		(diameter 0)
-		(color 0 0 0 0)
-		(uuid "4cb6849f-dfd9-46ae-8e74-fcc1f9bed348")
-	)
-	(junction
 		(at 123.19 191.77)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -2567,7 +2561,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 143.51) (xy 210.82 143.51)
+			(xy 203.2 143.51) (xy 217.17 143.51)
 		)
 		(stroke
 			(width 0)
@@ -2754,16 +2748,6 @@
 			(type default)
 		)
 		(uuid "29e80dcd-1ea2-4a9b-9d63-bfadf2bb8bf1")
-	)
-	(wire
-		(pts
-			(xy 210.82 144.78) (xy 217.17 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2a7e63b3-0869-4ff6-895e-af09dfe4a0ad")
 	)
 	(wire
 		(pts
@@ -3067,7 +3051,7 @@
 	)
 	(wire
 		(pts
-			(xy 203.2 146.05) (xy 210.82 146.05)
+			(xy 203.2 146.05) (xy 217.17 146.05)
 		)
 		(stroke
 			(width 0)
@@ -3184,16 +3168,6 @@
 			(type default)
 		)
 		(uuid "5ee01450-e7d2-4d27-bdea-17d8bcdfeec2")
-	)
-	(wire
-		(pts
-			(xy 210.82 143.51) (xy 210.82 144.78)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "6348f64c-570a-4218-8b21-a727c0d69415")
 	)
 	(wire
 		(pts
@@ -3764,16 +3738,6 @@
 			(type default)
 		)
 		(uuid "ac24a4d3-e2a1-4bd8-a7fb-a710323e3477")
-	)
-	(wire
-		(pts
-			(xy 210.82 144.78) (xy 210.82 146.05)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "ac3afbe8-fffd-416a-becf-3f3093131077")
 	)
 	(wire
 		(pts
@@ -6433,7 +6397,7 @@
 	)
 	(global_label "INA_SCL"
 		(shape input)
-		(at 217.17 144.78 0)
+		(at 217.17 146.05 0)
 		(fields_autoplaced yes)
 		(effects
 			(font
@@ -6443,7 +6407,7 @@
 		)
 		(uuid "84a5919e-7172-4dd1-8804-193d783a2d1e")
 		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 227.6543 144.78 0)
+			(at 227.6543 146.05 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -7291,7 +7255,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.2R"
+		(property "Value" "0.1R"
 			(at 162.56 77.724 90)
 			(effects
 				(font
@@ -7568,7 +7532,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.2R"
+		(property "Value" "0.1R"
 			(at 162.56 138.684 90)
 			(effects
 				(font
@@ -8021,7 +7985,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.2R"
+		(property "Value" "0.1R"
 			(at 243.84 77.724 90)
 			(effects
 				(font
@@ -10253,7 +10217,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "2mR"
+		(property "Value" "0.1R"
 			(at 81.28 138.684 90)
 			(effects
 				(font
@@ -10328,7 +10292,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.2R"
+		(property "Value" "0.1R"
 			(at 242.57 138.684 90)
 			(effects
 				(font
@@ -11487,7 +11451,7 @@
 				(justify right)
 			)
 		)
-		(property "Value" "0.2R"
+		(property "Value" "0.1R"
 			(at 81.28 77.724 90)
 			(effects
 				(font
@@ -12628,6 +12592,73 @@
 			(project "UPD_PCB"
 				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
 					(reference "U4")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "power:+5V")
+		(at 217.17 143.51 270)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "d06e1546-e186-4761-97d6-6c7b1c9c2e71")
+		(property "Reference" "#PWR090"
+			(at 213.36 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "+5V"
+			(at 220.98 143.5099 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 217.17 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 217.17 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"+5V\""
+			(at 217.17 143.51 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "a7dc1e44-5c56-4b39-a21e-f7d3fbe3a306")
+		)
+		(instances
+			(project "UPD_PCB"
+				(path "/0650c7a8-acba-429c-9f8e-eec0baf0bc1c/fede4c36-00cc-4d3d-b71c-5243ba232202/7d5a1283-086b-46b0-8df7-a9850521fb5e/345694a5-7ad0-48c3-90e6-5cd4faf10d65"
+					(reference "#PWR090")
 					(unit 1)
 				)
 			)
