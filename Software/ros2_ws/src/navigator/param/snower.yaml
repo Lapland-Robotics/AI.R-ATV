@@ -126,11 +126,11 @@ controller_server:
       debug_trajectory_details: True
       min_vel_x: 0.0
       min_vel_y: 0.0
-      max_vel_x: 0.4
+      max_vel_x: 0.6
       max_vel_y: 0.0
       max_vel_theta: 1.0
       min_speed_xy: 0.0
-      max_speed_xy: 0.4
+      max_speed_xy: 0.6
       min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
@@ -217,7 +217,7 @@ local_costmap:
           obstacle_min_range: 0.0
       static_layer:
         map_subscribe_transient_local: True
-      always_send_full_costmap: True
+      always_send_full_costmap: False
   local_costmap_client:
     ros__parameters:
       use_sim_time: False
@@ -278,7 +278,7 @@ global_costmap:
         plugin: "nav2_costmap_2d::InflationLayer"
         cost_scaling_factor: 3.0
         inflation_radius: 1.0
-      always_send_full_costmap: True
+      always_send_full_costmap: False
   global_costmap_client:
     ros__parameters:
       use_sim_time: False

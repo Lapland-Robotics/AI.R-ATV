@@ -16,8 +16,8 @@ services:
       dockerfile: Dockerfile
     image: robot-nav2-image
     container_name: robot-nav2-container
-    # command: ros2 launch navigator navigator.launch.py
-    command: echo "Autonomous Navigation container built, but not activated!"
+    command: ros2 launch navigator navigator.launch.py
+    # command: echo "Autonomous Navigation container built, but not activated!"
     network_mode: "host"
 
   microros:
