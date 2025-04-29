@@ -10,13 +10,16 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
-    param_file_name = 'snower.yaml'
-    nav2_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
+    nav_param_file_name = 'snower.yaml'
+    slam_param_file_name = 'slamtoolbox_online_async_params.yaml.yaml'
+    nav_launch_file_dir = os.path.join(get_package_share_directory('nav2_bringup'), 'launch')
     slam_toolbox_file_dir = os.path.join(get_package_share_directory('slam_toolbox'), 'launch')
     map_dir = LaunchConfiguration(
         'map', default=os.path.join('ros2_ws/src/navigator', 'maps', 'construction_lab.yaml'))
-    param_dir = LaunchConfiguration(
-        'params_file', default=os.path.join('ros2_ws/src/navigator','param', param_file_name))
+    nav_param_dir = LaunchConfiguration(
+        'params_file', default=os.path.join('ros2_ws/src/navigator','param', nav_param_file_name))
+    slam_param_dir = LaunchConfiguration(
+        'params_file', default=os.path.join('ros2_ws/src/navigator','param', slam_param_file_name))
 
 
     return LaunchDescription([
@@ -27,7 +30,7 @@ def generate_launch_description():
 
         DeclareLaunchArgument(
             'params_file',
-            default_value=param_dir,
+            default_value=nav_param_dir,
             description='Full path to param file to load'),
     
         DeclareLaunchArgument(
@@ -37,22 +40,25 @@ def generate_launch_description():
         
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([slam_toolbox_file_dir, '/online_async_launch.py']),
+            launch_arguments={
+                'params_file': slam_param_dir,
+            }.items(),
         ),
         
         IncludeLaunchDescription(
-            PythonLaunchDescriptionSource([nav2_launch_file_dir, '/navigation_launch.py']),
+            PythonLaunchDescriptionSource([nav_launch_file_dir, '/navigation_launch.py']),
             launch_arguments={
                 'use_sim_time': use_sim_time,
-                'params_file': param_dir,
+                'params_file': nav_param_dir,
             }.items(),
         ),
 
         # IncludeLaunchDescription(
-        #     PythonLaunchDescriptionSource([nav2_launch_file_dir, '/bringup_launch.py']),
+        #     PythonLaunchDescriptionSource([nav_launch_file_dir, '/bringup_launch.py']),
         #     launch_arguments={
         #         'use_sim_time': use_sim_time,
         #         'map': map_dir,
-        #         'params_file': param_dir,
+        #         'params_file': nav_param_dir,
         #   }.items(),
         # ),
     ])
