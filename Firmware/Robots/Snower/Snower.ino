@@ -46,7 +46,7 @@ extern "C"{
 /* Time variables */
 unsigned long PreviousTime = 0; // Last iteration time in milli seconds [ms]
 unsigned long LastMCEnable = 0; // last enable motor controller time
-unsigned long TimeOut = 20;  // control command time out
+unsigned long TimeOut = 50;  // control command time out
 unsigned long MCTimeout = 60000;  // motor controller time out
 unsigned long General_block_LET = 0; // General block last executed time
 unsigned long debug_publisher_LET = 0; // General block last executed time
@@ -98,22 +98,22 @@ const unsigned long DEBOUNCE_THRESHOLD_US = 5;
 
 
 void errorLoop() {
-    static int retryCount = 0;
-    retryCount++;
+  static int retryCount = 0;
+  retryCount++;
 
-    // Disable motors as a safety measure
-    digitalWrite(MCEnablePin, LOW);
-    delay(2000);
+  // Disable motors as a safety measure
+  digitalWrite(MCEnablePin, LOW);
+  delay(2000);
 
-    if (retryCount > 5) {
-      Serial.println("[ERROR LOOP] Too many retries, halting or resetting system...");
-      // force a system reset and try again
-      ESP.restart(); 
-    } 
-    else {
-      microrosInit();
-    }
-  }  
+  if (retryCount > 5) {
+    Serial.println("[ERROR LOOP] Too many retries, halting or resetting system...");
+    // force a system reset and try again
+    ESP.restart(); 
+  } 
+  else {
+    microrosInit();
+  }
+}  
 
 boolean isRCActive(){
   return (rc_z_pwm > MIN_T && rc_z_pwm < MAX_T && rc_x_pwm > MIN_T && rc_x_pwm < MAX_T);

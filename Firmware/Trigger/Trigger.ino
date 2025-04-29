@@ -6,6 +6,7 @@
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <std_msgs/msg/bool.h>
+#include "wifi_secrets.h"
 
 std_msgs__msg__Bool msg;
 rcl_publisher_t publisher;
@@ -20,8 +21,8 @@ int currentState;
 #define BUTTON_PIN 21 
 
 void microrosInit(){
-  // set_microros_wifi_transports("ssid", "password", "xxx.xxx.xxx.xxx", 8888); // microros over wifi
-  set_microros_transports(); // microros over serial
+  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
+  // set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));
