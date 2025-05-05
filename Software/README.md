@@ -1,5 +1,5 @@
 # Main Brain - Jetson
-High-level functionality of the ATV. Running this part of the project is peace of cake. You just have to install Docker Engine and run two docker command to make this work!!!
+High-level functionality of the Robot. Running this part of the project is peace of cake. You just have to install Docker Engine and run two docker command to make this work!!!
 
 ## Build & Run
 

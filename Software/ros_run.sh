@@ -1,3 +1,3 @@
 colcon build
 source install/setup.bash 
-ros2 launch atv run.launch.py
+ros2 launch robot run.launch.py
