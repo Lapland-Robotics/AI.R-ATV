@@ -6,7 +6,7 @@ from launch.actions import DeclareLaunchArgument
 from launch.actions import IncludeLaunchDescription
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import LaunchConfiguration
-
+from launch_ros.actions import Node
 
 def generate_launch_description():
     use_sim_time = LaunchConfiguration('use_sim_time', default='false')
@@ -38,6 +38,25 @@ def generate_launch_description():
             default_value='false',
             description='Use sim time true if using a simulator (Gazebo)'),
         
+        Node(
+            package="pointcloud_to_laserscan",
+            executable="pointcloud_to_laserscan_node",
+            name="pc_to_laserscan",
+            parameters=[{
+                'min_height': -0.5,
+                'max_height': 0.2,
+                'range_min': 0.3,
+                'range_max': 10.00,
+                'scan_time': 0.1,
+                'angle_increment': 0.0123,     # ≈ 2π/512
+                'concurrency_level': 3
+            }],
+            remappings=[
+                ("cloud_in", "/ouster/points"), 
+                ("scan", "/scan")
+                ],
+        ),
+
         IncludeLaunchDescription(
             PythonLaunchDescriptionSource([slam_toolbox_file_dir, '/online_async_launch.py']),
             launch_arguments={

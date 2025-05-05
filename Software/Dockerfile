@@ -11,6 +11,7 @@ RUN apt-get install -y ros-$ROS_DISTRO-navigation2
 RUN apt-get install -y ros-$ROS_DISTRO-nav2-bringup
 RUN apt-get install -y ros-$ROS_DISTRO-rmw-cyclonedds-cpp
 RUN apt-get install -y ros-$ROS_DISTRO-slam-toolbox
+RUN apt-get install -y ros-$ROS_DISTRO-pointcloud-to-laserscan
 
 RUN rm -rf /var/lib/apt/lists/*
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
