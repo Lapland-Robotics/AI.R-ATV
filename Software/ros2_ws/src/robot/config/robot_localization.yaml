@@ -1,0 +1,44 @@
+ekf_filter_node:
+  ros__parameters:
+    frequency: 20.0
+    two_d_mode: true
+    transform_time_offset: 0.0
+    sensor_timeout: 0.1
+    publish_tf: true
+    publish_acceleration: true
+    debug: true
+    map_frame: "map"
+    odom_frame: "odom"
+    base_link_frame: "base_footprint"
+    world_frame: "odom"
+
+    imu0: "/zed/zed_node/imu/data"
+    imu0_remove_gravitational_acceleration: true
+    imu0_config: [false, false, false,   # position (x, y, z) 
+                  true,  true,  true,    # orientation (roll, pitch, yaw)
+                  false, false, false,   # linear velocity (x, y, z)
+                  false, false, false,    # angular velocity (roll rate, pitch rate, yaw rate)
+                  false, false, false]    # linear acceleration (ax, ay, az)
+    imu0_differential: false
+    imu0_relative: false
+    imu0_queue_size: 10
+
+    odom0: "/wheel_odom"
+    odom0_config: [false, false, false,   # position (x, y, z) 
+                   false, false, false,   # orientation (roll, pitch, yaw)
+                   true, true, false,    # linear velocity (x, y, z)
+                   false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
+                   false, false, false]  # linear acceleration (ax, ay, az)
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+
+    # odom1: "/odom_rf2o"
+    # odom1_config: [false, false, false,   # position (x, y, z) 
+    #                false,  false,  true,   # orientation (roll, pitch, yaw)
+    #                true, true, false,    # linear velocity (x, y, z)
+    #                false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
+    #                false, false, false]  # linear acceleration (ax, ay, az)
+    # odom1_differential: false
+    # odom1_relative: false
+    # odom1_queue_size: 10

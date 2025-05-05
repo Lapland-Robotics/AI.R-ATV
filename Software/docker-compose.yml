@@ -1,22 +1,30 @@
 version: '3'
 
 services:
-  atv:
+  robot:
     build:
       context: .
       dockerfile: Dockerfile
-    image: atv-ros2-image
-    container_name: atv-ros2-container
-    volumes:
-      - /srv/ATV/:/srv/ATV/
+    image: robot-ros2-image
+    container_name: robot-ros2-container
     stdin_open: true
+    network_mode: "host"
+
+  nav2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: robot-nav2-image
+    container_name: robot-nav2-container
+    command: ros2 launch navigator navigator.launch.py
+    # command: echo "Autonomous Navigation container built, but not activated!"
     network_mode: "host"
 
   microros:
     build:
       context: .
       dockerfile: microros.Dockerfile
-    container_name: atv-microros-container
+    container_name: robot-microros-container
     tty: true
     privileged: true
     devices:
@@ -24,23 +32,23 @@ services:
     command: serial --dev /dev/ttyUSB0
     network_mode: "host"
 
-  microros-udp:
-    build:
-      context: .
-      dockerfile: microros.Dockerfile
-    container_name: trigger-container
-    tty: true
-    privileged: true
-    ports:
-      - "8888:8888/udp"
-    command: udp4 --port 8888
-    network_mode: "host"
+  # microros-udp:
+  #   build:
+  #     context: .
+  #     dockerfile: microros.Dockerfile
+  #   container_name: trigger-container
+  #   tty: true
+  #   privileged: true
+  #   ports:
+  #     - "8888:8888/udp"
+  #   command: udp4 --port 8888
+  #   network_mode: "host"
 
   gnss:
     build:
       context: .
       dockerfile: microros.Dockerfile
-    container_name: atv-gnss-container
+    container_name: robot-gnss-container
     tty: true
     privileged: true
     devices:
@@ -52,8 +60,8 @@ services:
   #   build:
   #     context: /path/to/ouster_lider_ros2_ws/src/ouster-ros
   #     dockerfile: Dockerfile
-  #   image: atv-ouster-ros-image
-  #   container_name: atv-ouster-ros-container
+  #   image: robot-ouster-ros-image
+  #   container_name: robot-ouster-ros-container
   #   privileged: true
   #   network_mode: "host"
   #   command: sensor_hostname:=169.254.58.82 viz:=false
