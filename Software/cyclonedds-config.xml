@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<CycloneDDS
+ xmlns="https://cdds.io/config"
+ xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+ xsi:schemaLocation="https://cdds.io/config
+                     https://raw.githubusercontent.com/eclipse-cyclonedds/cyclonedds/master/etc/cyclonedds.xsd">
+
+
+ <Domain id="any">
+    <General>
+      <Interfaces>
+        <NetworkInterface address="192.168.1.26" />
+      </Interfaces>
+      <AllowMulticast>false</AllowMulticast>
+    </General>
+  <Discovery>
+<!--<SPDPMulticastAddress>239.255.0.1</SPDPMulticastAddress>-->
+      <ParticipantIndex>0</ParticipantIndex>
+
+      <Ports>
+        <Base>7400</Base>
+        <DomainGain>250</DomainGain>
+        <ParticipantGain>1</ParticipantGain>
+        <UnicastMetaOffset>10</UnicastMetaOffset>
+        <UnicastDataOffset>11</UnicastDataOffset>
+      </Ports>
+
+      <Peers>
+        <Peer Address="192.168.1.26:7400" />
+        <Peer Address="192.168.1.26:7410" />
+        <Peer Address="192.168.1.26:7411" />
+        <Peer Address="192.168.1.76:7400" />
+        <Peer Address="192.168.1.76:7410" />
+        <Peer Address="192.168.1.76:7411" />
+      </Peers>
+  </Discovery>
+  <Tracing>
+    <Verbosity>config</Verbosity>
+    <OutputFile>cyclone-config.log</OutputFile>
+  </Tracing>
+ </Domain>
+</CycloneDDS>
