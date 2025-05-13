@@ -15,7 +15,7 @@
     </General>
   <Discovery>
         <Peers>
-            <Peer address="192.168.1.76"/>
+            <Peer address="192.168.1.20"/>
         </Peers>
   </Discovery>
   <Tracing>
