@@ -11,32 +11,16 @@
       <Interfaces>
         <NetworkInterface address="192.168.1.26" />
       </Interfaces>
-      <AllowMulticast>false</AllowMulticast>
+      <AllowMulticast>spdp</AllowMulticast>
     </General>
   <Discovery>
-<!--<SPDPMulticastAddress>239.255.0.1</SPDPMulticastAddress>-->
-      <ParticipantIndex>0</ParticipantIndex>
-
-      <Ports>
-        <Base>7400</Base>
-        <DomainGain>250</DomainGain>
-        <ParticipantGain>1</ParticipantGain>
-        <UnicastMetaOffset>10</UnicastMetaOffset>
-        <UnicastDataOffset>11</UnicastDataOffset>
-      </Ports>
-
-      <Peers>
-        <Peer Address="192.168.1.26:7400" />
-        <Peer Address="192.168.1.26:7410" />
-        <Peer Address="192.168.1.26:7411" />
-        <Peer Address="192.168.1.76:7400" />
-        <Peer Address="192.168.1.76:7410" />
-        <Peer Address="192.168.1.76:7411" />
-      </Peers>
+        <Peers>
+            <Peer address="192.168.1.76"/>
+        </Peers>
   </Discovery>
   <Tracing>
     <Verbosity>config</Verbosity>
-    <OutputFile>cyclone-config.log</OutputFile>
+    <OutputFile>/home/robotics/dds/cyclone/logs/cdds.log.${CYCLONEDDS_PID}</OutputFile>
   </Tracing>
  </Domain>
 </CycloneDDS>
