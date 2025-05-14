@@ -17,12 +17,16 @@ RUN rm -rf /var/lib/apt/lists/*
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
 
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
+ENV CYCLONEDDS_URI=file:///app/cyclonedds-config.xml
 
 SHELL ["/bin/bash", "-c"]
 
 WORKDIR /app
 
+COPY cyclonedds-config.xml /app/
 COPY ros2_ws ros2_ws/
+
+RUN mkdir -p /home/sohan-lapinamk/dds/cyclone/logs/
 RUN cd ros2_ws && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build
