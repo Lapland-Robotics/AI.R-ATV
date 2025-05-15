@@ -53,7 +53,7 @@ unsigned long debug_publisher_LET = 0; // General block last executed time
 unsigned long speed_publisher_LET = 0; // General block last executed time
 
 /*ROS2 Constants*/
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
+#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
 #define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 /* ROS topics related variables*/
@@ -95,25 +95,36 @@ volatile int rightLastState = LOW;
 
 /* Speed timing Constants*/
 const unsigned long DEBOUNCE_THRESHOLD_US = 5;
-
+int errorRetryCount = 0;
+int safeRetryCount = 0;
 
 void errorLoop() {
-  static int retryCount = 0;
-  retryCount++;
+  errorRetryCount++;
+  digitalWrite(MCEnablePin, LOW); // Disable motors as a safety measure
+  delay(1000);
 
-  // Disable motors as a safety measure
-  digitalWrite(MCEnablePin, LOW);
-  delay(2000);
-
-  if (retryCount > 5) {
-    Serial.println("[ERROR LOOP] Too many retries, halting or resetting system...");
-    // force a system reset and try again
+  if (errorRetryCount > 5) {
     ESP.restart(); 
   } 
   else {
+    microrosCleanup();
     microrosInit();
   }
 }  
+
+bool safePublish(rcl_publisher_t* publisher, void* msg, const char* publisher_name) {
+  rcl_ret_t rc = rcl_publish(publisher, msg, NULL);
+  if (rc != RCL_RET_OK) {
+    safeRetryCount++;
+    delay(100);
+    if (safeRetryCount > 3) {
+      ESP.restart();
+    }
+    return false;
+  }
+  safeRetryCount = 0;  // Reset retry count on success
+  return true;
+}
 
 boolean isRCActive(){
   return (rc_z_pwm > MIN_T && rc_z_pwm < MAX_T && rc_x_pwm > MIN_T && rc_x_pwm < MAX_T);
@@ -237,12 +248,29 @@ void microrosInit(){
 
   // init publishers
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher
-  RCCHECK(rclc_publisher_init_best_effort(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/left")); // create left speed publisher
-  RCCHECK(rclc_publisher_init_best_effort(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/right")); // create right speed publisher
+  RCCHECK(rclc_publisher_init_default(&speedLeftPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/left")); // create left speed publisher
+  RCCHECK(rclc_publisher_init_default(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/right")); // create right speed publisher
 
   // Initialize executor
   RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 1, &allocator));
   RCCHECK(rclc_executor_add_subscription(&ctrlCmdExecutor, &ctrlCmdSubscription, &ctrlCmdMsg, &cmdVelCallback, ON_NEW_DATA));
+}
+
+void microrosCleanup(){
+  rcl_ret_t rc;
+  rc = rclc_executor_fini(&ctrlCmdExecutor);
+  rc = rcl_publisher_fini(&debugPublisher, &node);
+  rc = rcl_publisher_fini(&speedLeftPublisher, &node);
+  rc = rcl_publisher_fini(&speedRightPublisher, &node);
+  rc = rcl_subscription_fini(&ctrlCmdSubscription, &node);
+  rc = rcl_node_fini(&node);
+  rc = rclc_support_fini(&support);
+  if (debugMsg.data.data != NULL) {
+    free(debugMsg.data.data);
+    debugMsg.data.data = NULL;
+    debugMsg.data.size = 0;
+    debugMsg.data.capacity = 0;
+  }
 }
 
 void setup() {
@@ -348,17 +376,17 @@ void driving() {
     digitalWrite(MotorLeftDirPin, leftSpeed >= 0.0);
     digitalWrite(MotorRightDirPin, rightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
 
-    leftMotorPWM = int (leftMotorPWM * 0.91); // left motor is more powerful than the right one, so we reduce its PWM value by 9%
+    // leftMotorPWM = int (leftMotorPWM * 0.91); // left motor is more powerful than the right one, so we reduce its PWM value by 9%
 
     // Output PWM values to the motor controller
     ledcWrite(0, abs(leftMotorPWM));
     ledcWrite(1, abs(rightMotorPWM)); 
 
     speedLeft.data = leftSpeed;
-    RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
-    
+    safePublish(&speedLeftPublisher, &speedLeft, "speedLeftPublisher");
+
     speedRight.data = rightSpeed;
-    RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
+    safePublish(&speedRightPublisher, &speedRight, "speedRightPublisher");
 
     // publish speed sensor data
     unsigned long now = millis();
