@@ -16,7 +16,7 @@ class WheelOdomPublisher(Node):
         self.right_speed = 0.0
 
         # Subscribers to the wheel speed topics
-        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.BEST_EFFORT)
+        qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.SYSTEM_DEFAULT)
         self.create_subscription(Float32, '/speed/left', self.left_speed_callback, qos_profile)
         self.create_subscription(Float32, '/speed/right', self.right_speed_callback, qos_profile)
 

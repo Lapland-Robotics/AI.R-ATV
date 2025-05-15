@@ -31,16 +31,22 @@ class ThermalCameraPublisher(Node):
         super().__init__('thermal_camera_publisher')
         self.publisher_ = self.create_publisher(Image, '/seek/seek_node/image_thermal', 10)
         self.renderer = Renderer()
-
+        self.camera_frame = None
         self.manager = SeekCameraManager(SeekCameraIOType.USB)
         self.manager.register_event_callback(self.on_event, self.renderer)
 
-        self.timer = self.create_timer(0.1, lambda: None)
+        self.timer = self.create_timer(0.08, self.timer_callback)
         self.get_logger().info('Thermal camera publisher initialized.')
 
     def on_frame(self, camera, camera_frame, renderer):
+        self.camera_frame = camera_frame
+        
+    def timer_callback(self):
+        if self.camera_frame is None:
+            return
+        
         # Extract and process the frame
-        frame = camera_frame.color_argb8888.data
+        frame = self.camera_frame.color_argb8888.data
         rgb_frame = bgra2rgb(frame)
         
         # Create Image message
@@ -52,8 +58,6 @@ class ThermalCameraPublisher(Node):
         img_msg.is_bigendian = 0
         img_msg.step = rgb_frame.shape[1] * 3
         img_msg.data = rgb_frame.tobytes()
-
-        # Publish the Image message
         self.publisher_.publish(img_msg)
 
     def on_event(self, camera, event_type, event_status, renderer):
