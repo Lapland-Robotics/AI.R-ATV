@@ -6,8 +6,8 @@ This section outlines the main directory structure of the project, separating do
 ```
 
 ├── Documents           : All the Documents and Diagrams
-│   ├── MiniATV         : Documentation about mini ATV
-│   └── Snower          : Documentation about Snower
+│   ├── MiniATV         : Documents about mini ATV
+│   └── Snower          : Documents about Snower
 ├── Firmware            : All the Firmware programs (for Micro controllers)
 │   ├── GNSS            : zedf9p esp32 program
 │   ├── Robots          : main Microcontroller programs to control robots
@@ -38,7 +38,7 @@ This diagram, generated with `rqt_graph`, illustrates the live connections betwe
 
 
 ## Demo Video: Autonomous waypoint navigation and dynamic obstacle avoidance
-
+Click the thumbnail below to watch the demo video:
 [![Watch the video](Documents/readme_resource/video_thumbnail.png)](https://youtu.be/Bjw5K9Bklrk?si=DbEx6tLgyb9PHfoj)
 
 In this video, we are testing the autonomous waypoint navigation capabilities of our Snower, including dynamic obstacle avoidance.
