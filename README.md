@@ -25,8 +25,8 @@ This section outlines the main directory structure of the project, separating do
 
 The robot uses a structured TF (transform) tree to manage spatial relationships between all its components, including sensors, base links, and actuators. This hierarchy ensures that data from various sources—like lidar, camera, and GNSS—can be accurately fused and interpreted in a common coordinate space. The TF tree below visualizes how frames are connected and updated in real time during operation.
 
-![tf tree](Documents/Snower/tf_tree.png)
-![tf tree](Documents/Snower/urdf_tf.gif)
+![tf tree](Documents/readme_resource/tf_tree.png)
+![tf tree](Documents/readme_resource/urdf_tf.gif)
 
 ## Robot Node & Topic Architecture
 
@@ -37,5 +37,10 @@ The ROS2 system is composed of multiple nodes that communicate through a network
 This diagram, generated with `rqt_graph`, illustrates the live connections between all ROS2 nodes and topics in the Snower. It shows how sensor publishers (e.g., lidar, camera, GNSS, odometry) feed into processing and filtering nodes, how planners and behavior servers interact via action servers/topics, and how control commands flow down to the motor drivers and micro-ROS bridge on the ESP32. By visualizing the full publisher–subscriber and action-server network, you can more verify how each node is wired into the overall autonomy pipeline.
 
 
-## Demo Video: ROS2 Autonomous waypoint navigation and dynamic obstacle avoidance
-[![Watch the video](Documents/AIR_background.png)](https://www.youtube.com/watch?v=bKZ6i2iMwEY)
+## Demo Video: Autonomous waypoint navigation and dynamic obstacle avoidance
+
+[![Watch the video](Documents/readme_resource/video_thumbnail.png)](https://youtu.be/Bjw5K9Bklrk?si=DbEx6tLgyb9PHfoj)
+
+In this video, we are testing the autonomous waypoint navigation capabilities of our Snower, including dynamic obstacle avoidance.
+
+![AI.R](Documents/readme_resource/AIR_background.png)
