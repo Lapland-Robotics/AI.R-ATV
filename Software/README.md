@@ -1,8 +1,29 @@
 # Software
-This folder contains the full ROS 2 workspace and supporting scripts for the main computing unit (Jetson) of the autonomous robot. It includes ROS 2 packages for navigation, sensor data collection, and robot localization, along with configuration files, and systemd services to automate startup. The workspace is organized for use inside a Docker environment for portability and ease of deployment. First You have to install Docker Engine, then you can easily build and run the project.
+This folder contains the full ROS 2 workspace and supporting scripts for the main computing unit (Jetson) of the autonomous robot. It includes ROS 2 packages for navigation, sensor data collection, and robot localization, along with configuration files, and systemd services to automate startup. The workspace is organized for use inside a Docker environment for portability and ease of deployment.
+
+## Directory Tree view
+This section outlines the structure of the Software directory, which contains all ROS2 packages, Docker configurations, launch scripts, and service files required to run the robot’s main control system inside containers. It helps maintain a modular and reproducible development environment.
+
+```
+├── cyclonedds-config.xml        # Configuration for CycloneDDS communication middleware
+├── docker-compose.yml           # docker compose configuration file for the robot system
+├── Dockerfile                   # Base Dockerfile for building the ROS2 environment
+├── microros.Dockerfile          # Dockerfile for building the micro-ROS agent
+├── ouster-ros.Dockerfile        # Dockerfile specifically for building the Ouster LiDAR ROS node
+├── ros2_ws                      # ROS2 workspace for all core packages
+│   └── src                      # ROS2 src directory
+│       ├── data_collector       # Package for collect and store sensor data (point cloud, thermal and stereo camera)
+│       ├── navigator            # Package for Navigation, localization and Mapping
+│       └── robot                # Package for core robot control and state estimation (URDF and odometry)
+├── ros_entrypoint.sh            # entrypoint Script for Dockerfile
+└── systemctls                   # directory for systemctl services related files
+    ├── scripts                  # Shell scripts for .service files
+    └── services                 # Systemd .service files
+```
 
 ## Docker: Build & Run
-To launch the software program, navigate to the Software directory and execute the following command:
+First You have to install Docker Engine, then you can easily build and run the project. To launch the software program, navigate to the Software directory and execute the following command:
+
 ```bash
 sudo docker compose build && sudo docker compose up
 ```
