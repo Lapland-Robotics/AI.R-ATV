@@ -15,7 +15,7 @@ const uint8_t NUM_SENS = sizeof(sensors)/sizeof(sensors[0]);
 const char* ssid     = "Drieshotspot";
 const char* password = "kaaskaas";
 // IP of your laptop on the hotspot network
-const char* serverIP = "192.168.70.111";  
+const char* serverIP = "192.168.245.111";  
 const uint16_t serverPort = 5000;
 const int ACS_PIN = 32;
 
