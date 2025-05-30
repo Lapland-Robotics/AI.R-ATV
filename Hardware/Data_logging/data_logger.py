@@ -3,9 +3,9 @@ import pandas as pd
 import os
 
 app = Flask(__name__)
-DATA_FILE = "measurements.xlsx"
+DATA_FILE = "measurements_full.xlsx"
 
-# map INA addresses → labels
+# translate INA addresses → human labels
 ADDR_MAP = {
     "0x40": "24V",
     "0x41": "19V",
@@ -16,14 +16,13 @@ ADDR_MAP = {
 }
 METRICS = ["bus_V", "shunt_mV", "current_mA", "power_mW"]
 
-# build header: timestamp, system_current, then each label+metric
-COLUMNS = ["timestamp_ms", "system_current_A"] + [
-    f"{label}_{metric}"
-    for label in ADDR_MAP.values()
-    for metric in METRICS
-]
+# build header: timestamp + raw voltage + current + each rail’s metrics
+COLUMNS = (
+    ["timestamp_ms", "system_voltage_V", "system_current_A"]
+    + [f"{label}_{m}" for label in ADDR_MAP.values() for m in METRICS]
+)
 
-# first‐run: make empty sheet with headers
+# on first run, create an empty sheet with our headers
 if not os.path.exists(DATA_FILE):
     pd.DataFrame(columns=COLUMNS).to_excel(DATA_FILE, index=False)
 
@@ -32,13 +31,14 @@ def receive():
     payload = request.get_json()
     ts = payload["timestamp"]
 
-    # start our wide‐row
+    # start our single “wide” row
     row = {
-        "timestamp_ms":      ts,
-        "system_current_A":  payload.get("system_current_A", None)
+        "timestamp_ms":       ts,
+        "system_voltage_V":   payload.get("system_voltage_V"),
+        "system_current_A":   payload.get("system_current_A")
     }
 
-    # unpack each INA219 reading into its wide column
+    # fill in each INA219’s metrics
     for m in payload["readings"]:
         label = ADDR_MAP.get(m["addr"], m["addr"])
         row[f"{label}_bus_V"]      = m["V"]
@@ -46,7 +46,7 @@ def receive():
         row[f"{label}_current_mA"] = m["mA"]
         row[f"{label}_power_mW"]   = m["mW"]
 
-    # append + save
+    # append + save back to Excel
     df_old = pd.read_excel(DATA_FILE)
     df_new = pd.DataFrame([row], columns=COLUMNS)
     df = pd.concat([df_old, df_new], ignore_index=True)
@@ -55,5 +55,5 @@ def receive():
     return "OK", 200
 
 if __name__ == "__main__":
-    # ensure you have openpyxl installed: pip install openpyxl
+    # requires openpyxl: pip install openpyxl
     app.run(host="0.0.0.0", port=5000)

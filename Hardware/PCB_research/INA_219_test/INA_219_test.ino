@@ -11,12 +11,14 @@ Adafruit_INA219* sensors[] = {&ina0,&ina1,&ina2,&ina3,&ina4,&ina5};
 const char* labels[]  = {"0x40","0x41","0x44","0x45","0x46","0x4F"};
 const uint8_t NUM_SENS = sizeof(sensors)/sizeof(sensors[0]);
 
-// *** Wi-Fi settings ***
+// Wi-Fi settings
 const char* ssid     = "Drieshotspot";
 const char* password = "kaaskaas";
-// IP of your laptop on the hotspot network
-const char* serverIP = "192.168.245.111";  
+// Your laptop’s IP on the hotspot
+const char* serverIP   = "192.168.164.111";
 const uint16_t serverPort = 5000;
+
+// ACS711 Viout → any ADC1 pin; here GPIO32 (ADC1_CH4)
 const int ACS_PIN = 32;
 
 void setup() {
@@ -24,8 +26,11 @@ void setup() {
   delay(100);
   Wire.begin();
   pinMode(ACS_PIN, INPUT);
-  // init INA219s
-  for (uint8_t i=0; i<NUM_SENS; i++) {
+  // optional: full-range attenuation for 0–3.3 V
+  analogSetPinAttenuation(ACS_PIN, ADC_11db);
+
+  // initialize all INA219 sensors
+  for (uint8_t i = 0; i < NUM_SENS; i++) {
     if (!sensors[i]->begin()) {
       Serial.printf("No INA219 @ %s\n", labels[i]);
     } else {
@@ -33,7 +38,8 @@ void setup() {
     }
   }
   Serial.println("INA219 ready.");
-  // connect Wi-Fi
+
+  // connect to Wi-Fi
   WiFi.begin(ssid, password);
   Serial.print("Joining Wi-Fi");
   while (WiFi.status() != WL_CONNECTED) {
@@ -45,9 +51,11 @@ void setup() {
 
 void loop() {
   if (WiFi.status() == WL_CONNECTED) {
-    // 1) Read all INA219s into JSON as before…
+    // build JSON with ArduinoJson
     StaticJsonDocument<512> doc;
     doc["timestamp"] = millis();
+
+    // sensor array
     JsonArray arr = doc.createNestedArray("readings");
     for (uint8_t i = 0; i < NUM_SENS; i++) {
       float busV    = sensors[i]->getBusVoltage_V();
@@ -62,16 +70,18 @@ void loop() {
       obj["mW"]   = power;
     }
 
-    // 2) Read ACS711 → system current
-    int raw = analogRead(ACS_PIN);
-    float Vadc     = raw * (3.3f / 4095.0f);
-    float Vbus5    = sensors[3]->getBusVoltage_V();   // sensor @0x45  
-    float baseline = Vbus5 / 2.0f;                   
-    float I_system = (Vadc - baseline) / 0.045f;      // A
+    // read ACS711 output & compute
+    int   raw     = analogRead(ACS_PIN);
+    float Vadc    = raw * (3.3f / 4095.0f);         // raw voltage at pin
+    float Vbus5   = sensors[3]->getBusVoltage_V();  // INA @0x45 = 5 V rail
+    float baseline= Vbus5 / 2.0f;                   // half-supply
+    float I_system = (Vadc - baseline) / 0.045f;    // A per 45 mV/A
 
-    doc["system_current_A"] = I_system;
+    // add both raw voltage and computed current
+    doc["system_voltage_V"]   = Vadc;
+    doc["system_current_A"]   = I_system;
 
-    // 3) Serialize + send HTTP POST
+    // serialize & POST
     String json;
     serializeJson(doc, json);
     HTTPClient http;
@@ -83,6 +93,6 @@ void loop() {
   } else {
     WiFi.reconnect();
   }
-  delay(1000);
-}
 
+  delay(500);
+}
