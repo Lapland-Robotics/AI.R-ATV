@@ -34,7 +34,7 @@
     ///
     /// See https://docs.rs/zenoh/latest/zenoh/config/struct.EndPoint.html
     endpoints: [
-      "tcp/127.16.200.128:7447"
+      "tcp/192.168.1.26:7447"
       // "<proto>/<address>"
       
     ],
