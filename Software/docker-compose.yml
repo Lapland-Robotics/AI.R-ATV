@@ -56,15 +56,12 @@ services:
     command: serial --dev /dev/ttyUSB1
     network_mode: "host"
 
-  # ouster_lidar:
-  #   build:
-  #     context: /path/to/ouster_lider_ros2_ws/src/ouster-ros
-  #     dockerfile: Dockerfile
-  #   image: robot-ouster-ros-image
-  #   container_name: robot-ouster-ros-container
-  #   privileged: true
-  #   network_mode: "host"
-  #   command: sensor_hostname:=169.254.58.82 viz:=false
+  ouster_lidar:
+    image: "ouster-lidar/ros2-humble-cyclonedds"
+    container_name: ouster-ros2-container
+    privileged: true
+    network_mode: "host"
+    command: sensor_hostname:=192.168.1.31 ouster_ns:=ouster viz:=false timestamp_mode:="TIME_FROM_ROS_TIME"
 
   # microros-udp:
   #   build:
