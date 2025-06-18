@@ -1,0 +1,6 @@
+[submodule "Software/drivers/src/zed-ros2-wrapper"]
+	path = Software/drivers/src/zed-ros2-wrapper
+	url = https://github.com/Lapland-Robotics/zed-ros2-wrapper
+[submodule "Software/drivers/src/ouster-ros"]
+	path = Software/drivers/src/ouster-ros
+	url = https://github.com/Lapland-Robotics/ouster-ros
