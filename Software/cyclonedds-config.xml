@@ -9,18 +9,18 @@
  <Domain id="any">
     <General>
       <Interfaces>
-        <NetworkInterface address="192.168.1.26" />
+        <NetworkInterface address="192.168.1.20" />
       </Interfaces>
       <AllowMulticast>spdp</AllowMulticast>
     </General>
   <Discovery>
         <Peers>
-            <Peer address="192.168.1.20"/>
+            <Peer address="192.168.1.26"/>
         </Peers>
   </Discovery>
   <Tracing>
     <Verbosity>config</Verbosity>
-    <OutputFile>/home/robotics/dds/cyclone/logs/cdds.log.${CYCLONEDDS_PID}</OutputFile>
+    <OutputFile>${AIR_AR_PATH}/Software/logs/cyclonedds.log.${CYCLONEDDS_PID}</OutputFile>
   </Tracing>
  </Domain>
 </CycloneDDS>
