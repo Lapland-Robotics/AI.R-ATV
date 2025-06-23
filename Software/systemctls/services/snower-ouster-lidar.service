@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 User=robotics
-WorkingDirectory=/home/robotics/repo/AI.R-ATV/Software/systemctls/scripts
+WorkingDirectory=$AIR_AR_PATH/Software/systemctls/scripts
 ExecStart=/bin/bash ouster.sh
 Restart=on-failure
 RestartSec=2
