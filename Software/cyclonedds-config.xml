@@ -20,7 +20,7 @@
   </Discovery>
   <Tracing>
     <Verbosity>config</Verbosity>
-    <OutputFile>${AIR_AR_PATH}/Software/logs/cyclonedds.log.${CYCLONEDDS_PID}</OutputFile>
+    <OutputFile>${AIR_AR_PATH}/Software/log/cyclonedds.log.${CYCLONEDDS_PID}</OutputFile>
   </Tracing>
  </Domain>
 </CycloneDDS>
