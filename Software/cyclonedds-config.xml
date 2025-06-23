@@ -20,7 +20,7 @@
   </Discovery>
   <Tracing>
     <Verbosity>config</Verbosity>
-    <OutputFile>/var/log/dds/cyclone/air-robot.${CYCLONEDDS_PID}.log</OutputFile>
+    <OutputFile>/home/robotics/dds/cyclone/logs/air-robot.${CYCLONEDDS_PID}.log</OutputFile>
   </Tracing>
  </Domain>
 </CycloneDDS>
