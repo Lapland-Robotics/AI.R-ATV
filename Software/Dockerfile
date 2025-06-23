@@ -16,7 +16,6 @@ RUN apt-get install -y ros-$ROS_DISTRO-pointcloud-to-laserscan
 RUN rm -rf /var/lib/apt/lists/*
 RUN echo 'source "/opt/ros/$ROS_DISTRO/setup.bash"' >> ~/.bashrc
 
-ENV AIR_AR_PATH=/app
 ENV RMW_IMPLEMENTATION=rmw_cyclonedds_cpp
 ENV CYCLONEDDS_URI=file:///app/cyclonedds-config.xml
 
@@ -27,7 +26,7 @@ WORKDIR /app
 COPY cyclonedds-config.xml /app/
 COPY ros2_ws ros2_ws/
 
-RUN mkdir -p /app/logs/
+RUN mkdir -p /home/robotics/dds/cyclone/logs/
 RUN cd ros2_ws && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build
