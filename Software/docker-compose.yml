@@ -57,7 +57,7 @@ services:
     network_mode: "host"
 
   ouster_lidar:
-    image: "ouster-lidar/ros2-humble-cyclonedds"
+    image: "ouster-lidar:ros2-humble-cyclonedds"
     container_name: ouster-ros2-container
     privileged: true
     network_mode: "host"
