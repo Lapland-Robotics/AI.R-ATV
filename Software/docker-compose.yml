@@ -1,6 +1,7 @@
 version: '3'
 
 services:
+
   robot:
     build:
       context: .
@@ -63,6 +64,26 @@ services:
     network_mode: "host"
     command: sensor_hostname:=192.168.1.31 ouster_ns:=ouster viz:=false timestamp_mode:="TIME_FROM_ROS_TIME"
 
+  zed_ros2:
+    image: zed_ros2_l4t_36.3.0_sdk_5.0.2
+    runtime: nvidia
+    privileged: true
+    network_mode: host
+    ipc: host
+    pid: host
+    environment:
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - DISPLAY=${DISPLAY}
+    volumes:
+      - /tmp/.X11-unix/:/tmp/.X11-unix
+      - /dev:/dev
+      - /dev/shm:/dev/shm
+      - /usr/local/zed/resources/:/usr/local/zed/resources/
+      - /usr/local/zed/settings/:/usr/local/zed/settings/
+    stdin_open: true     # equivalent to -it
+    tty: true            # equivalent to -it
+    command: ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2 publish_tf:=false
+
   # microros-udp:
   #   build:
   #     context: .
@@ -74,3 +95,4 @@ services:
   #     - "8888:8888/udp"
   #   command: udp4 --port 8888
   #   network_mode: "host"
+  
