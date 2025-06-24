@@ -66,11 +66,12 @@ services:
 
   zed_ros2:
     image: zed_ros2_l4t_36.3.0_sdk_5.0.2
+    container_name: zed-ros2-container
     runtime: nvidia
     privileged: true
     network_mode: host
     ipc: host
-    pid: host
+    # pid: host
     environment:
       - NVIDIA_DRIVER_CAPABILITIES=all
       - DISPLAY=${DISPLAY}
