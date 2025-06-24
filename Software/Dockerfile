@@ -26,7 +26,6 @@ WORKDIR /app
 COPY cyclonedds-config.xml /app/
 COPY ros2_ws ros2_ws/
 
-RUN mkdir -p /var/log/dds/cyclone/
 RUN cd ros2_ws && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build
