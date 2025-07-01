@@ -12,6 +12,8 @@
 extern "C"{
   #include "RobotDriveControl.h"
 }
+#include <Arduino.h>
+#include "driver/pcnt.h"
  
 /* ESP32 pin definition */
 #define CH1RCPin 18 //Remote Control ch1
@@ -25,7 +27,7 @@ extern "C"{
 #define SpeedSensorRightPin 33 //Right speed sensor
  
 //Constants
-#define FREQ  490  //AnalogWrite frequency
+#define FREQ  10000  //AnalogWrite frequency
 #define MAX_T 2500 //Max signal threshold
 #define MIN_T 500  //Min signal threshold
 #define RESOLUTION 8 //PWM resolution (8-bit, range from 0-255)
@@ -71,13 +73,16 @@ rcl_node_t node;
 rclc_executor_t ctrlCmdExecutor;
  
 // Driving related variables
-struct CommandVelocity* cmdVelDiffDrive; // DON'T use this variable dirctly, always use the getters and setters
+struct CommandVelocity* cmdVelDiffDrive; // DON'T use this variable directly, always use the getters and setters
+double cmdLeftSpeed;
+double cmdRightSpeed;
  
 // RC related variables
 volatile unsigned long ch1_start_time = 0;
 volatile unsigned long ch2_start_time = 0;
 volatile int rc_z_pwm = 0;
 volatile int rc_x_pwm = 0;
+volatile long last_CH1_pulse_time = 0;
  
 // Speed sensors
 /* Left speed sensor*/
@@ -85,18 +90,21 @@ volatile unsigned long leftToothCount = 0;
 volatile unsigned long leftLastEdgeTime = 0;
 volatile int leftLastState = HIGH;
 volatile float leftSpeed = 0.0;
+int16_t countL = 0;
  
 /* Right speed sensor*/
 volatile unsigned long rightToothCount = 0;
-volatile unsigned long lastRightCount = 0;
 volatile unsigned long rightLastEdgeTime = 0;
 volatile int rightLastState = HIGH;
 volatile float rightSpeed = 0;
+int16_t countR = 0;
  
 // Mutual exclusion to access speed related variables
 portMUX_TYPE mux = portMUX_INITIALIZER_UNLOCKED;
-// Init ESP32 timer 0
-// ESP32Timer ITimer0(0);
+
+// Pulse counter units
+#define PCNT_LEFT_UNIT PCNT_UNIT_0
+#define PCNT_RIGHT_UNIT PCNT_UNIT_1
  
 /* Speed timing Constants*/
 const unsigned long DEBOUNCE_THRESHOLD_US = 5000; // microseconds
@@ -136,7 +144,6 @@ boolean isRCActive(){
   return (rc_z_pwm > MIN_T && rc_z_pwm < MAX_T && rc_x_pwm > MIN_T && rc_x_pwm < MAX_T);
 }
  
- 
 /*Genarate debug String and push to the topic*/
 void debugDataPublisher(char final_string[128]) {
   snprintf(debugMsg.data.data, debugMsg.data.capacity, "[SNOWER]: %s", final_string);
@@ -153,38 +160,39 @@ void cmdVelCallback(const void *msgin) {
   }
 }
  
-// Left wheel speed
-void IRAM_ATTR speedLeft_interrupt() {
-  int state = digitalRead(SpeedSensorLeftPin);
-  unsigned long now = micros();
+// // Left wheel speed
+// void IRAM_ATTR speedLeft_interrupt() {
+//   int state = digitalRead(SpeedSensorLeftPin);
+//   unsigned long now = micros();
  
-  if (state != leftLastState && (now - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
-    if (state == LOW) {
-      portENTER_CRITICAL_ISR(&mux);
-      leftToothCount++;
-      portEXIT_CRITICAL_ISR(&mux);
+//   if (state != leftLastState && (now - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
+//     if (state == LOW) {
+//       portENTER_CRITICAL_ISR(&mux);
+//       leftToothCount++;
+//       portEXIT_CRITICAL_ISR(&mux);
  
-    }
-  }
-}
+//     }
+//     leftLastEdgeTime = now;
+//     leftLastState = state;
+//   }
+// }
  
-// Right wheel speed
-void IRAM_ATTR speedRight_interrupt() {
-  int state = digitalRead(SpeedSensorRightPin);
-  unsigned long now = micros();
+// // Right wheel speed
+// void IRAM_ATTR speedRight_interrupt() {
+//   int state = digitalRead(SpeedSensorRightPin);
+//   unsigned long now = micros();
  
-  if (state != rightLastState && (now - rightLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
-    if (state == LOW) {
-      portENTER_CRITICAL_ISR(&mux);
-      rightToothCount++;
-      portEXIT_CRITICAL_ISR(&mux);
+//   if (state != rightLastState && (now - rightLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
+//     if (state == LOW) {
+//       portENTER_CRITICAL_ISR(&mux);
+//       rightToothCount++;
+//       portEXIT_CRITICAL_ISR(&mux);
  
-    }
-    rightLastEdgeTime = now;
-    rightLastState = state;
-  }
-}
- 
+//     }
+//     rightLastEdgeTime = now;
+//     rightLastState = state;
+//   }
+// }
  
 void IRAM_ATTR CH1_interrupt() {
     if (digitalRead(CH1RCPin) == HIGH) {
@@ -193,6 +201,7 @@ void IRAM_ATTR CH1_interrupt() {
     } else {
         // Falling edge - calculate pulse width
         rc_z_pwm = micros() - ch1_start_time;
+        last_CH1_pulse_time = millis();
     }
 }
  
@@ -205,41 +214,74 @@ void IRAM_ATTR CH2_interrupt() {
         rc_x_pwm = micros() - ch2_start_time;
     }
 }
- 
+
 void publishSpeed(rcl_timer_t * timer, int64_t last_call_time){
-  static unsigned long leftLastPublishTime = 0;
-  static unsigned long rightLastPublishTime = 0;
+  static unsigned long LastPublishTime = 0;
   unsigned long currentTime = millis();
   unsigned long timeDuration;
+    
+  timeDuration = currentTime - LastPublishTime;
+  LastPublishTime = currentTime;
+  // portENTER_CRITICAL_ISR(&mux);
+  // unsigned long pulsesLeft = leftToothCount;
+  // leftToothCount = 0;
+  // unsigned long pulsesRight = rightToothCount;
+  // rightToothCount = 0;
+  // portEXIT_CRITICAL_ISR(&mux);
+  pcnt_get_counter_value(PCNT_LEFT_UNIT, &countL);
+  pcnt_counter_clear(PCNT_LEFT_UNIT);
+  pcnt_get_counter_value(PCNT_RIGHT_UNIT, &countR);
+  pcnt_counter_clear(PCNT_RIGHT_UNIT);
  
-  timeDuration = currentTime - leftLastPublishTime;
-  portENTER_CRITICAL_ISR(&mux);
-  unsigned long pulsesLeft = leftToothCount;
-  leftToothCount = 0;
-  portEXIT_CRITICAL_ISR(&mux);
-  leftLastPublishTime = currentTime;
- 
-  leftSpeed = ((float)pulsesLeft) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
+  // leftSpeed = ((float)pulsesLeft) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
+  leftSpeed = ((float)countL) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
+  if(cmdLeftSpeed < 0.0){
+    leftSpeed = -leftSpeed;
+  } 
+  // rightSpeed = ((float)pulsesRight) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
+  rightSpeed = ((float)countR) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
+  if(cmdRightSpeed < 0.0){
+    rightSpeed = -rightSpeed;
+  }
+  
   speedLeft.data = leftSpeed;
-  // RCSOFTCHECK(rcl_publish(&speedLeftPublisher, &speedLeft, NULL));
   safePublish(&speedLeftPublisher, &speedLeft, "speedLeftPublisher");
- 
-  currentTime = millis();
-  timeDuration = currentTime - rightLastPublishTime;
-  portENTER_CRITICAL_ISR(&mux);
-  unsigned long pulsesRight = rightToothCount;
-  rightToothCount = 0;
-  portEXIT_CRITICAL_ISR(&mux);
-  rightLastPublishTime = currentTime;
- 
-  rightSpeed = ((float)pulsesRight) * DISTANCE_TO_TOOTH_RATIO * 10.0f / ((float)timeDuration);
   speedRight.data = rightSpeed;
-  // RCSOFTCHECK(rcl_publish(&speedRightPublisher, &speedRight, NULL));
   safePublish(&speedRightPublisher, &speedRight, "speedRightPublisher");
- 
-  // char final_string[128] = "";
-  // snprintf(final_string, 128, "/speed/left: %d, /speed/right: %d", leftSpeed, rightSpeed);
-  // debugDataPublisher(final_string);
+  
+  char final_string[128] = "";
+  // snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, pulsesLeft, pulsesRight); // use this line to debug speed sensors
+  snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, countL, countR); // use this line to debug speed sensors
+  // snprintf(final_string, 128, "RC active : %d, rc_x_pwm : %d rc_z_pwm : %d", isRCActive(), rc_x_pwm, rc_z_pwm); // Use this line to debug/adjust RC
+  debugDataPublisher(final_string);
+}
+
+
+// Configure PCNT for falling edges detection
+void setupPCNT(pcnt_unit_t unit, int pin) {
+  pcnt_config_t pcnt_config = {
+    .pulse_gpio_num = pin,
+    .ctrl_gpio_num = PCNT_PIN_NOT_USED,
+    .lctrl_mode = PCNT_MODE_KEEP,
+    .hctrl_mode = PCNT_MODE_KEEP,
+    .pos_mode = PCNT_COUNT_DIS,    // Ignore rising edges
+    .neg_mode = PCNT_COUNT_INC,    // Increase counter on falling edges
+    .counter_h_lim = 10000,        // high limit
+    .counter_l_lim = 0,             // low limit
+    .unit = unit,
+    .channel = PCNT_CHANNEL_0
+  };
+
+  pcnt_unit_config(&pcnt_config);
+
+  // Noise filtering (nanoseconds)
+  pcnt_set_filter_value(unit, 1000);
+  pcnt_filter_enable(unit);
+
+  // start PCNT
+  pcnt_counter_pause(unit);
+  pcnt_counter_clear(unit);
+  pcnt_counter_resume(unit);
 }
  
 void microrosInit(){
@@ -248,7 +290,6 @@ void microrosInit(){
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
- 
  
   // Initialize the /debug String message
   debugMsg.data.data = (char *)malloc(128 * sizeof(char)); // Allocate memory for the string
@@ -317,14 +358,16 @@ void setup() {
   digitalWrite(MCEnablePin, LOW);
   ledcWrite(0, 0);  // Stop Motor 1
   ledcWrite(1, 0);  // Stop Motor 2
-  digitalWrite(PullUpSpeedLPin, HIGH);
-  digitalWrite(PullUpSpeedRPin, HIGH);
  
   // Attach interrupts to pins
   attachInterrupt(digitalPinToInterrupt(CH1RCPin), CH1_interrupt, CHANGE);
   attachInterrupt(digitalPinToInterrupt(CH2RCPin), CH2_interrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SpeedSensorLeftPin), speedLeft_interrupt, CHANGE);
-  attachInterrupt(digitalPinToInterrupt(SpeedSensorRightPin), speedRight_interrupt, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(SpeedSensorLeftPin), speedLeft_interrupt, CHANGE);
+  // attachInterrupt(digitalPinToInterrupt(SpeedSensorRightPin), speedRight_interrupt, CHANGE);
+
+  // Attach PCNT to speed sensors pins
+  setupPCNT(PCNT_LEFT_UNIT, SpeedSensorLeftPin);
+  setupPCNT(PCNT_RIGHT_UNIT, SpeedSensorRightPin);
  
   cmdVelDiffDrive = createCommandVelocity();
  
@@ -384,37 +427,37 @@ void driving() {
     activateMotorController();
   }
   // get differential speed values for the left and right motors
-  double leftSpeedLocal = getLeftSpeed(cmdVelDiffDrive);
-  double rightSpeedLocal = getRightSpeed(cmdVelDiffDrive);
+  cmdLeftSpeed = getLeftSpeed(cmdVelDiffDrive);
+  cmdRightSpeed = getRightSpeed(cmdVelDiffDrive);
     
   // get the PWM values for the motors
-  int leftMotorPWM = getPWMbySpeed(abs(leftSpeedLocal));
-  int rightMotorPWM = getPWMbySpeed(abs(rightSpeedLocal));
+  int leftMotorPWM = getPWMbySpeed(abs(cmdLeftSpeed));
+  int rightMotorPWM = getPWMbySpeed(abs(cmdRightSpeed));
     
   // Set motor direction based on speed values
-  digitalWrite(MotorLeftDirPin, leftSpeedLocal >= 0.0);
-  digitalWrite(MotorRightDirPin, rightSpeedLocal <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
+  digitalWrite(MotorLeftDirPin, cmdLeftSpeed >= 0.0);
+  digitalWrite(MotorRightDirPin, cmdRightSpeed <= 0.0); // The right motor is mounted in reverse, so its direction logic is inverted
  
-    // leftMotorPWM = int (leftMotorPWM * 0.91); // left motor is more powerful than the right one, so we reduce its PWM value by 9%
+  leftMotorPWM = int (leftMotorPWM * 0.95); // left motor is more powerful than the right one, so we reduce its PWM value by 5%
  
   // Output PWM values to the motor controller
   ledcWrite(0, abs(leftMotorPWM));
   ledcWrite(1, abs(rightMotorPWM));
  
-  // speedLeft.data = leftSpeed;
+  // speedLeft.data = cmdLeftSpeed;
   // safePublish(&speedLeftPublisher, &speedLeft, "speedLeftPublisher");
  
-  // speedRight.data = rightSpeed;
+  // speedRight.data = cmdRightSpeed;
   // safePublish(&speedRightPublisher, &speedRight, "speedRightPublisher");
  
   // publish speed sensor data
-  unsigned long now = millis();
-  if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
-    debug_publisher_LET = millis();
-    char final_string[128] = "";
-    snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), leftSpeedLocal, rightSpeedLocal, leftMotorPWM, rightMotorPWM);
-    debugDataPublisher(final_string);
-  }
+  // unsigned long now = millis();
+  // if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
+  //   debug_publisher_LET = millis();
+  //   char final_string[128] = "";
+  //   snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), cmdLeftSpeed, cmdRightSpeed, leftMotorPWM, rightMotorPWM);
+  //   debugDataPublisher(final_string);
+  // }
 }
  
 void loop() {
@@ -422,11 +465,15 @@ void loop() {
   // General block of the loop
   unsigned long now = millis();
   if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
-    General_block_LET = millis();
  
     // is Remote Controller active
     if(isRCActive()){
       getRC();
+    }
+
+    // reset when RC is turned off (RC not active)
+    if (last_CH1_pulse_time < General_block_LET) {
+    rc_z_pwm = 0; // Reset if PWM on CH1 not active between two general block execution
     }
   
     // cmd_vel timeout
@@ -442,16 +489,10 @@ void loop() {
     }
     // main driving function
     driving();
- 
+
+    General_block_LET = millis();
   }
- 
-  // publish speed sensor data
-  // now = millis();
-  // if (now - speed_publisher_LET >= (1000 / SPEED_PUBLISHER_FREQUENCY)) {
-  //   speed_publisher_LET = millis();
-  //   publishSpeedData();
-  // }
- 
+
   // Spin the executor to handle incoming messages
   rclc_executor_spin_some(&ctrlCmdExecutor, RCL_MS_TO_NS(100));
  
