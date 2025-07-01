@@ -4,7 +4,7 @@ After=multi-user.target
 Requires=docker.service
 
 [Service]
-WorkingDirectory=/home/robotics/repo/AI.R-ATV/Software
+WorkingDirectory=/home/robotics/repos/AI.R-Autonomous_Robot/Software
 # ExecStartPre=/usr/bin/docker compose -f docker-compose.yml build
 ExecStart=/usr/bin/docker compose -f docker-compose.yml up
 ExecStop=/usr/bin/docker compose -f docker-compose.yml down

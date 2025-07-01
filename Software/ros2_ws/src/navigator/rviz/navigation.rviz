@@ -7,7 +7,6 @@ Panels:
         - /Global Options1
         - /TF1/Frames1
         - /TF1/Tree1
-        - /LaserScan1
         - /MarkerArray1/Topic1
       Splitter Ratio: 0.5833333134651184
     Tree Height: 543
@@ -151,27 +150,7 @@ Visualization Manager:
           Value: true
         right_front_wheel_link:
           Value: true
-        zed_baro_link:
-          Value: true
-        zed_camera_center:
-          Value: true
         zed_camera_link:
-          Value: true
-        zed_imu_link:
-          Value: true
-        zed_left_camera_frame:
-          Value: true
-        zed_left_camera_optical_frame:
-          Value: true
-        zed_mag_link:
-          Value: true
-        zed_right_camera_frame:
-          Value: true
-        zed_right_camera_optical_frame:
-          Value: true
-        zed_temp_left_link:
-          Value: true
-        zed_temp_right_link:
           Value: true
       Marker Scale: 1
       Name: TF
@@ -201,23 +180,7 @@ Visualization Manager:
                 right_front_wheel_link:
                   {}
                 zed_camera_link:
-                  zed_camera_center:
-                    zed_baro_link:
-                      {}
-                    zed_left_camera_frame:
-                      zed_imu_link:
-                        {}
-                      zed_left_camera_optical_frame:
-                        {}
-                      zed_temp_left_link:
-                        {}
-                    zed_mag_link:
-                      {}
-                    zed_right_camera_frame:
-                      zed_right_camera_optical_frame:
-                        {}
-                      zed_temp_right_link:
-                        {}
+                  {}
       Update Interval: 0
       Value: true
     - Alpha: 1
@@ -548,12 +511,12 @@ Visualization Manager:
       Color: 255; 255; 255
       Color Transformer: Intensity
       Decay Time: 0
-      Enabled: false
+      Enabled: true
       Invert Rainbow: false
       Max Color: 255; 255; 255
-      Max Intensity: 2118
+      Max Intensity: 4778
       Min Color: 0; 0; 0
-      Min Intensity: 7
+      Min Intensity: 6
       Name: PointCloud2
       Position Transformer: XYZ
       Selectable: true
@@ -569,7 +532,7 @@ Visualization Manager:
         Value: /ouster/points
       Use Fixed Frame: true
       Use rainbow: true
-      Value: false
+      Value: true
     - Class: rviz_default_plugins/Image
       Enabled: false
       Max Value: 1
@@ -636,7 +599,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/XYOrbit
-      Distance: 13.527503967285156
+      Distance: 10.419097900390625
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -651,10 +614,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 0.5797963738441467
+      Pitch: 0.5897976160049438
       Target Frame: <Fixed Frame>
       Value: XYOrbit (rviz_default_plugins)
-      Yaw: 3.272940158843994
+      Yaw: 2.8279383182525635
     Saved: ~
 Window Geometry:
   Displays:
