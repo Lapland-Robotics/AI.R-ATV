@@ -5,7 +5,7 @@ After=multi-user.target
 [Service]
 Type=simple
 User=robotics
-WorkingDirectory=/home/robotics/repo/AI.R-ATV/Software/systemctls/scripts
+WorkingDirectory=/home/robotics/repos/AI.R-Autonomous_Robot/Software/systemctls/scripts
 ExecStart=/bin/bash -c 'export LD_LIBRARY_PATH=/usr/local/lib:$LD_LIBRARY_PATH && ./data_collector.sh'
 Restart=on-failure
 RestartSec=2

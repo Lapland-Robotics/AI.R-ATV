@@ -28,7 +28,6 @@ WORKDIR /app
 COPY zenoh-router-config.json5 /app/
 COPY ros2_ws ros2_ws/
 
-# RUN mkdir -p /home/robotics/dds/cyclone/logs/
 RUN cd ros2_ws && \
     source /opt/ros/${ROS_DISTRO}/setup.bash && \
     colcon build
