@@ -4,7 +4,7 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 import psutil
-from jtop import jtop as jetson
+# from jtop import jtop as jetson
 
 class ResourceMonitorNode(Node):
 
@@ -33,9 +33,9 @@ class ResourceMonitorNode(Node):
         mem = psutil.virtual_memory().percent
         gpu = 0.0
 
-        if (jetson.ok()):
-            data = jetson.stats
-            gpu = data['gpu']
+        # if (self.jetson.ok()):
+        #     data = jetson.stats
+        #     gpu = data['gpu']
         
         self.get_logger().info(f'CPU Usage: {cpu}% | GPU Usage: {gpu}% | Memory Usage: {mem}% | Network ↑ {sent_mbps:.2f} Mbps  |  ↓ {recv_mbps:.2f} Mbps')
 
