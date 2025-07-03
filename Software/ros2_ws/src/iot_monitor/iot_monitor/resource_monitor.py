@@ -4,6 +4,7 @@ import rclpy
 from rclpy.executors import ExternalShutdownException
 from rclpy.node import Node
 import psutil
+from jtop import jtop as jetson
 
 class ResourceMonitorNode(Node):
 
@@ -19,7 +20,6 @@ class ResourceMonitorNode(Node):
 
     def timer_callback(self):
 
-
         net = psutil.net_io_counters()
         now = time.time()
         dt = now - self.prev_time
@@ -29,12 +29,15 @@ class ResourceMonitorNode(Node):
 
         sent_mbps = (sent_diff * 8) / dt / 1e6
         recv_mbps = (recv_diff * 8) / dt / 1e6
-        cpu_usage = psutil.cpu_percent(interval=None)
+        cpu = psutil.cpu_percent(interval=None)
         mem = psutil.virtual_memory().percent
+        gpu = 0.0
+
+        if (jetson.ok()):
+            data = jetson.stats
+            gpu = data['gpu']
         
-        self.get_logger().info(f'Memory Usage: {mem}%')
-        self.get_logger().info(f'CPU Usage: {cpu_usage}%')
-        self.get_logger().info(f'Network ↑ {sent_mbps:.2f} Mbps  |  ↓ {recv_mbps:.2f} Mbps')
+        self.get_logger().info(f'CPU Usage: {cpu}% | GPU Usage: {gpu}% | Memory Usage: {mem}% | Network ↑ {sent_mbps:.2f} Mbps  |  ↓ {recv_mbps:.2f} Mbps')
 
         self.prev_time = now
         self.prev_sent = net.bytes_sent
