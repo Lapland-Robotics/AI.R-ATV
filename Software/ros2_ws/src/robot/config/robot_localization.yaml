@@ -12,6 +12,16 @@ ekf_filter_node:
     base_link_frame: "base_footprint"
     world_frame: "odom"
 
+    odom0: "/wheel_odom"
+    odom0_config: [false, false, false,   # position (x, y, z) 
+                   false, false, false,   # orientation (roll, pitch, yaw)
+                   true, false, false,    # linear velocity (x, y, z)
+                   false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
+                   false, false, false]  # linear acceleration (ax, ay, az)
+    odom0_differential: false
+    odom0_relative: false
+    odom0_queue_size: 10
+
     imu0: "/zed/zed_node/imu/data"
     imu0_remove_gravitational_acceleration: true
     imu0_config: [false, false, false,   # position (x, y, z) 
@@ -33,16 +43,6 @@ ekf_filter_node:
     imu1_differential: false
     imu1_relative: false
     imu1_queue_size: 10
-
-    odom0: "/wheel_odom"
-    odom0_config: [false, false, false,   # position (x, y, z) 
-                   false, false, false,   # orientation (roll, pitch, yaw)
-                   true, true, false,    # linear velocity (x, y, z)
-                   false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
-                   false, false, false]  # linear acceleration (ax, ay, az)
-    odom0_differential: false
-    odom0_relative: false
-    odom0_queue_size: 10
 
     # odom1: "/odom_rf2o"
     # odom1_config: [false, false, false,   # position (x, y, z) 
