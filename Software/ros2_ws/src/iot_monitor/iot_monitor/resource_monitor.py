@@ -14,14 +14,15 @@ class ResourceMonitorNode(Node):
     def __init__(self):
         super().__init__('resource_monitor')
 
-        pkg_dir = os.path.dirname(os.path.realpath(__file__))
-        log_dir = os.path.join(pkg_dir, 'logs')
+        log_dir = os.path.realpath("src/iot_monitor/logs/")
         os.makedirs(log_dir, exist_ok=True)
-
-        log_file = os.path.join(log_dir, 'resource_monitor.log')
+        now = time.strftime("%Y-%m-%d_%H-%M-%S")
+        self.declare_parameter('test', 'test')
+        test_name = self.get_parameter('test').get_parameter_value().string_value + '_'
+        
+        log_file = os.path.join(log_dir, test_name + now + '.log')
         self.file_logger = logging.getLogger('resource_monitor_file')
         self.file_logger.setLevel(logging.INFO)
-
         fh = logging.FileHandler(log_file, mode='a')
         fh.setFormatter(logging.Formatter('%(asctime)s  %(message)s', datefmt='%Y-%m-%d %H:%M:%S'))
         self.file_logger.addHandler(fh)
@@ -52,8 +53,7 @@ class ResourceMonitorNode(Node):
             stats = self.jetson.stats
             gpu = stats.get('GPU', stats.get('gpu', 0.0))
 
-        msg = (f'CPU: {cpu:.1f}%  |  GPU: {gpu:.1f}%  |  RAM: {mem:.1f}%  |  '
-               f'Net ↑ {sent_mbps:.2f} Mbps  ↓ {recv_mbps:.2f} Mbps')
+        msg = (f'CPU: {cpu:.1f}%  |  GPU: {gpu:.1f}%  |  RAM: {mem:.1f}%  |  Network sent {sent_mbps:.2f} Mbps , Received {recv_mbps:.2f} Mbps')
 
         self.get_logger().info(msg)
         self.file_logger.info(msg)
