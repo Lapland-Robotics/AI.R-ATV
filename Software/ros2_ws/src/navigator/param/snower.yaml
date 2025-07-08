@@ -100,12 +100,13 @@ controller_server:
   ros__parameters:
     use_sim_time: False
     controller_frequency: 20.0
-    min_x_velocity_threshold: 0.01
-    min_y_velocity_threshold: 0.5
-    min_theta_velocity_threshold: 0.01
+    min_x_velocity_threshold: 0.2
+    min_y_velocity_threshold: 0.0
+    min_theta_velocity_threshold: 0.6
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
+    current_goal_checker: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
 
     # Progress checker parameters
@@ -117,38 +118,38 @@ controller_server:
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.25
-      yaw_goal_tolerance: 0.25
+      xy_goal_tolerance: 0.4
+      yaw_goal_tolerance: 0.3925
 
     # DWB parameters
     FollowPath:
       plugin: "dwb_core::DWBLocalPlanner"
       debug_trajectory_details: True
-      min_vel_x: 0.0
+      min_vel_x: -0.6
       min_vel_y: 0.0
       max_vel_x: 0.6
       max_vel_y: 0.0
-      max_vel_theta: 1.0
-      min_speed_xy: 0.0
+      min_speed_theta: 0.6
+      max_vel_theta: 1.2
+      min_speed_xy: 0.2
       max_speed_xy: 0.6
-      min_speed_theta: 0.0
       # Add high threshold velocity for turtlebot 3 issue.
       # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 1.5
+      acc_lim_x: 3.0
       acc_lim_y: 0.0
       acc_lim_theta: 3.2
-      decel_lim_x: -1.5
+      decel_lim_x: -4.5
       decel_lim_y: 0.0
       decel_lim_theta: -3.2
-      vx_samples: 20
+      vx_samples: 10
       vy_samples: 0
-      vtheta_samples: 40
+      vtheta_samples: 10
       sim_time: 2.0
       linear_granularity: 0.05
       angular_granularity: 0.025
       transform_tolerance: 0.2
-      xy_goal_tolerance: 0.05
-      trans_stopped_velocity: 0.25
+      xy_goal_tolerance: 0.40
+      trans_stopped_velocity: 0.15
       short_circuit_trajectory_evaluation: True
       stateful: True
       critics: ["RotateToGoal", "Oscillation", "BaseObstacle", "GoalAlign", "PathAlign", "PathDist", "GoalDist"]
@@ -159,8 +160,9 @@ controller_server:
       GoalAlign.forward_point_distance: 0.1
       PathDist.scale: 32.0
       GoalDist.scale: 24.0
-      RotateToGoal.scale: 32.0
-      RotateToGoal.slowing_factor: 5.0
+      RotateToGoal.scale: 1000.0
+      RotateToGoal.xy_goal_tolerance: 0.4
+      RotateToGoal.slowing_factor: 2.0
       RotateToGoal.lookahead_time: -1.0
 
 controller_server_rclcpp_node:
@@ -305,10 +307,26 @@ planner_server:
     use_sim_time: False
     planner_plugins: ["GridBased"]
     GridBased:
-      plugin: "nav2_navfn_planner/NavfnPlanner"
-      tolerance: 0.5
-      use_astar: false
-      allow_unknown: true
+      plugin: "nav2_smac_planner/SmacPlanner2D" # In Iron and older versions, "/" was used instead of "::"
+      tolerance: 0.1 #tolerance for planning if unable to reach exact pose, in meters
+      downsample_costmap: false # whether or not to downsample the map
+      downsampling_factor: 1 # multiplier for the resolution of the costmap layer (e.g. 2 on a 5cm costmap would be 10cm)
+      allow_unknown: true # allow traveling in unknown space
+      max_iterations: 1000000 # maximum total iterations to search for before failing (in case unreachable), set to -1 to disable
+      max_on_approach_iterations: 1000 # maximum number of iterations to attempt to reach goal once in tolerance
+      max_planning_time: 2.0 # max time in s for planner to plan, smooth
+      cost_travel_multiplier: 2.0 # Cost multiplier to apply to search to steer away from high cost areas. 1.0 for faster computing
+      use_final_approach_orientation: true # Whether to set the final path pose at the goal's orientation to the requested orientation (false) or in line with the approach angle so the robot doesn't rotate to heading (true)
+      smoother:
+        max_iterations: 1000
+        w_smooth: 0.3
+        w_data: 0.2
+        tolerance: 1.0e-10
+      # plugin: "nav2_navfn_planner/NavfnPlanner"
+      # tolerance: 0.5
+      # use_astar: false
+      # allow_unknown: true
+      
 
 planner_server_rclcpp_node:
   ros__parameters:
@@ -348,3 +366,18 @@ waypoint_follower:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: True
       waypoint_pause_duration: 200
+
+velocity_smoother:
+  ros__parameters:
+    smoothing_frequency: 20.0
+    scale_velocities: False
+    feedback: "OPEN_LOOP"
+    max_velocity: [0.6, 0.0, 1.2]
+    min_velocity: [-0.6, 0.0, -1.2]
+    deadband_velocity: [0.3, 0.0, 0.0]
+    velocity_timeout: 1.0
+    max_accel: [2.5, 0.0, 3.2]
+    max_decel: [-2.5, 0.0, -3.2]
+    odom_topic: "odom"
+    odom_duration: 0.1
+    enable_stamped_cmd_vel: false
