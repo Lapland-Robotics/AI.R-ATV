@@ -18,7 +18,7 @@ ekf_filter_node:
                    true, false, false,    # linear velocity (x, y, z)
                    false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
                    false, false, false]  # linear acceleration (ax, ay, az)
-    odom0_differential: false
+    odom0_differential: true
     odom0_relative: false
     odom0_queue_size: 10
 
@@ -29,8 +29,8 @@ ekf_filter_node:
                   false, false, false,   # linear velocity (x, y, z)
                   false, false, true,   # angular velocity (roll rate, pitch rate, yaw rate)
                   false, false, false,]    # linear acceleration (ax, ay, az)
-    imu0_differential: false
-    imu0_relative: false
+    imu0_differential: true
+    imu0_relative: true
     imu0_queue_size: 10
 
     # odom1: "/zed/zed_node/odom"
