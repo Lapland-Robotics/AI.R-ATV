@@ -18,18 +18,19 @@ ekf_filter_node:
                    true, false, false,    # linear velocity (x, y, z)
                    false, false, false,   # angular velocity (roll rate, pitch rate, yaw rate)
                    false, false, false]  # linear acceleration (ax, ay, az)
-    odom0_differential: true
+    odom0_differential: false
     odom0_relative: false
     odom0_queue_size: 10
 
-    imu0: "/zed/zed_node/imu/data"
+    # imu0: "/zed/zed_node/imu/data"
+    imu0: "/imu_corrected"
     imu0_remove_gravitational_acceleration: true
     imu0_config: [false, false, false,   # position (x, y, z) 
                   false, false, true,    # orientation (roll, pitch, yaw)
                   false, false, false,   # linear velocity (x, y, z)
                   false, false, true,   # angular velocity (roll rate, pitch rate, yaw rate)
                   false, false, false,]    # linear acceleration (ax, ay, az)
-    imu0_differential: true
+    imu0_differential: false
     imu0_relative: true
     imu0_queue_size: 10
 
