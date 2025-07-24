@@ -24,6 +24,10 @@ This section outlines the main directory structure of the project, separating do
 
 ```
 
+## System Overview
+
+![tf tree](../Documents/readme_resource/snower_docker_arch.drawio.png)
+
 ## ROS2 Transformation Frame Hierarchy
 
 The robot uses a structured TF (transform) tree to manage spatial relationships between all its components, including sensors, base links, and actuators. This hierarchy ensures that data from various sources—like lidar, camera, and GNSS—can be accurately fused and interpreted in a common coordinate space. The TF tree below visualizes how frames are connected and updated in real time during operation.
