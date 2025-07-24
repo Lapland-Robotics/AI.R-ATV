@@ -218,7 +218,7 @@ void publishSpeed(rcl_timer_t * timer, int64_t last_call_time){
   
   char final_string[128] = "";
   // snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, pulsesLeft, pulsesRight); // use this line to debug speed sensors
-  snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, countL, countR); // use this line to debug speed sensors
+  //snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, countL, countR); // use this line to debug speed sensors
   //snprintf(final_string, 128, "RC active : %d, rc_x_pwm : %d rc_z_pwm : %d", isRCActive(), rc_x_pwm, rc_z_pwm); // Use this line to debug/adjust RC
   //debugDataPublisher(final_string);
 }
@@ -267,7 +267,7 @@ void microrosInit(){
   speedRight.data = 0.00;
  
   // init subscribers
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel_nav"));
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel")); // use /cmd_vel_nav topic to disable smoothing and recovery
  
   // init publishers
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher

@@ -1,3 +1,5 @@
+# AMCL server -- Adaptive Monte Carlo Localization for robot localization
+# https://docs.nav2.org/configuration/packages/configuring-amcl.html
 amcl:
   ros__parameters:
     use_sim_time: False
@@ -7,16 +9,17 @@ amcl:
     alpha4: 0.2
     alpha5: 0.2
     base_frame_id: "base_footprint"
-    beam_skip_distance: 0.5
-    beam_skip_error_threshold: 0.9
-    beam_skip_threshold: 0.3
-    do_beamskip: True
+    do_beamskip: False # beamskip disabled
+    # beam_skip_distance: 0.5
+    # beam_skip_error_threshold: 0.9
+    # beam_skip_threshold: 0.3
     global_frame_id: "map"
     lambda_short: 0.1
     laser_likelihood_max_dist: 4.0
     laser_max_range: 10.0
     laser_min_range: 0.3
     laser_model_type: "likelihood_field_prob"
+    set_initial_pose: False # Use default initial pose (0, 0, 0)
     max_beams: 200
     max_particles: 2000
     min_particles: 500
@@ -41,26 +44,22 @@ amcl:
     map_topic: map
     first_map_only: False
 
-amcl_map_client:
-  ros__parameters:
-    use_sim_time: False
-
-amcl_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
-
+# Behavior Tree Navigator -- select witch behavior tree XML files to use
+# https://docs.nav2.org/configuration/packages/configuring-bt-navigator.html
 bt_navigator:
   ros__parameters:
-    use_sim_time: False
-    global_frame: map
-    robot_base_frame: base_link
-    transform_tolerance: 0.1
-    filter_duration: 1.0
-    odom_topic: /odom
-    default_bt_xml_filename: "navigate_w_replanning_and_recovery.xml"
+    # use_sim_time: False
+    # Use default behavior tree XML files
+    # default_nav_to_pose_bt_xml: "navigate_to_pose_w_replanning_and_recovery.xml"
+    # default_nav_through_poses_bt_xml: "navigate_through_poses_w_replanning_and_recovery.xml"
     always_reload_bt_xml: false
     bt_loop_duration: 10
+    filter_duration: 1.0
     default_server_timeout: 20
+    transform_tolerance: 0.1
+    global_frame: map
+    robot_base_frame: base_link
+    odom_topic: /odom
     navigate_to_pose:
       plugin: "nav2_bt_navigator::NavigateToPoseNavigator"
       enable_groot_monitoring: false
@@ -115,96 +114,168 @@ bt_navigator:
       - undock_robot
       - wait
 
-bt_navigator_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
-
+# Controller server -- short term controller for following paths
+# https://docs.nav2.org/configuration/packages/configuring-controller-server.html
 controller_server:
   ros__parameters:
-    use_sim_time: False
+    # use_sim_time: False
     controller_frequency: 20.0
     min_x_velocity_threshold: 0.2
     min_y_velocity_threshold: 0.0
-    min_theta_velocity_threshold: 0.6
+    min_theta_velocity_threshold: 0.1
     failure_tolerance: 0.3
     progress_checker_plugin: "progress_checker"
     goal_checker_plugins: ["general_goal_checker"] 
     current_goal_checker: ["general_goal_checker"]
     controller_plugins: ["FollowPath"]
-
-    # Progress checker parameters
     progress_checker:
       plugin: "nav2_controller::SimpleProgressChecker"
       required_movement_radius: 0.5
       movement_time_allowance: 10.0
-    
     general_goal_checker:
       stateful: True
       plugin: "nav2_controller::SimpleGoalChecker"
-      xy_goal_tolerance: 0.4
-      yaw_goal_tolerance: 0.3925
-
-    # DWB parameters
+      xy_goal_tolerance: 0.2
+      yaw_goal_tolerance: 0.2
+    # MPPI Controller -- Model Predictive Path Integral Controller
+    # https://docs.nav2.org/configuration/packages/configuring-mppic.html
     FollowPath:
-      plugin: "dwb_core::DWBLocalPlanner"
-      debug_trajectory_details: True
-      min_vel_x: -0.6
-      min_vel_y: 0.0
-      max_vel_x: 0.6
-      max_vel_y: 0.0
-      min_speed_theta: 0.6
-      max_vel_theta: 1.2
-      min_speed_xy: 0.2
-      max_speed_xy: 0.6
-      # Add high threshold velocity for turtlebot 3 issue.
-      # https://github.com/ROBOTIS-GIT/turtlebot3_simulations/issues/75
-      acc_lim_x: 1.5
-      acc_lim_y: 0.0
-      acc_lim_theta: 1.6
-      decel_lim_x: -1.5
-      decel_lim_y: 0.0
-      decel_lim_theta: -1.6
-      vx_samples: 10
-      vy_samples: 0
-      vtheta_samples: 20
-      sim_time: 2.0
-      linear_granularity: 0.05
-      angular_granularity: 0.025
-      transform_tolerance: 0.2
-      xy_goal_tolerance: 0.40
-      trans_stopped_velocity: 0.15
-      short_circuit_trajectory_evaluation: true
-      stateful: True
-      critics: ["BaseObstacle", "PathAlign", "GoalAlign", "PathDist", "GoalDist", "RotateToGoal", "Oscillation", "PreferForward"]
-      BaseObstacle.scale: 0.02
-      PathAlign.scale: 32.0
-      PathAlign.forward_point_distance: 0.1
-      GoalAlign.scale: 24.0
-      GoalAlign.forward_point_distance: 0.1
-      PathDist.scale: 32.0
-      GoalDist.scale: 24.0
-      RotateToGoal.scale: 10.0
-      RotateToGoal.xy_goal_tolerance: 0.4
-      RotateToGoal.slowing_factor: 1.0
-      RotateToGoal.lookahead_time: -1.0
-      Oscillation.scale: 10.0
-      Oscillation.oscillation_reset_dist: 0.30
-      Oscillation.oscillation_reset_angle: 0.3927
-      Oscillation.x_only_threshold: 0.05
-      PreferForward.penalty: 1.0
-      PreferForward.strafe_x: 0.1
-      PreferForward.strafe_theta: 0.2
-      PreferForward.ththeta_scale: 10.0
-      PreferForward.theta_scale: 2.0
+      plugin: "nav2_mppi_controller::MPPIController"
+      motion_model: "DiffDrive"
+      critics: ["ConstraintCritic", "CostCritic", "GoalCritic", "GoalAngleCritic", "PathAlignCritic", "PathFollowCritic", "PathAngleCritic", "PreferForwardCritic"]
+      iteration_count: 1
+      batch_size: 1000
+      time_steps: 40 # time_steps*model_dt = max_distance_to_plan < local costmap radius
+      model_dt: 0.05 # model_dt = 1 / controller_frequency
+      vx_std: 0.2
+      vy_std: 0.0
+      wz_std: 0.4
+      vx_max: 0.6
+      vy_max: 0.0
+      vx_min: -0.6
+      wz_max: 2.0
+      ax_max: 1.5
+      ay_min: -0.0
+      ay_max: 0.0
+      ax_min: -1.5
+      az_max: 2.0
+      temperature: 0.3
+      gamma: 0.015
+      visualize: false
+      publish_optimal_trajectory: true
+      retry_attempt_limit: 1
+      reset_period: 1.0 # (only in Humble)
+      regenerate_noises: false
+      # Trajectory visualizer parameters
+      TrajectoryVisualizer:
+        trajectory_step: 5
+        time_step: 3
+      # Path Handler parameters
+      transform_tolerance: 0.1
+      prune_distance: 1.5
+      max_robot_pose_search_dist: 2.5 # costmap size / 2
+      enforce_path_inversion: false
+      inversion_xy_tolerance: 0.2
+      inversion_yaw_tolerance: 0.4
+      allow_parameter_qos_overrides: true
+      # Trajectory Validator parameters
+      TrajectoryValidator:
+        plugin: "mppi/DefaultOptimalTrajectoryValidator"
+        collision_lookahead_time: 2.0
+        consider_footprint: false
+      # Critic parameters
+      # Note : threshold_to_consider is used to change behavior of the controller when near the goal
+      # Note : Path Critics and Prefer Forward Critic will be disabled when under their threshold
+      # Note : Goal Critics will be enabled when under their threshold
 
-controller_server_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
+      # Constraint Critic parameters -- penalizes trajectories that violate kinematic constraints
+      ConstraintCritic:
+        enabled: true
+        cost_weight: 4.0
+        cost_power: 1
+      # Goal Angle Critic parameters -- penalizes trajectories that do not align with the goal angle
+      GoalAngleCritic:
+        enabled: true
+        cost_weight: 3.0
+        cost_power: 1
+        threshold_to_consider: 0.6
+      # Goal Critic parameters -- penalizes trajectories that do not reach the goal
+      GoalCritic:
+        enabled: true
+        cost_weight: 17.0
+        cost_power: 1
+        threshold_to_consider: 1.
+      # Obstacles Critic parameters -- penalizes trajectories that collide with obstacles
+      # Note: if the weight are too high, the robot will not go in high cost area to reach the goal
+      ObstaclesCritic:
+        enabled: true
+        critical_weight: 20.0
+        repulsion_weight: 1.0
+        cost_power: 1
+        consider_footprint: false
+        collision_cost: 10000.0
+        collision_margin_distance: 0.1
+        near_goal_distance: 0.5
+        cost_scaling_factor: 1.0 # (only in Humble) same as inflation_layer
+        inflation_radius: 2.4 # (only in Humble) same as inflation_layer
+      # Cost Critic parameters -- penalizes trajectories that go in high cost areas
+      # Note: if the weight are too high, the robot will not go in high cost area to reach the goal
+      CostCritic:
+        enabled: true
+        cost_weight: 3.0
+        cost_power: 1
+        consider_footprint: false
+        collision_cost: 10000.0
+        near_collision_cost: 253 # < 255
+        critical_cost: 300.0
+        near_goal_distance: 1.5
+        trajectory_point_step: 2
+      # Path Align Critic parameters -- penalizes trajectories that do not align with the path
+      PathAlignCritic:
+        enabled: true
+        cost_weight: 22.0
+        cost_power: 1
+        threshold_to_consider: 1.0
+        offset_from_furthest: 20
+        max_path_occupancy_ratio: 0.05
+        use_path_orientations: false
+        trajectory_point_step: 4
+      # Path Angle Critic parameters -- penalizes trajectories that have a high relative angle to the path
+      PathAngleCritic:
+        enabled: true
+        cost_weight: 5.0
+        cost_power: 1
+        threshold_to_consider: 1.0
+        offset_from_furthest: 10
+        max_angle_to_furthest: 0.785398 # 45 degrees
+        mode: 2
+      # Path Follow Critic parameters -- penalizes trajectories that do not follow the path
+      PathFollowCritic:
+        enabled: true
+        cost_weight: 6.0
+        cost_power: 1
+        threshold_to_consider: 0.7
+        offset_from_furthest: 6
+      # Prefer Forward Critic parameters -- penalizes trajectories that do not prefer forward motion
+      # Note: is the weight is too high, the robot will not go in reverse when it is optimal
+      PreferForwardCritic:
+        enabled: false
+        cost_weight: 4.0
+        cost_power: 1
+        threshold_to_consider: 1.0
+      # Velocity Deadband Critic parameters -- penalizes trajectories that have velocities in the deadband
+      VelocityDeadbandCritic:
+        enabled: true
+        cost_weight: 30.0
+        cost_power: 1
+        deadband_velocities: [0.2, 0.0, 0.6]
 
+# Local Costmap -- used for obstacle avoidance and short term path planning by the controller server
+# https://docs.nav2.org/configuration/packages/configuring-costmaps.html
 local_costmap:
   local_costmap:
     ros__parameters:
-      update_frequency: 10.0
+      update_frequency: 20.0
       publish_frequency: 5.0
       global_frame: odom
       robot_base_frame: base_link
@@ -235,21 +306,18 @@ local_costmap:
           raytrace_min_range: 0.3
           obstacle_max_range: 3.0
           obstacle_min_range: 0.0
+      # Note: it is really important to set inflation_radius high enough so it sufficiently cover the map for the controller server
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
         inflation_radius: 2.4
-        cost_scaling_factor: 0.55
-  local_costmap_client:
-    ros__parameters:
-      use_sim_time: False
-  local_costmap_rclcpp_node:
-    ros__parameters:
-      use_sim_time: False
+        cost_scaling_factor: 1.0
 
+# Global Costmap -- used for long term path planning by the planner server
+# https://docs.nav2.org/configuration/packages/configuring-costmaps.html
 global_costmap:
   global_costmap:
     ros__parameters:
-      update_frequency: 2.0
+      update_frequency: 4.0
       publish_frequency: 2.0
       global_frame: map
       robot_base_frame: base_link
@@ -261,6 +329,7 @@ global_costmap:
       track_unknown_space: true
       always_send_full_costmap: False
       plugins: ["static_layer", "denoise_layer", "obstacle_layer", "inflation_layer"]
+      # static_layer only for global costmap
       static_layer:
         plugin: "nav2_costmap_2d::StaticLayer"
         map_subscribe_transient_local: True
@@ -283,22 +352,15 @@ global_costmap:
           raytrace_min_range: 0.3
           obstacle_max_range: 3.0
           obstacle_min_range: 0.0
+      # Note: it is really important to set inflation_radius high enough so it sufficiently cover the map for the planner server
       inflation_layer:
         plugin: "nav2_costmap_2d::InflationLayer"
-        cost_scaling_factor: 0.55
+        cost_scaling_factor: 1.0
         inflation_radius: 2.4
-  global_costmap_client:
-    ros__parameters:
-      use_sim_time: False
-  global_costmap_rclcpp_node:
-    ros__parameters:
-      use_sim_time: False
 
-map_server:
-  ros__parameters:
-    use_sim_time: False
-    yaml_filename: "map.yaml"
-
+# Map Saver -- used to save the map when the robot is done navigating
+# https://docs.nav2.org/configuration/packages/configuring-map-server.html
+# NOTE : not configured right now
 map_saver:
   ros__parameters:
     use_sim_time: False
@@ -307,11 +369,15 @@ map_saver:
     occupied_thresh_default: 0.65
     map_subscribe_transient_local: True
 
+# Planner server -- long term path planning using the global costmap
+# https://docs.nav2.org/configuration/packages/configuring-planner-server.html
 planner_server:
   ros__parameters:
     expected_planner_frequency: 20.0
     use_sim_time: False
     planner_plugins: ["GridBased"]
+    # SmacPlanner2D -- 2D grid based planner
+    # https://docs.nav2.org/configuration/packages/smac/configuring-smac-2d.html
     GridBased:
       plugin: "nav2_smac_planner/SmacPlanner2D" 
       tolerance: 0.1
@@ -328,50 +394,36 @@ planner_server:
         w_smooth: 0.3
         w_data: 0.2
         tolerance: 1.0e-10
-      # plugin: "nav2_navfn_planner/NavfnPlanner"
-      # tolerance: 0.5
-      # use_astar: false
-      # allow_unknown: true
-      
-planner_server_rclcpp_node:
-  ros__parameters:
-    use_sim_time: False
 
+# Behavior Server -- used to execute behaviors like spin, backup, wait, etc.
+# https://docs.nav2.org/configuration/packages/configuring-behavior-server.html
 behavior_server:
   ros__parameters:
     costmap_topic: local_costmap/costmap_raw
     footprint_topic: local_costmap/published_footprint
     cycle_frequency: 10.0
-    behavior_plugins: ["spin", "backup", "wait", "drive_on_heading"]
+    behavior_plugins: ["spin", "backup", "wait"]
     spin:
       plugin: "nav2_behaviors/Spin"
-      max_rotational_vel: 1.2
+      max_rotational_vel: 0.8
       min_rotational_vel: 0.6
-      rotational_acc_lim: 1.6
+      rotational_acc_lim: 1.0
     backup:
       plugin: "nav2_behaviors/BackUp"
-      acceleration_limit: 1.5
-      deceleration_limit: -1.5
-      minimum_speed: 0.3
+      acceleration_limit: 1.0
+      deceleration_limit: -1.0
+      minimum_speed: 0.2
     wait:
       plugin: "nav2_behaviors/Wait"
-    drive_on_heading:
-      plugin: "nav2_behaviors/DriveOnHeading"
-      acceleration_limit: 1.5
-      deceleration_limit: -1.5
-      minimum_speed: 0.3
     local_frame: odom
     global_frame: map
     robot_base_frame: base_link
     transform_timeout: 0.1
     simulate_ahead_time: 2.0
-    use_sim_time: false  # was true
-    
+    use_sim_time: false
 
-robot_state_publisher:
-  ros__parameters:
-    use_sim_time: False
-
+# Waypoint Follower -- used to follow a sequence of goals (waypoints)
+# https://docs.nav2.org/configuration/packages/configuring-waypoint-follower.html
 waypoint_follower:
   ros__parameters:
     stop_on_failure: false
@@ -381,19 +433,38 @@ waypoint_follower:
     wait_at_waypoint:
       plugin: "nav2_waypoint_follower::WaitAtWaypoint"
       enabled: True
-      waypoint_pause_duration: 200
+      waypoint_pause_duration: 1000
 
+# Velocity Smoother -- used to smooth the velocities sent to the robot
+# https://docs.nav2.org/configuration/packages/configuring-velocity-smoother.html
+# NOTE : Take controller command on /cmd_vel_nav topic and publish smoothed command on /cmd_vel topic
+# NOTE : Does not smooth recovery actions like spin, backup, wait, etc as they are published on /cmd_vel topic
 velocity_smoother:
   ros__parameters:
-    smoothing_frequency: 20.0
+    smoothing_frequency: 40.0
     scale_velocities: False
     feedback: "OPEN_LOOP"
-    max_velocity: [0.6, 0.0, 1.2]
-    min_velocity: [-0.6, 0.0, -1.2]
-    deadband_velocity: [0.3, 0.0, 0.0]
+    max_velocity: [0.6, 0.0, 2.0]
+    min_velocity: [-0.6, 0.0, -2.0]
+    deadband_velocity: [0.2, 0.0, 0.1]
     velocity_timeout: 1.0
-    max_accel: [1.5, 0.0, 1.6]
-    max_decel: [-1.5, 0.0, -1.6]
+    max_accel: [1.0, 0.0, 1.0]
+    max_decel: [-1.0, 0.0, -1.0]
     odom_topic: "odom"
     odom_duration: 0.1
     enable_stamped_cmd_vel: false
+
+# Smoother Server -- used to smooth the path generated by the planner server
+# https://docs.nav2.org/configuration/packages/configuring-smoother-server.html
+# NOTE : not used in defaults xml behavior trees
+smoother_server:
+  ros__parameters:
+    costmap_topic: global_costmap/costmap_raw
+    footprint_topic: global_costmap/published_footprint
+    robot_base_frame: base_link
+    transform_timeout: 0.1
+    smoother_plugins: ["simple_smoother"]
+    simple_smoother:
+      plugin: "nav2_smoother::SimpleSmoother"
+      tolerance: 1.0e-10
+      do_refinement: True

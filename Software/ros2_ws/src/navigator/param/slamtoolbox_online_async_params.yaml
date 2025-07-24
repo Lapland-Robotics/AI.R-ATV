@@ -1,3 +1,5 @@
+# slam toolbox -- used for SLAM (Simultaneous Localization and Mapping) in ROS2
+# https://github.com/SteveMacenski/slam_toolbox
 slam_toolbox:
   ros__parameters:
 
