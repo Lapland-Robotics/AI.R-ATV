@@ -1,5 +1,33 @@
 # Arduino for Microcontroller Interface (ESP32)
 
+## Directory Tree view
+
+This section describes the structure of the Firmware directory, which contains all microcontroller programs used in the robot system
+
+```bash
+├── GNSS                        # SparkFun ZED-F9P GNSS module
+│   ├── zedf9p_esp32            # microcontroller program for ESP32 micromod
+│   │   ├── APK3.log            # log file for accuracy testing
+│   │   ├── secrets.h           # wifi credencial file. DO NOT COMMIT 
+│   │   └── zedf9p_esp32.ino    # arduino file
+│   └── zedf9p_ucenter          # python program for ucentral port serial data
+│       ├── gnss_publisher.py   # python program
+│       └── requirements.txt    # requirement dependencies for pip 
+├── Robots                      # main Microcontroller programs to control robots
+│   ├── MiniATV                 # main ESP32 program of the MiniATV
+│   └── Snower                  # Main ESP32 program of the Snower
+│       ├── RobotDriveControl.c # diff drive source file 
+│       ├── RobotDriveControl.h # diff drive header file 
+│       ├── Snower.ino          # main arduino program for Snower
+│       └── wifi_secrets.h      # wifi credencial file. DO NOT COMMIT 
+├── Trigger                     # trigger button for the dataset project
+│   ├── Trigger.ino             # arduino program for triger
+│   └── wifi_secrets.h          # wifi credencial file. DO NOT COMMIT 
+└── Ultrasonic                  # Ultrasonic sensor array module 
+    └── Ultrasonic.ino          # arduino program for Ultrasonic module
+
+```
+
 ## Prevent Committing Credentials
 
 To ensure sensitive files are not accidentally committed, run the following commands to ignore modifications locally:

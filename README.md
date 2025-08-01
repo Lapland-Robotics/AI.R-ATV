@@ -8,25 +8,19 @@ This is a modular, ROS2‑based platform designed to streamline the development 
 This section outlines the main directory structure of the project, separating documents, firmware, hardware designs, and ROS2-based software to keep development organized and modular.
 ```
 
-├── Documents           : All the Documents and Diagrams
-│   ├── MiniATV         : Documents about mini ATV
-│   └── Snower          : Documents about Snower
-├── Firmware            : All the Firmware programs (for Micro controllers)
-│   ├── GNSS            : zedf9p esp32 program
-│   ├── Robots          : main Microcontroller programs to control robots
-|   |   ├──── Snower    : Main ESP32 program of the Snower
-|   |   └──── MiniATV   : Main ESP32 program of the MiniATV
-│   ├── Trigger         : Trigger button for the dataset project
-│   └── Ultrasonic      : Arduino program for Ultrasonic sensor array
-├── Hardware            : Universal PCB Design and implementation
-├── README.md           : main README file
-└── Software            : ROS2 project for Main Brain(Jetson) of the Robots 
+├── Documents           # All the Documents and Diagrams
+│   ├── MiniATV         # Documents about mini ATV
+│   └── Snower          # Documents about Snower
+├── Firmware            # All the Firmware programs (for Micro controllers)
+├── Hardware            # Universal PCB Design and implementation
+├── README.md           # main README file
+└── Software            # ROS2 project for Main Brain(Jetson) of the Robots 
 
 ```
 
 ## System Overview
 
-![tf tree](../Documents/readme_resource/snower_docker_arch.drawio.png)
+![tf tree](Documents/readme_resource/snower_docker_arch.drawio.png)
 
 ## ROS2 Transformation Frame Hierarchy
 
