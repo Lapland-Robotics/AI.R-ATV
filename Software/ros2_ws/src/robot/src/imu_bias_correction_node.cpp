@@ -29,28 +29,38 @@ private:
         auto corrected_msg = *msg;
         last_imu_msg_ = msg;
 
-        double yaw_current = getYawFromQuaternion(msg->orientation);
+        tf2::Quaternion q_current;
+        tf2::fromMsg(msg->orientation, q_current);
+        q_current.normalize();
+
+        double roll, pitch, yaw;
+        tf2::Matrix3x3(q_current).getRPY(roll, pitch, yaw);
+
+        if (!has_stationary_reference_) return;
 
         if (robot_stationary_) {
             // Force angular velocity.z to 0
             corrected_msg.angular_velocity.z = 0.0;
 
             // Fix orientation to reference when stationary
-            corrected_msg.orientation = createQuaternionFromYaw(yaw_ref_);
+            corrected_msg.orientation = tf2::toMsg(q_ref);
         } 
         // else if (has_motion_reference_) {
         else {
+                        
             // Calculate yaw delta and apply to yaw_ref_
-            double delta_yaw = normalizeAngle(yaw_current - yaw_previous_);
+            double delta_yaw = yaw - yaw_previous_;
             double yaw_corrected = normalizeAngle(yaw_ref_ + delta_yaw);
 
             // Update reference
             yaw_ref_ = yaw_corrected;
+            q_ref.setRPY(roll, pitch, yaw_corrected);
+            q_ref.normalize();
 
-            corrected_msg.orientation = createQuaternionFromYaw(yaw_corrected);
+            corrected_msg.orientation = tf2::toMsg(q_ref);
         }
         // Update previous yaw
-        yaw_previous_ = yaw_current;
+        yaw_previous_ = yaw;
 
         imu_pub_->publish(corrected_msg);
     }
@@ -63,33 +73,31 @@ private:
         bool stationary = (linear_x < 0.0001) && (angular_z < 0.0001);
 
         if (!has_stationary_reference_) {
-            RCLCPP_INFO(this->get_logger(), "Saving yaw as initial reference.");
+            RCLCPP_INFO(this->get_logger(), "Saving initial reference.");
             if (last_imu_msg_) {
-                yaw_ref_ = getYawFromQuaternion(last_imu_msg_->orientation);
+                tf2::fromMsg(last_imu_msg_->orientation, q_ref);
+                yaw_ref_ = getYawFromQuaternion(q_ref);
                 yaw_previous_ = yaw_ref_;
                 has_stationary_reference_ = true;
             }
         }
 
-        robot_stationary_ = stationary;
+        if (stationary) {
+            stationary_counter_++;
+            if (stationary_counter_ >= 5) {
+                robot_stationary_ = true;
+            }
+        } else {
+            stationary_counter_ = 0;
+            robot_stationary_ = false;
+        }
     }
 
-    double getYawFromQuaternion(const geometry_msgs::msg::Quaternion &q)
+    double getYawFromQuaternion(const tf2::Quaternion &q)
     {
-        tf2::Quaternion tf_q;
-        tf2::fromMsg(q, tf_q);
-        tf2::Matrix3x3 m(tf_q);
         double roll, pitch, yaw;
-        m.getRPY(roll, pitch, yaw);
+        tf2::Matrix3x3(q).getRPY(roll, pitch, yaw);
         return yaw;
-    }
-
-    geometry_msgs::msg::Quaternion createQuaternionFromYaw(double yaw)
-    {
-        tf2::Quaternion q;
-        q.setRPY(0, 0, yaw);
-        q.normalize();
-        return tf2::toMsg(q);
     }
 
     double normalizeAngle(double angle)
@@ -107,9 +115,12 @@ private:
     // === State ===
     sensor_msgs::msg::Imu::SharedPtr last_imu_msg_;
 
+    tf2::Quaternion q_ref = tf2::Quaternion(0.0, 0.0, 0.0, 1.0); 
+
     double yaw_ref_ = 0.0;
     double yaw_previous_ = 0.0;
 
+    int stationary_counter_ = 0;
     bool robot_stationary_ = true;
     bool has_stationary_reference_ = false;
 };
