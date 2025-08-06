@@ -166,7 +166,7 @@ All relevant I²C addresses can be found in the table below. These addresses are
 
 #### Arduino Code
 
-Programming the UPD-PCB to receive INA219 data can be done using the Arduino IDE:
+Programming a MCU to receive INA219 data from the UPD-PCB can be done using the Arduino IDE:
 
 1. Open the Arduino library manager
 2. Search for the Adafruit INA219 library and install it
