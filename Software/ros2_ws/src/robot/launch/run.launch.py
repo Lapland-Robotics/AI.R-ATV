@@ -26,7 +26,7 @@ def generate_launch_description():
     return LaunchDescription([
         Node(
             package='robot',
-            executable='robot_debug',
+            executable='robot_debug.py',
             name='robot_debug',
             output='screen'
         ),
@@ -46,8 +46,14 @@ def generate_launch_description():
         ),
         Node(
             package='robot',
-            executable='wheel_odom_publisher',
+            executable='wheel_odom_publisher.py',
             name='wheel_odom_publisher',
+            output='screen'
+        ),
+        Node(
+            package='robot',
+            executable='imu_bias_correction_node',
+            name='imu_bias_correction_node',
             output='screen'
         ),
     ])

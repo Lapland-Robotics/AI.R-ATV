@@ -1,8 +1,6 @@
-import os
 from setuptools import find_packages, setup
 
-package_name = 'robot'
-launch_file_path = os.path.join(os.path.dirname(__file__), 'launch')
+package_name = 'iot_monitor'
 
 setup(
     name=package_name,
@@ -12,10 +10,6 @@ setup(
         ('share/ament_index/resource_index/packages',
             ['resource/' + package_name]),
         ('share/' + package_name, ['package.xml']),
-        ('share/' + package_name + '/launch', 
-            [
-                os.path.join(launch_file_path, 'run.launch.py')
-            ]),
     ],
     install_requires=['setuptools'],
     zip_safe=True,
@@ -26,8 +20,7 @@ setup(
     tests_require=['pytest'],
     entry_points={
         'console_scripts': [
-            "robot_debug = robot.robot_debug:main",
-            "wheel_odom_publisher = robot.wheel_odom_publisher:main"
+            "resource_monitor = iot_monitor.resource_monitor:main"
         ],
     },
 )

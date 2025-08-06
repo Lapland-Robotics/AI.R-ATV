@@ -14,6 +14,7 @@ class WheelOdomPublisher(Node):
         # Latest wheel speeds (m/s)
         self.left_speed = 0.0
         self.right_speed = 0.0
+        self.wheel_base = 0.68
 
         # Subscribers to the wheel speed topics
         qos_profile = QoSProfile(depth=10, reliability=ReliabilityPolicy.SYSTEM_DEFAULT)
@@ -35,6 +36,7 @@ class WheelOdomPublisher(Node):
     def timer_callback(self):
         # Compute the linear velocity as the average of the left and right speeds.
         linear_velocity = (self.left_speed + self.right_speed) / 2.0
+        angular_velocity = (self.right_speed - self.left_speed) / self.wheel_base
 
         # Prepare the Odometry message
         odom = Odometry()
@@ -59,7 +61,7 @@ class WheelOdomPublisher(Node):
         # Angular velocity is set to zero (EKF uses the IMU for this)
         odom.twist.twist.angular.x = 0.0
         odom.twist.twist.angular.y = 0.0
-        odom.twist.twist.angular.z = 0.0
+        odom.twist.twist.angular.z = angular_velocity
 
         # Publish the odometry message
         self.odom_pub.publish(odom)

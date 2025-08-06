@@ -35,7 +35,7 @@ extern "C"{
 #define ANGULAR_Z_DEFAULT 0  // middlepoint of angle
 #define GENERAL_BLOCK_FREQUENCY 40   // Odometry publish rate in Hz
 #define DEBUG_PUBLISHER_FREQUENCY 2  // Odometry publish rate in Hz
-#define SPEED_PUBLISHER_FREQUENCY 5  // Odometry publish rate in Hz
+#define SPEED_PUBLISHER_FREQUENCY 40  // Odometry publish rate in Hz
 #define TIMER0_COUNT_FREQUENCY 1000000 // Timer0 count frequency
 #define PWM_SLOPE 340.00 // Slope of the linearization function (m)
 #define PWM_INTERCEPT -17.00 // Intercept of the linearization function (C)
@@ -159,40 +159,7 @@ void cmdVelCallback(const void *msgin) {
     PreviousTime = millis();
   }
 }
- 
-// // Left wheel speed
-// void IRAM_ATTR speedLeft_interrupt() {
-//   int state = digitalRead(SpeedSensorLeftPin);
-//   unsigned long now = micros();
- 
-//   if (state != leftLastState && (now - leftLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
-//     if (state == LOW) {
-//       portENTER_CRITICAL_ISR(&mux);
-//       leftToothCount++;
-//       portEXIT_CRITICAL_ISR(&mux);
- 
-//     }
-//     leftLastEdgeTime = now;
-//     leftLastState = state;
-//   }
-// }
- 
-// // Right wheel speed
-// void IRAM_ATTR speedRight_interrupt() {
-//   int state = digitalRead(SpeedSensorRightPin);
-//   unsigned long now = micros();
- 
-//   if (state != rightLastState && (now - rightLastEdgeTime) > DEBOUNCE_THRESHOLD_US) {
-//     if (state == LOW) {
-//       portENTER_CRITICAL_ISR(&mux);
-//       rightToothCount++;
-//       portEXIT_CRITICAL_ISR(&mux);
- 
-//     }
-//     rightLastEdgeTime = now;
-//     rightLastState = state;
-//   }
-// }
+
  
 void IRAM_ATTR CH1_interrupt() {
     if (digitalRead(CH1RCPin) == HIGH) {
@@ -251,9 +218,9 @@ void publishSpeed(rcl_timer_t * timer, int64_t last_call_time){
   
   char final_string[128] = "";
   // snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, pulsesLeft, pulsesRight); // use this line to debug speed sensors
-  snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, countL, countR); // use this line to debug speed sensors
-  // snprintf(final_string, 128, "RC active : %d, rc_x_pwm : %d rc_z_pwm : %d", isRCActive(), rc_x_pwm, rc_z_pwm); // Use this line to debug/adjust RC
-  debugDataPublisher(final_string);
+  //snprintf(final_string, 128, "L mes: %.2f, R mes: %.2f, L cmd: %.2f, R cmd: %.2f, L pls : %d, R pls: %d", leftSpeed, rightSpeed, cmdLeftSpeed, cmdRightSpeed, countL, countR); // use this line to debug speed sensors
+  //snprintf(final_string, 128, "RC active : %d, rc_x_pwm : %d rc_z_pwm : %d", isRCActive(), rc_x_pwm, rc_z_pwm); // Use this line to debug/adjust RC
+  //debugDataPublisher(final_string);
 }
 
 
@@ -285,8 +252,8 @@ void setupPCNT(pcnt_unit_t unit, int pin) {
 }
  
 void microrosInit(){
-  //set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
-  set_microros_transports(); // microros over serial
+  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
+  //  set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
   RCCHECK(rclc_node_init_default(&node, "micro_ros_esp32_node", "", &support));// create node
@@ -300,7 +267,7 @@ void microrosInit(){
   speedRight.data = 0.00;
  
   // init subscribers
-  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel_nav"));
+  RCCHECK(rclc_subscription_init_default(&ctrlCmdSubscription, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(geometry_msgs, msg, Twist),"/cmd_vel")); // use /cmd_vel_nav topic to disable smoothing and recovery
  
   // init publishers
   RCCHECK(rclc_publisher_init_best_effort(&debugPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, String),"/debug")); // create debug publisher
@@ -308,7 +275,7 @@ void microrosInit(){
   RCCHECK(rclc_publisher_init_default(&speedRightPublisher, &node, ROSIDL_GET_MSG_TYPE_SUPPORT(std_msgs, msg, Float32),"/speed/right")); // create right speed publisher
  
   // init timer
-  RCCHECK(rclc_timer_init_default(&speedTimer, &support, RCL_MS_TO_NS(200), publishSpeed));
+  RCCHECK(rclc_timer_init_default(&speedTimer, &support, RCL_MS_TO_NS(1000/SPEED_PUBLISHER_FREQUENCY), publishSpeed));
  
   // Initialize executor
   RCCHECK(rclc_executor_init(&ctrlCmdExecutor, &support.context, 2, &allocator));
@@ -444,20 +411,13 @@ void driving() {
   ledcWrite(0, abs(leftMotorPWM));
   ledcWrite(1, abs(rightMotorPWM));
  
+  // simulate odometry
   // speedLeft.data = cmdLeftSpeed;
   // safePublish(&speedLeftPublisher, &speedLeft, "speedLeftPublisher");
  
-  // speedRight.data = cmdRightSpeed;
-  // safePublish(&speedRightPublisher, &speedRight, "speedRightPublisher");
+  //speedRight.data = cmdRightSpeed;
+  //safePublish(&speedRightPublisher, &speedRight, "speedRightPublisher");
  
-  // publish speed sensor data
-  // unsigned long now = millis();
-  // if (now - debug_publisher_LET >= (1000 / DEBUG_PUBLISHER_FREQUENCY)) {
-  //   debug_publisher_LET = millis();
-  //   char final_string[128] = "";
-  //   snprintf(final_string, 128, "X: %f m/s, Z: %f rad/s, L_Speed: %f m/s, R_Speed :%f m/s, L_PWM: %d , R_PWM: %d", getLinearX(cmdVelDiffDrive), getAngularZ(cmdVelDiffDrive), cmdLeftSpeed, cmdRightSpeed, leftMotorPWM, rightMotorPWM);
-  //   debugDataPublisher(final_string);
-  // }
 }
  
 void loop() {
@@ -466,14 +426,15 @@ void loop() {
   unsigned long now = millis();
   if (now - General_block_LET >= (1000 / GENERAL_BLOCK_FREQUENCY)) {
  
-    // is Remote Controller active
-    if(isRCActive()){
-      getRC();
-    }
 
     // reset when RC is turned off (RC not active)
     if (last_CH1_pulse_time < General_block_LET) {
     rc_z_pwm = 0; // Reset if PWM on CH1 not active between two general block execution
+    }
+    
+    // is Remote Controller active
+    if(isRCActive()){
+      getRC();
     }
   
     // cmd_vel timeout
