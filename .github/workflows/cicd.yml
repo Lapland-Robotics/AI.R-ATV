@@ -2,9 +2,9 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "US_13251-1" ]
+    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
   pull_request:
-    branches: [ "US_13251-1" ]
+    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
 
 jobs:
 
