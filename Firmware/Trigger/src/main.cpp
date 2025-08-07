@@ -1,12 +1,14 @@
 
 #include <stdio.h>
-#include <micro_ros_arduino.h>
+#include <micro_ros_platformio.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
 #include <rclc/rclc.h>
 #include <rclc/executor.h>
 #include <std_msgs/msg/bool.h>
 #include "wifi_secrets.h"
+
+#include "main.hpp"
 
 std_msgs__msg__Bool msg;
 rcl_publisher_t publisher;
@@ -16,12 +18,9 @@ rcl_node_t node;
 int lastState = HIGH;
 int currentState;
 
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
-#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
-#define BUTTON_PIN 21 
-
 void microrosInit(){
-  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, SERVER_IP, SERVER_PORT); // microros over wifi
+  // in platformio.ini, set the board_microros_transport variable to wifi or serial depending on transport mode you want to use
+  set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, agent_ip, agent_port); // microros over wifi
   // set_microros_transports(); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));

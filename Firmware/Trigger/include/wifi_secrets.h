@@ -3,7 +3,7 @@
 
 char WIFI_SSID[] = "Snower-2.4GHz";
 char WIFI_PASSWORD[] = "";
-char SERVER_IP[] = "192.168.1.26";
-int SERVER_PORT = 8888;
+IPAddress agent_ip(192, 168, 1, 26);
+size_t agent_port = 8888;
 
 #endif

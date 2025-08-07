@@ -217,10 +217,8 @@ void setupPCNT(pcnt_unit_t unit, int pin) {
 }
  
 void microrosInit(){
-  Serial.println("ENTER");
   // in platformio.ini, set the board_microros_transport variable to wifi or serial depending on transport mode you want to use
   set_microros_wifi_transports(WIFI_SSID, WIFI_PASSWORD, agent_ip, agent_port); // microros over wifi
-  Serial.println("CHECH");
   //  set_microros_serial_transports(Serial); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator)); //create init_options
