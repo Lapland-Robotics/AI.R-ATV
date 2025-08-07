@@ -36,6 +36,6 @@ jobs:
         cd Software
         docker build . --file microros.Dockerfile --tag robot-microros-image:latest
 
-    - name: Test microros Docker image
+    - name: Test microros Docker image - Agent Test
       run: |
-        docker run --rm robot-microros-image:latest echo "MicroROS image built successfully"
+        timeout 5s docker run --rm robot-microros-image:latest udp4 --port 8888 || test $? = 124
