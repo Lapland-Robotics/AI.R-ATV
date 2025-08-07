@@ -2,7 +2,7 @@ name: Docker Image CI
 
 on:
   push:
-    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
+    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh", "US_13251-1"]
   pull_request:
     branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
 
@@ -15,17 +15,8 @@ jobs:
     steps:
     - uses: actions/checkout@v4
 
-
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
-
-    - name: Build and run tests with Docker Compose
+    - name: Build the Docker image
       run: |
         cd Software
-        docker compose -f cicd-docker-compose.yml up --build --abort-on-container-exit
-        
-    - name: Clean up
-      if: always()
-      run: |
-        cd Software
-        docker compose -f cicd-docker-compose.yml down -v
+        docker build . --file microros.Dockerfile --tag robot-microros-image:$(date +%s)
+
