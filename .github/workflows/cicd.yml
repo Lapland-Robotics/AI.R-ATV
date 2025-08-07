@@ -1,4 +1,4 @@
-name: Docker Image CI
+name: Autonomous_Robot CI/CD Pipeline
 
 on:
   push:
@@ -8,15 +8,34 @@ on:
 
 jobs:
 
-  build:
+  build-software-ros2:
 
     runs-on: ubuntu-22.04
 
     steps:
     - uses: actions/checkout@v4
 
-    - name: Build the Docker image
+    - name: Build ROS2 Docker image
       run: |
         cd Software
-        docker build . --file microros.Dockerfile --tag robot-microros-image:$(date +%s)
+        docker build . --tag robot-ros2-image:latest
 
+    - name: Test ROS2 Docker image
+      run: |
+        docker run --rm robot-ros2-image:latest echo "ROS2 image built successfully"
+
+  build-software-microros:
+
+    runs-on: ubuntu-22.04
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Build microros Docker image
+      run: |
+        cd Software
+        docker build . --file microros.Dockerfile --tag robot-microros-image:latest
+
+    - name: Test microros Docker image
+      run: |
+        docker run --rm robot-microros-image:latest echo "MicroROS image built successfully"
