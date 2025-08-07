@@ -1,4 +1,4 @@
-name: Autonomous_Robot CI/CD Pipeline
+name: Autonomous_Robot CI Pipeline
 
 on:
   push:
