@@ -2,10 +2,10 @@
   GNSS module obtain RTCM data from a NTRIP Caster over WiFi and push it over I2C to a ZED-F9x.
   The module is acting as a 'client' to a 'caster'.
 */
-
+#include <Arduino.h>
 //The ESP32 core has a built in base64 library but not every platform does
 //We'll use an external lib if necessary.
-#if defined(ARDUINO_ARCH_ESP32)
+#ifdef ARDUINO_ARCH_ESP32 // ARDUINO_ARCH_ESP32
 #include "base64.h"  //Built-in ESP32 library
 #else
 #include <Base64.h>  //nfriendly library from https://github.com/adamvr/arduino-base64, will work with any platform
@@ -14,9 +14,9 @@
 #include <WiFi.h>
 #include <stdio.h>
 #include <math.h>
-#include "secrets.h"
+// #include "secrets.h"
 #include <SparkFun_u-blox_GNSS_Arduino_Library.h>  //http://librarymanager/All#SparkFun_u-blox_GNSS
-#include <micro_ros_arduino.h>
+#include <micro_ros_platformio.h>
 #include <rosidl_runtime_c/string_functions.h>
 #include <rcl/rcl.h>
 #include <rcl/error_handling.h>
@@ -24,6 +24,8 @@
 #include <rclc/executor.h>
 #include <sensor_msgs/msg/nav_sat_fix.h>
 #include <std_msgs/msg/string.h>
+
+#include "main.hpp"
 
 long lastReceivedRTCM_ms = 0;        //5 RTCM messages take approximately ~300ms to arrive at 115200bps
 int maxTimeBeforeHangup_ms = 10000;  //If we fail to get a complete RTCM frame after 10s, then disconnect from caster
@@ -41,10 +43,6 @@ rcl_node_t node;
 sensor_msgs__msg__NavSatFix navSatMsg;
 std_msgs__msg__String debugMsg;
 SFE_UBLOX_GNSS myGNSS;
-
-#define EARTH_RADIUS_CM 637100000.0
-#define RCCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){errorLoop();}}
-#define RCSOFTCHECK(fn) { rcl_ret_t temp_rc = fn; if((temp_rc != RCL_RET_OK)){}}
 
 // GPS test points coordinates in lapinAMK
 double gpsTestPoint[3][2] = {
@@ -85,7 +83,7 @@ double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
 
 void microrosInit(){
   
-  set_microros_transports(); // microros over serial
+  set_microros_serial_transports(Serial); // microros over serial
   allocator = rcl_get_default_allocator();
   RCCHECK(rclc_support_init(&support, 0, NULL, &allocator));
   RCCHECK(rclc_node_init_default(&node, "micro_ros_gnss_node", "", &support));
