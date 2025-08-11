@@ -32,10 +32,6 @@ This will build all required images and start the ROS 2 system along with its de
 Click the thumbnail below to watch the demo video:
 [![Watch the video](../Documents/readme_resource/video_thumbnail2.png)](https://youtu.be/bKZ6i2iMwEY?si=wWfmDxZEH7T19WWM)
 
-## Software Architecture
-
-![tf tree](../Documents/readme_resource/snower_docker_arch.drawio.png)
-
 
 ## Warning
 
