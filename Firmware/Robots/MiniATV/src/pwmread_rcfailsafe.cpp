@@ -1,5 +1,4 @@
-
-#include "ATV.h"
+#include "pwmread_rcfailsafe.hpp"
 
 const int pwmPIN[] = { 34, 35 };     // an array to identify the PWM input pins (the array can be any length), first pin is channel 1, second is channel 2...etc
 int RC_failsafe[] = { 1500, 1500 };  // fail safe positions, The failsafe tolerances are: 10-330Hz & 500-2500us
@@ -16,7 +15,6 @@ volatile boolean RC_data_rdy;                      // flag when all RC receiver 
 volatile unsigned long pwmPeriod[RC_input_Count];  // period, mirco sec, between two pulses on each pin
 
 byte pwmPIN_State;  // Current State
-
 
 void IRAM_ATTR RC_PCM_isr() {                             // this function will run if a pin change is detected
   pciTime = micros();                                     // Record the time of the PIN change in microseconds
