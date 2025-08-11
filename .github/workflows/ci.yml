@@ -65,11 +65,14 @@ jobs:
         with:
           python-version: '3.11'
       - name: Install PlatformIO Core
-        run: pip install --upgrade platformio
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3.11-venv
+          wget -O get-platformio.py https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py
+          python3 get-platformio.py
 
       - name: Build ${{ matrix.project }}
         working-directory: ${{ matrix.project }}
-        run: pio run
-
-  
-
+        run: |
+          export PATH="$HOME/.platformio/penv/bin:$PATH"
+          pio run
