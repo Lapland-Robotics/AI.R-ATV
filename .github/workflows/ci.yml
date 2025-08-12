@@ -2,7 +2,7 @@ name: Autonomous_Robot CI Pipeline
 
 on:
   push:
-    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh", "US_13251-1"]
+    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
   pull_request:
     branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
 
@@ -39,3 +39,40 @@ jobs:
     - name: Test microros docker image
       run: |
         docker run --rm --entrypoint="" robot-microros-image:latest echo "MicroROS image built successfully"
+
+  build-firmware:
+
+    runs-on: ubuntu-22.04
+
+    strategy:
+      matrix:
+        project:
+          - Firmware/Robots/Snower
+          - Firmware/Robots/MiniATV
+          - Firmware/GNSS/zedf9p_esp32
+          - Firmware/Trigger
+          - Firmware/Ultrasonic
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.platformio/.cache
+          key: ${{ runner.os }}-pio
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install PlatformIO Core
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y python3.11-venv
+          wget -O get-platformio.py https://raw.githubusercontent.com/platformio/platformio-core-installer/master/get-platformio.py
+          python3 get-platformio.py
+
+      - name: Build ${{ matrix.project }}
+        working-directory: ${{ matrix.project }}
+        run: |
+          export PATH="$HOME/.platformio/penv/bin:$PATH"
+          pio run
