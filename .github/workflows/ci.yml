@@ -2,7 +2,7 @@ name: Autonomous_Robot CI Pipeline
 
 on:
   push:
-    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh", "US_13251-1"]
+    branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
   pull_request:
     branches: [ "main", "dev", "ros2-humble-cyclonedds", "ros2-humble-zenoh"]
 
