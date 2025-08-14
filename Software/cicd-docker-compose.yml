@@ -1,0 +1,24 @@
+version: '3'
+
+services:
+
+  robot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: robot-ros2-image
+    container_name: robot-ros2-container
+    stdin_open: true
+    command: echo "ros2 robot container built, but not executed!"
+    network_mode: "host"
+
+  nav2:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: robot-nav2-image
+    container_name: robot-nav2-container
+    # command: ros2 launch navigator navigator.launch.py
+    command: echo "Autonomous Navigation container built, but not executed!"
+    network_mode: "host"
+
