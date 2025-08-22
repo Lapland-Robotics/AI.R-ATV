@@ -19,3 +19,6 @@ ros2_ws/src/*/.idea/
 *.so
 *.a
 *.d
+
+# Ignoring Seek-Thermal SDK because it is confidential
+drivers/src/Seek_Thermal_SDK_4.4.2.20/

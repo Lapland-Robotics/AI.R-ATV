@@ -85,6 +85,23 @@ services:
     tty: true            # equivalent to -it
     command: ros2 launch zed_wrapper zed_camera.launch.py camera_model:=zed2 publish_tf:=false
 
+  seek_thermal:
+    build:
+      context: .
+      dockerfile: seek-thermal.Dockerfile
+    image: seek-thermal-image
+    container_name: seek-thermal-container
+    network_mode: "host"
+    # args:
+    #   ARCH: aarch64-linux-gnu # change architecture based on computer architecture, see Seek-Thermal SDK for available architectures
+    #   LD_LIBRARY_PATH: /usr/local/lib # set library path for Seek Thermal SDK
+    volumes:
+      # - /tmp/.X11-unix/:/tmp/.X11-unix
+      - /dev:/dev
+    stdin_open: true     # equivalent to -it
+    tty: true            # equivalent to -it
+    privileged: true
+
   microros-udp:
     build:
       context: .
@@ -96,4 +113,4 @@ services:
       - "8888:8888/udp"
     command: udp4 --port 8888
     network_mode: "host"
-  
+    
